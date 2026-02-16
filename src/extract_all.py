@@ -4,7 +4,9 @@
 # Extractor that is used for dumping PCAP file contents for the intl-iot dataset
 # This tool dumps full PCAP content as JSON and HTTP objects using tshark
 # Author: Ahmad Usman
-#
+# Usage: python3 extract_all.py <input_pcap_directory> <output_directory>
+#  python3 src/extract_all.py ~/update_traffic/imc19_dataset/ ~/update_traffic/dataset/extracted_all/
+
 
 import os
 import argparse

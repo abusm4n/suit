@@ -3,6 +3,11 @@ import csv
 from scapy.all import rdpcap, IP, IPv6
 from collections import Counter
 
+
+# This script extracts unique communication pairs (source and destination IPs) from a given PCAP file, along with the count of packets exchanged between each pair. The results are saved to a CSV file.
+# Usage, write the input and the output file paths in the main function, and run the script. The output CSV will have three columns: source_ip, destination_ip, and packet_count.
+
+
 def extract_unique_contacts(pcap_file, filter_ips=None):
     """
     Extract unique communication pairs with packet counts.
@@ -65,8 +70,8 @@ if __name__ == "__main__":
     # pcap_path = "~/update_traffic/controlled/dataset/dlink/dlink.pcapng"
     #filter_ips = {"10.42.0.152"} 
 
-    pcap_path = "~/update_traffic/controlled/dataset/sony_tv/sony_tv.pcapng"
-    filter_ips = {"10.42.0.157"} 
+    pcap_path = "~/update_traffic/controlled/dataset/apple-tv/apple-tv.pcapng"
+    filter_ips = {"10.42.0.25"} 
 
 
  
@@ -77,4 +82,4 @@ if __name__ == "__main__":
     for (src, dst), count in sorted(contacts.items(), key=lambda x: x[1], reverse=True):
         print(f"{src} → {dst}   ({count} packets)")
 
-    save_contacts_csv("~/update_traffic/controlled/dataset/sony_tv/ip_contacts.csv",contacts)
+    save_contacts_csv("~/update_traffic/controlled/dataset/apple-tv/ip_contacts.csv",contacts)

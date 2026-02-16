@@ -31,6 +31,8 @@ For more information, see the README."
     exit $exit_stat
 }
 
+
+
 check_args_files() {
     for arg in "$@"
     do
@@ -72,6 +74,13 @@ check_args_files() {
     in_pcap=$1
     out_csv=$2
     ek_json=$3
+    
+    # Detect fast mode
+    fast_mode=false
+    if [[ "$ek_json" == "--fast" ]] || [[ "$ek_json" == "/dev/null" ]]; then
+        fast_mode=true
+        ek_json="/dev/null"
+    fi
 
     #Check that the input pcap file is a pcap file and exists
     #if [[ $in_pcap != *.pcap ]]
@@ -112,8 +121,8 @@ check_args_files() {
         echo -e "${red}${path}: Error: The output file $out_csv is not a CSV file.$end" >&2
     fi
 
-    #Check that the intermediate JSON file is a JSON file
-    if [[ $ek_json != *.json ]]
+    #Check that the intermediate JSON file is a JSON file (unless in fast mode)
+    if [[ $fast_mode == false ]] && [[ $ek_json != *.json ]]
     then
         errors=true
         echo -e "${red}${path}: Error: The intermediate output file $ek_json is not a JSON file.$end" >&2
@@ -137,21 +146,32 @@ check_ret_code() {
 }
 
 run_pipeline() {
-    dir="$(dirname $ek_json)"
-    if ! [ -d $dir ]
-    then
-        mkdir -pv $dir
+    # Check if we should skip JSON generation (when ek_json is /dev/null)
+    if [[ "$ek_json" == "/dev/null" ]]; then
+        echo -e "\nJSON generation skipped - processing packets directly..."
+        
+        # Process packets directly with tshark and pipe to Python
+        # This avoids creating any intermediate files
+        tshark -r "$in_pcap" -T ek -x | python3 -W ignore "$shrink_comp" /dev/stdin "$out_csv"
+        check_ret_code $? "TShark + Python pipeline"
+        
+    else
+        # Original slow path with JSON file
+        dir="$(dirname "$ek_json")"
+        if ! [ -d "$dir" ]
+        then
+            mkdir -pv "$dir"
+        fi
+
+        echo -e "\nRunning \"tshark -r $in_pcap -T ek -x > $ek_json\"..."
+        tshark -r "$in_pcap" -T ek -x > "$ek_json"
+        check_ret_code $? "TShark"
+
+        echo -e "\nRunning \"python3 $shrink_comp $ek_json $out_csv\"..."
+        python3 -W ignore "$shrink_comp" "$ek_json" "$out_csv"
+        check_ret_code $? "$shrink_comp"
     fi
-
-    echo -e "\nRunning \"tshark -r $in_pcap -T ek -x > $ek_json\"..."
-    tshark -r $in_pcap -T ek -x > $ek_json
-    check_ret_code $? "TShark"
-
-    echo -e "\nRunning \"python3 $shrink_comp $ek_json $out_csv\"..."
-    python3 -W ignore $shrink_comp $ek_json $out_csv
-    check_ret_code $? $shrink_comp
 }
-
 ### Begin Encryption Analysis ###
 
 red="\e[31;1m"

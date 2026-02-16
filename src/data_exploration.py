@@ -18,7 +18,7 @@ class DataExplorer:
         self.stream_dir = os.path.join(self.base_dir, "controlled/stream")
         self.dataset_dir = os.path.join(self.base_dir, "controlled/dataset")
         self.firmware_dir = os.path.join(self.base_dir, "controlled/firmware")
-        self.cve_dir = os.path.join(self.base_dir, "cve")
+        self.cve_dir = os.path.join(self.base_dir, "cve") 
         self.csv_dir = os.path.join(self.base_dir, "csv")
     
     def explore_entropy_data(self):

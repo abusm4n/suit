@@ -120,25 +120,27 @@ def main():
     jsonfile = sys.argv[1]
     csvfile = sys.argv[2]
 
-    done = False
-    if not jsonfile.endswith(".json"):
-        done = True
-        print("%s%s: Error: The file \"%s\" is not a JSON file.%s"
-              % (RED, path, jsonfile, END), file=sys.stderr)
-    elif not os.path.isfile(jsonfile):
-        done = True
-        print("%s%s: Error: The file \"%s\" does not exist.%s"
-              % (RED, path, jsonfile, END), file=sys.stderr)
-    if not csvfile.endswith(".csv"):
-        done = True
-        print("%s%s: Error: The file \"%s\" is not a CSV file.%s"
-              % (RED, path, csvfile, END), file=sys.stderr)
-
-    if done:
-        print_usage(1)
-
-    print("Shrinking and computing entropy of \"%s\"..." % jsonfile)
-    forpd = split_layers(jsonfile)
+    # Handle stdin
+    if jsonfile == "/dev/stdin":
+        print("Reading JSON from stdin...")
+        forpd = split_layers_stdin()
+    else:
+        done = False
+        if not jsonfile.endswith(".json"):
+            done = True
+            print("%s%s: Error: The file \"%s\" is not a JSON file.%s"
+                  % (RED, path, jsonfile, END), file=sys.stderr)
+        elif not os.path.isfile(jsonfile):
+            done = True
+            print("%s%s: Error: The file \"%s\" does not exist.%s"
+                  % (RED, path, jsonfile, END), file=sys.stderr)
+        
+        if done:
+            print_usage(1)
+            
+        print("Shrinking and computing entropy of \"%s\"..." % jsonfile)
+        forpd = split_layers(jsonfile)
+    
     if len(forpd) > 0:
         print("Writing to \"%s\"..." % csvfile)
         dirname = os.path.dirname(csvfile)
@@ -155,22 +157,38 @@ def main():
 
             print("Results written to \"%s\" (%s packets)." % (csvfile, n_rows))
 
-
-def split_layers(infile):
+def split_layers(jsonfile):
     """
-    infile is the ek output from .pcap file
+    Read JSON lines from a file instead of stdin
     """
     for_pd = []
     num_orginal_pkt = 0
-    with open(infile) as sf:
-        for line in sf.readlines():
+    with open(jsonfile, 'r') as f:
+        for line in f:
             line = line.strip()
-            if line.startswith('{"timestamp"'):
+            if line and line.startswith('{"timestamp"'):
                 num_orginal_pkt += 1
-                res = process_pkt(line, infile)
+                res = process_pkt(line, jsonfile)
                 if res is None:
                     continue
                 for_pd.append(res)
+    return for_pd
+
+
+def split_layers_stdin():
+    """
+    Read JSON lines from stdin instead of a file
+    """
+    for_pd = []
+    num_orginal_pkt = 0
+    for line in sys.stdin:
+        line = line.strip()
+        if line and line.startswith('{"timestamp"'):
+            num_orginal_pkt += 1
+            res = process_pkt(line, "stdin")
+            if res is None:
+                continue
+            for_pd.append(res)
     return for_pd
 
 

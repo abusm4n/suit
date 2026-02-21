@@ -13,6 +13,8 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from pathlib import Path
 from scipy import stats
+import sys
+import io
 
 # Configuration
 ENTROPY_DIR = os.path.expanduser("~/update_traffic/controlled/entropy")
@@ -27,15 +29,15 @@ Path(DATA_DIR).mkdir(parents=True, exist_ok=True)
 # Device names to process (10 smart IoT devices)
 DEVICES = [
     'apple-tv',
-    'dlink',
-    'eufy',
+    'd-link-cam',
+    'eufy-cam',
     'fire-tv',
     'homepod',
-    'riolink',
-    'sony_tv',
-    'tapo_c100',
-    'tapo_c200',
-    'xiaomi'
+    'riolink-cam',
+    'sony-tv',
+    'tapo-c100',
+    'tapo-c200',
+    'xiaomi-cam'
 ]
 METRICS = ['entropy_shannon', 'entropy_renyi', 'entropy_tsallis']
 
@@ -96,6 +98,27 @@ def compute_statistics(df, device_name):
     return stats_dict
 
 def main():
+    # Capture terminal output while still printing to the console
+    class Tee:
+        def __init__(self, *writers):
+            self.writers = writers
+        def write(self, data):
+            for w in self.writers:
+                try:
+                    w.write(data)
+                except Exception:
+                    pass
+        def flush(self):
+            for w in self.writers:
+                try:
+                    w.flush()
+                except Exception:
+                    pass
+
+    original_stdout = sys.stdout
+    buf = io.StringIO()
+    sys.stdout = Tee(original_stdout, buf)
+
     print("=" * 80)
     print("Cross-Device Entropy Comparison Study - 10 Smart IoT Devices")
     print("=" * 80)
@@ -131,9 +154,44 @@ def main():
     stats_df = pd.DataFrame(stats_list)
     stats_df.to_csv(os.path.join(DATA_DIR, "entropy_statistics.csv"), index=False)
     print(f"  ✓ Statistics saved to entropy_statistics.csv")
+    
+    # Print summary statistics for each metric
     print("\nSummary Statistics (Shannon entropy means):")
-    summary_cols = stats_df[['device', 'shannon_mean', 'shannon_std', 'shannon_count']]
-    print(summary_cols.to_string(index=False))
+    summary_shannon = stats_df[['device', 'shannon_mean', 'shannon_std', 'shannon_count']]
+    print(summary_shannon.to_string(index=False))
+    
+    print("\nSummary Statistics (Rényi entropy means):")
+    summary_renyi = stats_df[['device', 'renyi_mean', 'renyi_std', 'renyi_count']]
+    print(summary_renyi.to_string(index=False))
+    
+    print("\nSummary Statistics (Tsallis entropy means):")
+    summary_tsallis = stats_df[['device', 'tsallis_mean', 'tsallis_std', 'tsallis_count']]
+    print(summary_tsallis.to_string(index=False))
+    
+    # Compute and print combined average across all three metrics
+    print("\n" + "=" * 80)
+    print("Combined Average Entropy Across All Three Metrics (Per Device):")
+    print("=" * 80)
+    combined_avg = stats_df[['device', 'shannon_mean', 'renyi_mean', 'tsallis_mean']].copy()
+    combined_avg['average_entropy'] = combined_avg[['shannon_mean', 'renyi_mean', 'tsallis_mean']].mean(axis=1)
+    combined_avg_sorted = combined_avg.sort_values('average_entropy', ascending=False)
+    print(combined_avg_sorted[['device', 'shannon_mean', 'renyi_mean', 'tsallis_mean', 'average_entropy']].to_string(index=False))
+    print("=" * 80)
+    
+    # Compute overall means across all devices for each metric
+    print("\n" + "=" * 80)
+    print("Overall Mean Entropy Across All Devices:")
+    print("=" * 80)
+    shannon_overall = stats_df['shannon_mean'].mean()
+    renyi_overall = stats_df['renyi_mean'].mean()
+    tsallis_overall = stats_df['tsallis_mean'].mean()
+    overall_avg = (shannon_overall + renyi_overall + tsallis_overall) / 3.0
+    
+    print(f"Shannon Entropy Mean (all devices):  {shannon_overall:.6f}")
+    print(f"Rényi Entropy Mean (all devices):    {renyi_overall:.6f}")
+    print(f"Tsallis Entropy Mean (all devices):  {tsallis_overall:.6f}")
+    print(f"\nOverall Average (all three metrics): {overall_avg:.6f}")
+    print("=" * 80)
     
     # Step 3: Statistical testing
     print("\n[3] Performing statistical tests...")
@@ -146,12 +204,21 @@ def main():
     print(f"    F-statistic: {f_stat:.4f}")
     print(f"    P-value: {p_value:.2e}")
     print(f"    Significant difference: {'YES' if p_value < 0.05 else 'NO'}")
+
+
+
+
+
+
+
+###############################################################################
+
     
     # Step 4: Create visualizations
     print("\n[4] Creating visualizations...")
     
     # Figure 1: Box plots (3 rows, adjust columns for 10 devices)
-    fig, axes = plt.subplots(3, 1, figsize=(16, 12))
+    fig, axes = plt.subplots(3, 1, figsize=(12, 10))
     
     for idx, metric in enumerate(['entropy_shannon', 'entropy_renyi', 'entropy_tsallis']):
         name = metric.split('_')[1].capitalize()
@@ -170,48 +237,85 @@ def main():
         bp = axes[idx].boxplot(plot_data, labels=labels, patch_artist=True)
         for patch in bp['boxes']:
             patch.set_facecolor('lightblue')
-        axes[idx].set_ylabel('Entropy Value', fontsize=11)
-        axes[idx].set_title(f'{name} Entropy Distribution (10 Devices)', fontsize=12, fontweight='bold')
+        axes[idx].set_ylabel('Entropy Value', fontsize=13)
+        axes[idx].set_title(f'{name} Entropy Distribution', fontsize=14) #fontweight='bold')
         axes[idx].grid(True, alpha=0.3, axis='y')
-        axes[idx].tick_params(axis='x', rotation=45)
+        # Increase x-axis label size and rotation for readability
+        axes[idx].tick_params(axis='x', rotation=45, labelsize=14)
+        axes[idx].tick_params(axis='y', labelsize=14)
     
     plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, "entropy_boxplots.pdf"), dpi=300, bbox_inches='tight')
-    print("  ✓ Saved: entropy_boxplots.pdf")
+    print(" Saved: entropy_boxplots.pdf")
     plt.close()
+
+
+
+
+
     
-    # Figure 2: Distribution histograms (3 rows x 10 columns)
-    fig, axes = plt.subplots(3, 10, figsize=(20, 10))
-    
+    # Figure 2: Distribution histograms (6 rows x 5 columns)
+    fig, axes = plt.subplots(6, 5, figsize=(18, 16))
+
     for metric_idx, metric in enumerate(METRICS):
         name = metric.split('_')[1].capitalize()
         for device_idx, device in enumerate(DEVICES):
-            ax = axes[metric_idx, device_idx]
+            row = metric_idx * 2 + (device_idx // 5)
+            col = device_idx % 5
+            ax = axes[row, col]
+            
             if device in device_data:
                 vals = device_data[device][metric].dropna()
                 vals = vals[vals >= 0]
                 ax.hist(vals, bins=30, color='steelblue', edgecolor='black', alpha=0.7)
-                ax.set_title(f'{device}\n({name})', fontsize=9)
-                ax.set_xlabel('Entropy', fontsize=8)
-                if device_idx == 0:
-                    ax.set_ylabel('Freq', fontsize=8)
+                ax.set_title(f'{device} ({name})', fontsize=13)
+                ax.set_xlabel('Entropy', fontsize=13)
+                if col == 0:
+                    ax.set_ylabel('Frequency', fontsize=15)
                 ax.grid(True, alpha=0.3, axis='y')
-                ax.tick_params(labelsize=7)
-    
-    plt.suptitle('Entropy Distributions - 10 Devices', fontsize=14, fontweight='bold', y=0.995)
+                ax.tick_params(labelsize=12)
+            else:
+                ax.axis('off')
+
+    #plt.suptitle('Entropy Distributions (All 10 Devices × 3 Metrics)', fontsize=14, fontweight='bold', y=0.995)
     plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, "entropy_distributions.pdf"), dpi=300, bbox_inches='tight')
-    print("  ✓ Saved: entropy_distributions.pdf")
+    print("Saved: entropy_distributions.pdf")
     plt.close()
     
+
+
+
+
+
+
+
+
     # Figure 3: Heatmap of mean entropy values
     heatmap_data = stats_df[['device', 'shannon_mean', 'renyi_mean', 'tsallis_mean']].set_index('device')
     heatmap_data.columns = ['Shannon', 'Rényi', 'Tsallis']
-    
-    plt.figure(figsize=(10, 8))
-    sns.heatmap(heatmap_data.T, annot=True, fmt='.4f', cmap='RdYlGn', 
-                cbar_kws={'label': 'Entropy Value'}, linewidths=1, linecolor='gray')
-    plt.title('Mean Entropy Values by Device (10 Devices)', fontsize=12, fontweight='bold')
+    # Compute vmin/vmax and center for symmetric-looking colormap
+    vmin = heatmap_data.values.min()
+    vmax = heatmap_data.values.max()
+    center = (vmin + vmax) / 2.0
+    plt.figure(figsize=(8, 6))
+    sns.heatmap(
+        heatmap_data.T,
+        annot=True,
+        fmt='.4f',
+        cmap='RdYlGn',
+        vmin=vmin,
+        vmax=vmax,
+        center=center,
+        cbar_kws={'label': 'Entropy Value', 'shrink': 0.35, 'fraction': 0.046, 'pad': 0.04},
+        linewidths=1,
+        linecolor='gray',
+        square=True,
+    )
+    # Rotate device names on x-axis for readability and avoid clipping
+    plt.xticks(rotation=45, ha='right', fontsize=10)
+    plt.subplots_adjust(bottom=0.22)
+    #plt.title('Mean Entropy Values by Device', fontsize=12, fontweight='bold')
     plt.xlabel('Device', fontsize=11)
     plt.ylabel('Entropy Metric', fontsize=11)
     plt.tight_layout()
@@ -338,6 +442,18 @@ def main():
     print(f"\nOutputs saved to:")
     print(f"  Data: {DATA_DIR}/")
     print(f"  Figures: {FIGURES_DIR}/")
+
+    # Restore stdout and append the captured terminal output to the report file
+    sys.stdout = original_stdout
+    try:
+        report_path = os.path.join(DATA_DIR, "entropy_analysis_report.txt")
+        with open(report_path, "a") as f:
+            f.write("\n" + "=" * 80 + "\n")
+            f.write("TERMINAL OUTPUT (captured)\n")
+            f.write("=" * 80 + "\n\n")
+            f.write(buf.getvalue())
+    except Exception as e:
+        print(f"Warning: failed to append terminal output to {report_path}: {e}")
 
 
 if __name__ == "__main__":

@@ -1,10 +1,5 @@
 
-
-
-
 ##  Arbitrary notes,
-
-https://ciphersuite.info/
 
 
 
@@ -14,12 +9,20 @@ https://ciphersuite.info/
 http://192.168.0.25:3000/
 
 
-
-This script processed the 34,586 pcaps files, reduce it to 6,315
+## Reducing the size of the actual dataset, this is not neceesary.
 
 src/keyword_occurance.py ~/update_traffic/dataset/ ~/update_traffic/dataset/update_related_pcaps.csv
 For extracting update-related network traffics.
 Found 6,315 network traffic, this took  4:02:53 hours.
+
+This script processed the 34,586 pcaps files, reduce it to 6,315
+
+
+
+
+
+
+
 
 
 ## Exracting encrypted and unecrypted packets from the dataset 
@@ -27,9 +30,9 @@ Found 6,315 network traffic, this took  4:02:53 hours.
 
 python3 src/extract_http.py ~/update_traffic/dataset/ ~/update_traffic/extracted/foldername
 For extracting http traffics from pcap files
+# adapt for tls, which is encrypted
 
-
-
+# or foll as below
 python3 src/extract_all.py ~/update_traffic/imc19_dataset/ ~/update_traffic/dataset/extracted_all/
 
 
@@ -47,7 +50,7 @@ For analzying extracted pcap
 
 
 
-
+## Checking and printing out the resuls from extractd keywords of update-related
 
 python3 src/check_true_updates.py ~/update_traffic/extracted_iot-data/
 
@@ -90,6 +93,10 @@ or just run ./src/entropy.sh and modify the the file according to the desire fil
 
 
 ####
+https://ciphersuite.info/
+
+
+
 Cipher suies and certificate: Examples
 python3 src/ciphersuite.py /home/ab/update_traffic/dataset/entropy/iot-data/uk-vpn/allure-speaker/2019-04-26_14\:06\:00.202s.json 
 Cipher suite category counts:

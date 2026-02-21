@@ -4,42 +4,40 @@ CROSS-DEVICE ENTROPY ANALYSIS REPORT - 10 SMART IOT DEVICES
 
 EXECUTIVE SUMMARY
 --------------------------------------------------------------------------------
-Total devices analyzed: 10
-Devices: apple-tv, dlink, eufy, fire-tv, homepod, riolink, sony_tv, tapo_c100, tapo_c200, xiaomi
-Total packets processed: 2,377,991
+Total devices analyzed: 9
+Devices: apple-tv, d-link-cam, eufy-cam, fire-tv, homepod, riolink-cam, sony-tv, tapo-c100, tapo-c200, xiaomi-cam
+Total packets processed: 2,374,417
 Entropy metrics: Shannon, Rényi, Tsallis
 
 DEVICE DATA SUMMARY
 --------------------------------------------------------------------------------
   apple-tv        - 1,405,566 packets
-  dlink           -    3,574 packets
-  eufy            -   33,540 packets
+  eufy-cam        -   33,540 packets
   fire-tv         -    7,163 packets
   homepod         -  767,196 packets
-  riolink         -   71,568 packets
-  sony_tv         -       51 packets
-  tapo_c100       -    5,922 packets
-  tapo_c200       -   70,526 packets
-  xiaomi          -   12,885 packets
+  riolink-cam     -   71,568 packets
+  sony-tv         -       51 packets
+  tapo-c100       -    5,922 packets
+  tapo-c200       -   70,526 packets
+  xiaomi-cam      -   12,885 packets
 
 STATISTICAL FINDINGS
 --------------------------------------------------------------------------------
-Shannon Entropy ANOVA F-statistic: 199923.9145
+Shannon Entropy ANOVA F-statistic: 223290.1492
 Shannon Entropy ANOVA P-value: 0.00e+00
 Significant device differences: YES (p < 0.05)
 
 DEVICE RANKINGS (by Shannon Entropy Mean)
 --------------------------------------------------------------------------------
-   5. homepod         - Mean: 0.889802 ± 0.015058 (n=767,196)
+   4. homepod         - Mean: 0.889802 ± 0.015058 (n=767,196)
    1. apple-tv        - Mean: 0.889218 ± 0.020697 (n=1,405,560)
-  10. xiaomi          - Mean: 0.870736 ± 0.078065 (n=12,849)
-   8. tapo_c100       - Mean: 0.852461 ± 0.109303 (n=5,921)
-   9. tapo_c200       - Mean: 0.824913 ± 0.124005 (n=70,322)
-   4. fire-tv         - Mean: 0.796982 ± 0.157299 (n=7,161)
-   3. eufy            - Mean: 0.753548 ± 0.207936 (n=33,536)
-   2. dlink           - Mean: 0.684677 ± 0.168391 (n=3,328)
-   7. sony_tv         - Mean: 0.648264 ± 0.173769 (n=51)
-   6. riolink         - Mean: 0.557710 ± 0.323713 (n=71,568)
+   9. xiaomi-cam      - Mean: 0.870736 ± 0.078065 (n=12,849)
+   7. tapo-c100       - Mean: 0.852461 ± 0.109303 (n=5,921)
+   8. tapo-c200       - Mean: 0.824913 ± 0.124005 (n=70,322)
+   3. fire-tv         - Mean: 0.796982 ± 0.157299 (n=7,161)
+   2. eufy-cam        - Mean: 0.753548 ± 0.207936 (n=33,536)
+   6. sony-tv         - Mean: 0.648264 ± 0.173769 (n=51)
+   5. riolink-cam     - Mean: 0.557710 ± 0.323713 (n=71,568)
 
 DETAILED STATISTICS (All Metrics)
 --------------------------------------------------------------------------------
@@ -67,115 +65,23 @@ tsallis_median:
 tsallis_q25:
 tsallis_q75:
 tsallis_count:
-   device  shannon_mean  shannon_std  shannon_min  shannon_max  shannon_median  shannon_q25  shannon_q75  shannon_count  renyi_mean  renyi_std  renyi_min  renyi_max  renyi_median  renyi_q25  renyi_q75  renyi_count  tsallis_mean  tsallis_std  tsallis_min  tsallis_max  tsallis_median  tsallis_q25  tsallis_q75  tsallis_count
- apple-tv      0.889218     0.020697     0.041247     0.913422        0.890274     0.887188     0.893404        1405560    0.865919   0.022356   0.017800   0.889664      0.867149   0.864193   0.870049      1405560      0.991584     0.006901     0.093992     0.992798        0.991840     0.991705     0.991970        1405560
-    dlink      0.684677     0.168391     0.250000     0.907435        0.662262     0.527741     0.875619           3328    0.650599   0.177261   0.146344   0.881555      0.624761   0.500000   0.848663         3328      0.956976     0.043269     0.555811     0.992466        0.968708     0.937500     0.990959           3328
-     eufy      0.753548     0.207936    -0.000000     0.907097        0.883882     0.595063     0.890189          33536    0.722462   0.217204  -0.000000   0.883098      0.860693   0.561749   0.866960        33536      0.947945     0.120489     0.000000     0.992531        0.991542     0.955621     0.991831          33536
-  fire-tv      0.796982     0.157299     0.108341     0.906489        0.885024     0.781281     0.890898           7161    0.758023   0.179594   0.050667   0.882956      0.861974   0.721560   0.867665         7161      0.969110     0.055435     0.244938     0.992525        0.991602     0.981706     0.991863           7161
-  homepod      0.889802     0.015058     0.101410     0.912266        0.890299     0.887213     0.893420         767196    0.866563   0.015453   0.084759   0.886112      0.867168   0.864228   0.870067       767196      0.991731     0.004139     0.375000     0.992654        0.991841     0.991707     0.991971         767196
-  riolink      0.557710     0.323713     0.007678     0.909606        0.628535     0.220701     0.883956          71568    0.498376   0.353395   0.001876   0.882163      0.583946   0.122787   0.857797        71568      0.759192     0.252795     0.010347     0.992492        0.960761     0.493827     0.991406          71568
-  sony_tv      0.648264     0.173769     0.250000     0.889590        0.668435     0.483961     0.808655             51    0.606255   0.181477   0.164339   0.862534      0.628987   0.453587   0.745565           51      0.940507     0.073874     0.597994     0.991628        0.969433     0.918970     0.983983             51
-tapo_c100      0.852461     0.109303     0.037239     0.909442        0.888785     0.884148     0.892399           5921    0.827040   0.114599   0.009654   0.882529      0.865654   0.860898   0.869089         5921      0.984516     0.033959     0.052126     0.992507        0.991772     0.991552     0.991927           5921
-tapo_c200      0.824913     0.124005    -0.000000     0.913614        0.880526     0.812852     0.889380          70322    0.791755   0.132218  -0.000000   0.887369      0.853165   0.761837   0.866196        70322      0.976468     0.076506     0.000000     0.992705        0.991182     0.985368     0.991797          70322
-   xiaomi      0.870736     0.078065     0.096830     0.907847        0.890118     0.886417     0.893461          12849    0.846193   0.083264   0.042915   0.882934      0.867008   0.863361   0.870046        12849      0.988172     0.024855     0.211777     0.992524        0.991834     0.991667     0.991970          12849
-
-HEATMAP ANALYSIS - CROSS-ENTROPY METRIC COMPARISON
-================================================================================
-
-Overview:
-The entropy heatmap visualizes mean entropy values across all three metrics
-(Shannon, Rényi, Tsallis) for each device. The color coding (RdYlGn) provides
-intuitive visual representation where green indicates high entropy (more secure)
-and red indicates low entropy (less secure).
-
-Device Groupings by Encryption Level:
-
-  HIGH ENTROPY CLUSTER (>0.85 Shannon) - STRONGLY ENCRYPTED/RANDOM TRAFFIC:
-  ────────────────────────────────────────────────────────────────────────
-    1. HomePod        Shannon: 0.8898 | Rényi: 0.8666 | Tsallis: 0.9917
-       → Apple's smart speaker uses strong encryption across all traffic
-       → Very tight distribution (std ± 0.0151) = highly consistent encryption
-       
-    2. Apple-TV       Shannon: 0.8892 | Rényi: 0.8659 | Tsallis: 0.9916
-       → Similar encryption profile to HomePod (both Apple devices)
-       → Large dataset (1.4M packets) provides high statistical confidence
-       
-    3. Xiaomi         Shannon: 0.8707 | Rényi: 0.8462 | Tsallis: 0.9882
-       → Smart home hub with strong encryption mechanisms
-       → Moderate variability (std ± 0.0781) suggests some unencrypted patterns
-       
-    4. Tapo C100      Shannon: 0.8525 | Rényi: 0.8270 | Tsallis: 0.9845
-       → Smart camera with reasonable encryption implementation
-       → Variability (std ± 0.1093) indicates mix of encrypted + control traffic
-
-  MEDIUM ENTROPY CLUSTER (0.75-0.85 Shannon) - PARTIALLY ENCRYPTED TRAFFIC:
-  ────────────────────────────────────────────────────────────────────────
-    5. Tapo C200      Shannon: 0.8249 | Rényi: 0.7918 | Tsallis: 0.9765
-       → Larger camera model with moderate encryption
-       → High variability (std ± 0.1240) = mixed traffic types
-       
-    6. Fire-TV        Shannon: 0.7970 | Rényi: 0.7580 | Tsallis: 0.9691
-       → Amazon device with moderate encryption, some plaintext protocols
-       → Significant variability suggests video streaming traffic not encrypted
-       
-    7. Eufy           Shannon: 0.7535 | Rényi: 0.7225 | Tsallis: 0.9479
-       → Smart camera with lower encryption rates
-       → Highest variability in group (std ± 0.2079) = highly heterogeneous traffic
-
-  LOW ENTROPY CLUSTER (<0.75 Shannon) - PLAINTEXT OR MINIMAL ENCRYPTION:
-  ─────────────────────────────────────────────────────────────────────
-    8. Dlink          Shannon: 0.6847 | Rényi: 0.6506 | Tsallis: 0.9570
-       → Network camera with weak encryption
-       → High variability (std ± 0.1684) = many unencrypted streams
-       
-    9. Sony-TV        Shannon: 0.6483 | Rényi: 0.6062 | Tsallis: 0.9405
-       → TV device with limited encryption (low sample: 51 packets)
-       → Very high variability may indicate statistical noise due to small dataset
-       
-   10. RioLink        Shannon: 0.5577 | Rényi: 0.4984 | Tsallis: 0.7592
-       → Network camera with minimal encryption
-       → HIGHEST variability (std ± 0.3237) = substantial plaintext content
-
-Key Observations from Heatmap:
-
-1. ENTROPY RANGE & SPREAD:
-   • Shannon entropy ranges from 0.5577 (RioLink) to 0.8898 (HomePod)
-   • Difference of 0.3321 indicates 60% variation across devices
-   • Rényi entropy follows same pattern (correlation r = 0.9993)
-
-2. METRIC CONSISTENCY:
-   • Shannon ↔ Rényi correlation: 0.9993 (nearly perfect alignment)
-   • Shannon ↔ Tsallis correlation: 0.8370 (strong alignment)
-   • → All three metrics reliably measure the same encryption property
-
-3. DEVICE CATEGORIES:
-   • Apple products (HomePod, Apple-TV): Highest, most consistent encryption
-   • Smart cameras: Highly variable (Eufy, Dlink, RioLink show weak encryption)
-   • Smart plugs/hubs: Moderate to high encryption (Tapo devices)
-   • Streaming devices: Mixed encryption (Fire-TV shows moderate protection)
-
-4. SECURITY IMPLICATIONS:
-   • High entropy (>0.85): Strong encryption protects device communication
-   • Medium entropy (0.75-0.85): Mixed security, some protocols unencrypted
-   • Low entropy (<0.75): Significant plaintext/weak encryption = privacy risk
-   • Very high std dev: Indicates device exposes both encrypted and plaintext protocols
-
-5. COLOR INTERPRETATION (Heatmap - RdYlGn):
-   • GREEN cells: High entropy, strong encryption (HomePod, Apple-TV, Xiaomi)
-   • YELLOW cells: Moderate entropy, partial encryption (Tapo models, Fire-TV)
-   • RED cells: Low entropy, weak/minimal encryption (RioLink, Sony-TV, Dlink)
+     device  shannon_mean  shannon_std  shannon_min  shannon_max  shannon_median  shannon_q25  shannon_q75  shannon_count  renyi_mean  renyi_std  renyi_min  renyi_max  renyi_median  renyi_q25  renyi_q75  renyi_count  tsallis_mean  tsallis_std  tsallis_min  tsallis_max  tsallis_median  tsallis_q25  tsallis_q75  tsallis_count
+   apple-tv      0.889218     0.020697     0.041247     0.913422        0.890274     0.887188     0.893404        1405560    0.865919   0.022356   0.017800   0.889664      0.867149   0.864193   0.870049      1405560      0.991584     0.006901     0.093992     0.992798        0.991840     0.991705     0.991970        1405560
+   eufy-cam      0.753548     0.207936    -0.000000     0.907097        0.883882     0.595063     0.890189          33536    0.722462   0.217204  -0.000000   0.883098      0.860693   0.561749   0.866960        33536      0.947945     0.120489     0.000000     0.992531        0.991542     0.955621     0.991831          33536
+    fire-tv      0.796982     0.157299     0.108341     0.906489        0.885024     0.781281     0.890898           7161    0.758023   0.179594   0.050667   0.882956      0.861974   0.721560   0.867665         7161      0.969110     0.055435     0.244938     0.992525        0.991602     0.981706     0.991863           7161
+    homepod      0.889802     0.015058     0.101410     0.912266        0.890299     0.887213     0.893420         767196    0.866563   0.015453   0.084759   0.886112      0.867168   0.864228   0.870067       767196      0.991731     0.004139     0.375000     0.992654        0.991841     0.991707     0.991971         767196
+riolink-cam      0.557710     0.323713     0.007678     0.909606        0.628535     0.220701     0.883956          71568    0.498376   0.353395   0.001876   0.882163      0.583946   0.122787   0.857797        71568      0.759192     0.252795     0.010347     0.992492        0.960761     0.493827     0.991406          71568
+    sony-tv      0.648264     0.173769     0.250000     0.889590        0.668435     0.483961     0.808655             51    0.606255   0.181477   0.164339   0.862534      0.628987   0.453587   0.745565           51      0.940507     0.073874     0.597994     0.991628        0.969433     0.918970     0.983983             51
+  tapo-c100      0.852461     0.109303     0.037239     0.909442        0.888785     0.884148     0.892399           5921    0.827040   0.114599   0.009654   0.882529      0.865654   0.860898   0.869089         5921      0.984516     0.033959     0.052126     0.992507        0.991772     0.991552     0.991927           5921
+  tapo-c200      0.824913     0.124005    -0.000000     0.913614        0.880526     0.812852     0.889380          70322    0.791755   0.132218  -0.000000   0.887369      0.853165   0.761837   0.866196        70322      0.976468     0.076506     0.000000     0.992705        0.991182     0.985368     0.991797          70322
+ xiaomi-cam      0.870736     0.078065     0.096830     0.907847        0.890118     0.886417     0.893461          12849    0.846193   0.083264   0.042915   0.882934      0.867008   0.863361   0.870046        12849      0.988172     0.024855     0.211777     0.992524        0.991834     0.991667     0.991970          12849
 
 INTERPRETATION
-================================================================================
+--------------------------------------------------------------------------------
 Higher entropy values indicate more randomness/encryption in traffic.
 Lower entropy may indicate structured patterns, plaintext, or compression.
 Different devices may show distinct entropy patterns based on their
 communication protocols and encryption mechanisms.
-
-Security risk assessment from heatmap:
-  • LOW RISK (entropy >0.85):    HomePod, Apple-TV, Xiaomi, Tapo-C100
-  • MEDIUM RISK (0.75-0.85):    Tapo-C200, Fire-TV, Eufy
-  • HIGH RISK (entropy <0.75):   Dlink, Sony-TV, RioLink
 
 OUTPUTS GENERATED
 --------------------------------------------------------------------------------
@@ -187,3 +93,112 @@ Figures:
   - entropy_heatmap.pdf
   - entropy_violins.pdf
   - entropy_scatter_correlation.pdf
+
+================================================================================
+TERMINAL OUTPUT (captured)
+================================================================================
+
+================================================================================
+Cross-Device Entropy Comparison Study - 10 Smart IoT Devices
+================================================================================
+
+[1] Loading entropy data for all devices (10 devices)...
+  ✓ apple-tv        - 1,405,566 packets from device folder
+  ✗ d-link-cam      - Not found
+  ✓ eufy-cam        -   33,540 packets from device folder
+  ✓ fire-tv         -    7,163 packets from device folder
+  ✓ homepod         -  767,196 packets from device folder
+  ✓ riolink-cam     -   71,568 packets from device folder
+  ✓ sony-tv         -       51 packets from device folder
+  ✓ tapo-c100       -    5,922 packets from device folder
+  ✓ tapo-c200       -   70,526 packets from device folder
+  ✓ xiaomi-cam      -   12,885 packets from device folder
+
+[2] Computing entropy statistics per device...
+  ✓ Statistics saved to entropy_statistics.csv
+
+Summary Statistics (Shannon entropy means):
+     device  shannon_mean  shannon_std  shannon_count
+   apple-tv      0.889218     0.020697        1405560
+   eufy-cam      0.753548     0.207936          33536
+    fire-tv      0.796982     0.157299           7161
+    homepod      0.889802     0.015058         767196
+riolink-cam      0.557710     0.323713          71568
+    sony-tv      0.648264     0.173769             51
+  tapo-c100      0.852461     0.109303           5921
+  tapo-c200      0.824913     0.124005          70322
+ xiaomi-cam      0.870736     0.078065          12849
+
+Summary Statistics (Rényi entropy means):
+     device  renyi_mean  renyi_std  renyi_count
+   apple-tv    0.865919   0.022356      1405560
+   eufy-cam    0.722462   0.217204        33536
+    fire-tv    0.758023   0.179594         7161
+    homepod    0.866563   0.015453       767196
+riolink-cam    0.498376   0.353395        71568
+    sony-tv    0.606255   0.181477           51
+  tapo-c100    0.827040   0.114599         5921
+  tapo-c200    0.791755   0.132218        70322
+ xiaomi-cam    0.846193   0.083264        12849
+
+Summary Statistics (Tsallis entropy means):
+     device  tsallis_mean  tsallis_std  tsallis_count
+   apple-tv      0.991584     0.006901        1405560
+   eufy-cam      0.947945     0.120489          33536
+    fire-tv      0.969110     0.055435           7161
+    homepod      0.991731     0.004139         767196
+riolink-cam      0.759192     0.252795          71568
+    sony-tv      0.940507     0.073874             51
+  tapo-c100      0.984516     0.033959           5921
+  tapo-c200      0.976468     0.076506          70322
+ xiaomi-cam      0.988172     0.024855          12849
+
+================================================================================
+Combined Average Entropy Across All Three Metrics (Per Device):
+================================================================================
+     device  shannon_mean  renyi_mean  tsallis_mean  average_entropy
+    homepod      0.889802    0.866563      0.991731         0.916032
+   apple-tv      0.889218    0.865919      0.991584         0.915574
+ xiaomi-cam      0.870736    0.846193      0.988172         0.901700
+  tapo-c100      0.852461    0.827040      0.984516         0.888006
+  tapo-c200      0.824913    0.791755      0.976468         0.864378
+    fire-tv      0.796982    0.758023      0.969110         0.841372
+   eufy-cam      0.753548    0.722462      0.947945         0.807985
+    sony-tv      0.648264    0.606255      0.940507         0.731675
+riolink-cam      0.557710    0.498376      0.759192         0.605092
+================================================================================
+
+================================================================================
+Overall Mean Entropy Across All Devices:
+================================================================================
+Shannon Entropy Mean (all devices):  0.787070
+Rényi Entropy Mean (all devices):    0.753621
+Tsallis Entropy Mean (all devices):  0.949914
+
+Overall Average (all three metrics): 0.830202
+================================================================================
+
+[3] Performing statistical tests...
+
+  Shannon Entropy ANOVA:
+    F-statistic: 223290.1492
+    P-value: 0.00e+00
+    Significant difference: YES
+
+[4] Creating visualizations...
+ Saved: entropy_boxplots.pdf
+Saved: entropy_distributions.pdf
+  ✓ Saved: entropy_heatmap.pdf
+  ✓ Saved: entropy_violins.pdf
+  ✓ Saved: entropy_scatter_correlation.pdf
+
+[5] Generating summary report...
+  ✓ Report saved to entropy_analysis_report.txt
+
+================================================================================
+✓ Analysis Complete!
+================================================================================
+
+Outputs saved to:
+  Data: /home/ab/update_traffic/analysis_output/data/
+  Figures: /home/ab/update_traffic/analysis_output/figures/

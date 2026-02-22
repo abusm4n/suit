@@ -2,6 +2,10 @@ import json
 import sys
 from collections import Counter
 
+# This script reads a JSON file containing packet data, extracts TLS cipher suite information, classifies each cipher suite into categories (Secure, Recommended, Weak, Insecure, Unknown), and counts the occurrences of each category and individual cipher suites.
+# Use: python ciphersuite.py <packets.json>
+# python src/ciphersuite.py ~/update_traffic/controlled/entropy/d-link-cam/dlink.json 
+
 # Classification based on known TLS cipher suites (TLS 1.2 mainly)  # TLS 1, 1.2 and 1.3 
 # Source: https://www.iana.org/assignments/tls-parameters/tls-parameters.xhtml#tls-parameters-4
 SECURE = {
@@ -14,14 +18,14 @@ RECOMMENDED = {
     'c023', 'c027', 'c00a', 'c014', 'c009', 'c013',
 }
 WEAK = {
-    '002f', '0033', '0035', '0039', '003c', '003d', '009c', '009d', '00a3', '0041', '0084', '0x00BA', '00c0', 'c09c', 'c0a0', 'c09d', 'c0a1', '0044', '0045', '0032',
-    '0087', '0088', 'c0a3', 'c09f', '00a2', 'c0a2', 'c09e', '006a', 'c073', 'c077', '00c4', '00c3', '0040', 'c072',
-    'c076', '00be', '00bd', '0038', '0031', '0030', 'c004', '009a', '0099','0098', '0097', '0096', 'c008', 'C012', '00a5', '00a1','000a', 'c012', '006b', '0069', '0068',
-    '0037', '0036', '00a4', '00a0', '0067', '003f', '003e', '0013', '0016', '0010', '000d', 'c028', 'c032', 'c02e', 'c02a', 'c026','c00f', 'c005', 'c031', 'c02d', 'c029',
-    'c025', 'c00e', 'c024', '0043', '0086', '0085', '0042', '0007', 'c00d', 'c003',
-}
+    '002f', '0033', '0035', '0039', '003c', '003d', '009c', '009d', '00a3', '0041', '0084', '0x00BA', '00c0', 'c09c', 'c0a0', 'c09d', 'c0a1', '0044', '0045', '0032', 'c026', '003f',
+    '0087', '0088', 'c0a3', 'c09f', '00a2', 'c0a2', 'c09e', '006a', 'c073', 'c077', '00c4', '00c3', '0040', 'c072', 'c029', '00a5', '00a1', '0069', '0068', '0036', '00a4', '0031',
+    'c076', '00be', '00bd', '00ba', '0038', 'c028', 'c028', '000a', 'c028', 'c024', 'c012', 'c008', '0016', '0067', '006b', '0037', '0086', '0085', '0069', '0036', '003e', '0043',
+    '0013', 'c00f', 'c005', 'c00e', 'c004', 'c031', 'c02d' 'c029', 'c025', 'c032', 'c02e', 'c02a', 'c00d', 'c003', 'c02d', 'c026', '0068', '0037', '0086', '0085', '00a0', '0030',
+     '0042', '0010', '000d', '0099', '0098', '0097', '0096', '009a', '0007',
+}  
 INSECURE = {
-    '0000', '00ff', '0005', '0004', '0015', '0012', '000f', '000c', '0009'
+    '0000', '00ff', '0005','c011', 'c007', 'c00c', 'c002', '0004', '0015', '0012', '000f', '000c', '0009',
 }
 
 

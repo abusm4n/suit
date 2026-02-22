@@ -8,6 +8,10 @@ import os
 
 # Classification based on known TLS cipher suites (TLS 1.2 mainly)
 
+# Usage:
+# python ciphersuite_nested_folder.py <folder_with_json_files>  
+# The script will recursively search for .json files in the specified folder and its subfolders, process them, and print a summary of cipher suite categories and unique cipher suites found.
+# 
 
 SECURE = {
     '1301', '1302', '1303',  # TLS 1.3

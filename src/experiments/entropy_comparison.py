@@ -18,7 +18,7 @@ import io
 
 # Configuration
 ENTROPY_DIR = os.path.expanduser("~/update_traffic/controlled/entropy")
-OUTPUT_DIR = os.path.expanduser("~/update_traffic/analysis_output")
+OUTPUT_DIR = os.path.expanduser("~/update_traffic/controlled/analysis_output")
 FIGURES_DIR = os.path.join(OUTPUT_DIR, "figures")
 DATA_DIR = os.path.join(OUTPUT_DIR, "data")
 

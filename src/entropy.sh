@@ -11,8 +11,8 @@ else
     skip_json=false
 fi
 
-# input_folder="${HOME}/update_traffic/controlled/dataset/apple-tv"  # Your device folder containing pcap files
-# output_folder="${HOME}/update_traffic/controlled/entropy"         # Output folder
+#input_folder="${HOME}/update_traffic/controlled/dataset/apple-tv"  # Your device folder containing pcap files
+#output_folder="${HOME}/update_traffic/controlled/entropy"         # Output folder
 
 
 
@@ -22,11 +22,21 @@ fi
 
 
 
-input_folder="${HOME}/update_traffic/controlled/dataset/homepod"  # Your device folder containing pcap files
-output_folder="${HOME}/update_traffic/controlled/entropy"         # Output folder
+#input_folder="${HOME}/update_traffic/controlled/dataset/homepod"  # Your device folder containing pcap files
+#output_folder="${HOME}/update_traffic/controlled/entropy"         # Output folder
 
 
 
+
+
+#input_folder="${HOME}/update_traffic/retrospective/selected/dlink-mov/data"  # Your device folder containing pcap files
+#output_folder="${HOME}/update_traffic/retrospective/entropy"         # Output folder
+
+
+
+
+input_folder="${HOME}/update_traffic/retrospective/imc19_dataset/iot-data/uk/t-philips-hub"  # Your device folder containing pcap files
+output_folder="${HOME}/update_traffic/retrospective/entropy"         # Output folder
 
 
 

@@ -15,7 +15,7 @@ sns.stripplot(
     x='year',
     y='base',
     hue='type',
-    palette={'update_traffic': "#A02D2D", '': '#FFD700'},
+    palette={'update_traffic': "#2D48A0", '': '#FFD700'},
     hue_order=['update_traffic', ''],
     dodge=True,
     jitter=True,
@@ -36,7 +36,7 @@ ax.set_xticks(ticks)
 ax.set_xticklabels(new_labels, rotation=45)  # rotate for readability
 
 # Save the plot as a PDF
-plt.savefig("./figures/base_violin_plot.pdf", format='pdf', bbox_inches='tight')
+plt.savefig("./figures/base__plot.pdf", format='pdf', bbox_inches='tight')
 
 # Show the plot
-# plt.show()
+plt.show()

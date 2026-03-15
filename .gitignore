@@ -26,3 +26,12 @@ sample.csv
 
 # ignor json everywhere
 **/*.json
+
+
+# Ignore virtual environment
+.venv/
+ .venv/
+
+
+# Ignore Jupyter Notebook checkpoints
+.ipynb_checkpoints/

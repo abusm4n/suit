@@ -354,3 +354,21 @@ Tsallis, C. (1988). Possible Generalization of Boltzmann-Gibbs Statistics. Journ
 *Devices Analyzed: 10*
 *Total Packets: 2,377,991*
 *Metrics: Shannon, Rényi (α=2), Tsallis (q=2)*
+
+
+
+Impact Assessment: The IoT Update Visibility Gap
+
+Our results indicate a structural visibility gap in IoT update ecosystems: update-related network exchanges frequently reveal device update behavior and potentially version state to passive network observers. In our dataset, 2,415 update-related flows are cleartext (about 38.2%), while 3,794 (60.1%) remain unclassified due to protocol/traffic ambiguity, leaving only a small fraction confidently encrypted. This is not merely a cryptographic quality issue; it is an operational exposure channel.
+
+A passive observer (e.g., ISP, transit adversary, on-path Wi-Fi attacker, or compromised gateway) can monitor update-check timing, endpoints, URIs, and metadata patterns to infer device model and likely firmware state. This enables pre-exploitation prioritization: attackers can identify devices likely lagging on patches and target known vulnerabilities before remediation is applied.
+
+Importantly, signed firmware does not eliminate this risk. Signature verification protects update integrity, but it does not protect confidentiality of update telemetry. If update checks and version negotiation are observable, attackers gain actionable reconnaissance without needing to tamper with binaries.
+
+Given that many affected devices are surveillance-oriented IoT systems, the persistence of cleartext or weakly protected update signaling in 2026 should be treated as a systemic supply-chain security failure rather than isolated vendor misconfiguration. The main risk is not only exploitation of a weak cipher; it is broad, low-cost, internet-scale vulnerability intelligence leakage.
+
+
+
+
+
+The key security implication is not simply that some update channels use weak cryptography. Rather, IoT update workflows leak security posture in transit, creating a visibility gap that enables adversaries to fingerprint patch state at scale. Even when firmware artifacts are signed, observable update checks and version-linked metadata support targeted exploitation planning. For camera-class and other safety-relevant IoT deployments, the continued presence of cleartext/weakly protected update signaling in 2026 represents a systemic failure of the IoT supply chain and update governance model.

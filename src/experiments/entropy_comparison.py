@@ -316,7 +316,7 @@ def main():
     plt.xticks(rotation=45, ha='right', fontsize=10)
     plt.subplots_adjust(bottom=0.22)
     #plt.title('Mean Entropy Values by Device', fontsize=12, fontweight='bold')
-    plt.xlabel('Device', fontsize=11)
+    plt.xlabel('')
     plt.ylabel('Entropy Metric', fontsize=11)
     plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, "entropy_heatmap.pdf"), dpi=300, bbox_inches='tight')

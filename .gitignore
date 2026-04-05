@@ -35,3 +35,8 @@ sample.csv
 
 # Ignore Jupyter Notebook checkpoints
 .ipynb_checkpoints/
+
+
+# Folder
+Update_Traffic_Latex/
+Technical_Report_Latex/

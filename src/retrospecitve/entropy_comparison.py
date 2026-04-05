@@ -124,7 +124,7 @@ def main():
         df, source = load_entropy_data(device)
         if df is not None:
             device_data[device] = df
-            print(f"  ✓ {device:15} - {len(df):8,} packets from {source}")
+            print(f"    {device:15} - {len(df):8,} packets from {source}")
             
             # Prepare for combined analysis
             df['device'] = device
@@ -145,7 +145,7 @@ def main():
     
     stats_df = pd.DataFrame(stats_list)
     stats_df.to_csv(os.path.join(DATA_DIR, "entropy_statistics.csv"), index=False)
-    print(f"  ✓ Statistics saved to entropy_statistics.csv")
+    print(f"    Statistics saved to entropy_statistics.csv")
     
     # Print summary statistics for each metric
     print("\nSummary Statistics (Shannon entropy means):")
@@ -308,11 +308,11 @@ def main():
     plt.xticks(rotation=45, ha='right', fontsize=10)
     plt.subplots_adjust(bottom=0.22)
     #plt.title('Mean Entropy Values by Device', fontsize=12, fontweight='bold')
-    plt.xlabel('Device', fontsize=11)
+    plt.xlabel('')
     plt.ylabel('Entropy Metric', fontsize=11)
     plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, "entropy_heatmap_re.pdf"), dpi=300, bbox_inches='tight')
-    print("  ✓ Saved: entropy_heatmap_re.pdf")
+    print("    Saved: entropy_heatmap_re.pdf")
     plt.close()
     
     # Figure 4: Violin plots for Shannon entropy across all 10 devices
@@ -337,7 +337,7 @@ def main():
     ax.tick_params(axis='x', rotation=45)
     plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, "entropy_violins_re.pdf"), dpi=300, bbox_inches='tight')
-    print("  ✓ Saved: entropy_violins_re.pdf")
+    print("    Saved: entropy_violins_re.pdf")
     plt.close()
     
     # Figure 5: Scatter plot comparing two metrics
@@ -362,7 +362,7 @@ def main():
     ax.grid(True, alpha=0.3)
     plt.tight_layout()
     plt.savefig(os.path.join(FIGURES_DIR, "entropy_scatter_correlation_re.pdf"), dpi=300, bbox_inches='tight')
-    print("  ✓ Saved: entropy_scatter_correlation_re.pdf")
+    print("    Saved: entropy_scatter_correlation_re.pdf")
     plt.close()
     
     # Step 5: Summary report
@@ -426,10 +426,10 @@ def main():
         f.write("  - entropy_violins_re.pdf\n")
         f.write("  - entropy_scatter_correlation_re.pdf\n")
     
-    print(f"  ✓ Report saved to entropy_analysis_report.txt")
+    print(f"    Report saved to entropy_analysis_report.txt")
     
     print("\n" + "=" * 80)
-    print("✓ Analysis Complete!")
+    print("  Analysis Complete!")
     print("=" * 80)
     print(f"\nOutputs saved to:")
     print(f"  Data: {DATA_DIR}/")

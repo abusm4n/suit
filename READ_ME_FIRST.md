@@ -176,6 +176,11 @@
 
 ---
 
+Interpretation note for TLS/cipher metrics:
+- High weak/insecure counts can be dominated by `ClientHello` offered suites.
+- Use negotiated `ServerHello` version/ciphersuite for security posture claims.
+- Generated breakdowns are in `retrospective/analysis_output/tls_feedback2_overall_summary.csv` and `retrospective/analysis_output/tls_feedback2_device_breakdown.csv`.
+
 ## Implementation Checklist
 
 Use this to track your progress:

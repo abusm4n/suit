@@ -35,8 +35,10 @@ The paper present findings from:
 - Classified into: Secure, Recommended, Weak, Insecure, Unknown
 - **Key Findings**:
   - Overall: 114,106 Secure | 53,572 Recommended | **244,675 Weak** | 34,714 Insecure | 5,955 Unknown
-  - Weak cipher suites **dominate** TLS configurations
+   - Weak/insecure suites are highly prevalent in **ClientHello offers**
+   - Negotiated **ServerHello** suites are mostly Secure/Recommended, with non-zero weak/insecure negotiated cases on specific devices
   - Only single-digit to low-double-digit secure occurrences per device
+   - See `retrospective/analysis_output/tls_feedback2_overall_summary.csv` and `retrospective/analysis_output/tls_feedback2_device_breakdown.csv`
 
 **Stream Size Data** (`controlled/stream/`):
 - TCP stream byte counts per device
@@ -58,8 +60,9 @@ The paper present findings from:
 - **60.1% of flagged sessions** have unknown encryption status
 - Need: Improved update detection heuristics
 
-### Finding 2: Weak Cipher Suite Dominance
-- Weak cipher suites far outnumber secure ones
+### Finding 2: Offer-vs-Negotiation Cipher Gap
+- Weak/insecure suites far outnumber secure ones in **ClientHello offered lists**
+- Negotiated (`ServerHello`) suites are mostly secure/recommended overall, but weak/insecure negotiated selections still occur for some devices
 - Device heterogeneity: some devices (Roku TV, hub) show high weak counts; plugs/speakers show fewer
 - Inconsistent security posture among vendors
 
@@ -74,6 +77,9 @@ The paper present findings from:
 - Network-based attack vectors dominate
 - CVSS trend shows **increasing severity** in recent years
 - Adversary capabilities: MITM attacks, brute-force, information theft, full system control
+
+Methodological note:
+`ClientHello` suites indicate capabilities/offers; security posture claims should be based primarily on negotiated `ServerHello` version and selected ciphersuite.
 
 ---
 

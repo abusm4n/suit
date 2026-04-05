@@ -37,10 +37,10 @@ After reading **doc/Ahmad_Update_Traffic.pdf**, the analysis framework has been 
 - **60.1% have unknown encryption status** (challenging to classify)
 - Indicates significant security risk
 
-### Finding 2: Weak Cipher Suite Dominance
-- **244,675 weak vs 114,106 secure** cipher occurrences
-- Weak cipher suites **far outnumber** secure ones
-- Device heterogeneity: some vendors use weak ciphers exclusively
+### Finding 2: Offer-vs-Negotiation Cipher Gap
+- **244,675 weak vs 114,106 secure** is from observed handshake-suite occurrences, dominated by `ClientHello` offers
+- Weak suites **far outnumber** secure ones in offered lists, but negotiated `ServerHello` selections are mostly secure/recommended overall
+- Device heterogeneity remains: some vendors still negotiate weak/insecure suites
 
 ### Finding 3: Entropy Profiles Are Informative
 - Per-device entropy **baselines vary significantly**
@@ -131,7 +131,7 @@ All 8 experiments now directly test one of these findings:
 ## Key Insights from Reading the Paper
 
 1. **Entropy is a powerful tool** - but device-specific baselines are critical
-2. **Weak ciphers are the problem** - not just encryption presence
+2. **Negotiated weak ciphers are the problem** - offered weak suites alone should not be interpreted as negotiated weakness
 3. **Vulnerability landscape is worsening** - not improving over time
 4. **60.1% unknown is a challenge** - need better heuristics
 5. **Device heterogeneity is key** - no one-size-fits-all solutions

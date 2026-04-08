@@ -7,6 +7,10 @@ imc19_dataset/
 extracted_keywords/
 cvelistV5-main/
 doc/
+Update_Traffic_Latex/
+Technical_Report_Latex/
+
+
 
 
 
@@ -37,6 +41,3 @@ sample.csv
 .ipynb_checkpoints/
 
 
-# Folder
-Update_Traffic_Latex/
-Technical_Report_Latex/

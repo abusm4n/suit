@@ -1,5 +1,5 @@
-# Ignore folders, and all untracked folders folders
-controlled
+# --- Large local data / build folders (kept out of the repo) ---
+controlled/
 retrospective/
 dataset/
 extracted/
@@ -9,35 +9,26 @@ cvelistV5-main/
 doc/
 Update_Traffic_Latex/
 Technical_Report_Latex/
+latex/
 
+# --- Generated presentation (build artifact) ---
+SUIT_presentation.pptx
 
-
-
-
-
-
-# Ignore Python cache
+# --- Python ---
 __pycache__/
 *.pyc
+.venv/
 
-# Ignore logs
+# --- Logs / scratch data ---
 logs/
 *.log
 sample.json
 sample.csv
 
-
-
-# ignor json everywhere
+# Ignore JSON everywhere
 **/*.json
 
-
-# Ignore virtual environment
-.venv/
- .venv/
-
-
-# Ignore Jupyter Notebook checkpoints
+# --- Editor / OS / lock files ---
 .ipynb_checkpoints/
-
-
+.DS_Store
+.~lock.*#

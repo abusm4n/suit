@@ -7,11 +7,9 @@ imc19_dataset/
 extracted_keywords/
 cvelistV5-main/
 doc/
-Update_Traffic_Latex/
 Technical_Report_Latex/
 latex/
 
-# --- Generated presentation (build artifact) ---
 SUIT_presentation.pptx
 
 # --- Python ---
@@ -32,3 +30,12 @@ sample.csv
 .ipynb_checkpoints/
 .DS_Store
 .~lock.*#
+
+
+# add .gitignore to .gitignore to prevent it from being ignored
+.gitignore
+
+
+esorics/
+suit_acm_sigconf/
+dataset_emre

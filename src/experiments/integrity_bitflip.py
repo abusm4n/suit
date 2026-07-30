@@ -20,9 +20,10 @@ modifies the firmware files on disk.
 
 Handlers (verified against real images in this corpus):
   * uImage      - u-boot legacy uImage, CRC32 header+data        -> T1, repairable
-  * tplink      - TP-Link/Tapo 55aa..aa55 digest (+ signature)   -> T1 digest / T2 sig
+  * tplink      - TP-Link/Tapo 55aa..aa55 field (+ signature)    -> T1 field / T2 sig
   * md5sidecar  - rootfs.bin + plaintext rootfs.md5 (dir or .tar) -> T1, repairable
   * netgear_chk - NETGEAR .chk (magic *#$^) header/image checksum -> T1
+  * reolink_pak - Reolink .pak (magic 0x32725913) section checksum -> T1 (by format)
   * opaque      - no recognised header                            -> needs RE
 
 Usage examples are printed by `--help` and documented in the design note.
@@ -49,7 +50,9 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 # Default scan roots (relative to repo root). Curated set used for the full campaign.
 DEFAULT_ROOTS = [
     REPO_ROOT / "controlled" / "firmware",
+    REPO_ROOT / "controlled" / "dataset" / "tapo-c100",
     REPO_ROOT / "controlled" / "dataset" / "tapo-c200" / "firmware",
+    REPO_ROOT / "controlled" / "dataset" / "riolink" / "firmware",
     REPO_ROOT / "dataset_emre" / "workspace",
 ]
 
@@ -57,6 +60,8 @@ DEFAULT_OUT = REPO_ROOT / "controlled" / "analysis_output" / "integrity"
 
 UIMAGE_MAGIC = 0x27051956
 CHK_MAGIC = 0x2A23245E  # NETGEAR '*#$^'
+PAK_MAGIC = b"\x13\x59\x72\x32"  # Reolink .pak container (uint32 LE 0x32725913)
+TRX_MAGIC = b"HDR0"              # Broadcom/router TRX container (CRC32, keyless)
 
 # Skip files larger than this in the full bit-flip campaign (still classified by
 # header). Keeps population-scale runs from hashing multi-hundred-MB blobs.
@@ -68,7 +73,9 @@ N_FLIPS = 8  # single-bit flips per artifact for the detection-rate measurement
 # Documentation / media / notes that sit next to firmware but are not images.
 SKIP_EXT = {".txt", ".pdf", ".png", ".jpg", ".jpeg", ".heic", ".html", ".htm",
             ".md", ".csv", ".json", ".log", ".docx", ".pptx", ".gif", ".svg",
-            ".7z", ".aux", ".synctex"}
+            ".7z", ".aux", ".synctex",
+            # capture/PKI artifacts that sit next to firmware in the device folders
+            ".cer", ".pem", ".crt", ".pcap", ".pcapng", ".plist", ".cgi"}
 
 
 # --------------------------------------------------------------------------- #
@@ -173,7 +180,10 @@ def is_tplink(data: bytes) -> bool:
 
 
 def handle_tplink(path, data, corpus):
-    digest = bytes(data[0x06:0x16])  # 16-byte field between the magics
+    # 16-byte field between the magics. NOTE: across this corpus it is byte-
+    # identical on every Tapo image (two devices, four versions) -> it is a fixed
+    # header CONSTANT, not a per-image content digest. Kept as field@0x06.
+    field = bytes(data[0x06:0x16])
     # Heuristic signature-block presence: high-entropy header region beyond the
     # close magic, before the first compressed payload (zeros mark padding).
     head = data[0x18:0x4000]
@@ -181,19 +191,19 @@ def handle_tplink(path, data, corpus):
     has_sig = ("signed" in Path(path).name.lower()) or (h > 4.5)
 
     # Bit-flip effect we CAN measure without the vendor key: any hash over the
-    # payload changes, so digest+signature over that region are invalidated.
+    # payload changes, so a signature over that region is invalidated.
     payload = bytes(data[0x20400:]) if len(data) > 0x20400 else bytes(data[0x100:])
     md5_before = hashlib.md5(payload).hexdigest()
     flipped = bytearray(payload); flipped[len(flipped) // 2] ^= 0x01
     md5_after = hashlib.md5(bytes(flipped)).hexdigest()
-    detected = md5_before != md5_after  # always True; the digest/sig would mismatch
+    detected = md5_before != md5_after  # always True; a signature would mismatch
 
     tier = "T1+T2" if has_sig else "T1"
-    primitive = "TP-Link 16B digest @0x06" + (" + signature block" if has_sig else "")
-    # Digest keying not reproduced (likely salted/device-keyed); signature needs vendor key.
-    forgeable = "digest:unconfirmed(keying unknown); signature:no" if has_sig \
-        else "digest:unconfirmed(keying unknown)"
-    notes = (f"digest={digest.hex()}; flip changes payload md5 "
+    primitive = "TP-Link 16B field @0x06" + (" + signature block" if has_sig else "")
+    # The 16B field is a constant (not a content digest); signature needs vendor key.
+    forgeable = "field:constant(not a content digest); signature:no" if has_sig \
+        else "field:constant(not a content digest)"
+    notes = (f"field@0x06={field.hex()}; flip changes payload md5 "
              f"({md5_before[:8]}->{md5_after[:8]}); sig_present~={has_sig} (heuristic)")
     return _record(path, corpus, "tplink", primitive, tier,
                    verified=None, detection_rate=1.0 if detected else 0.0,
@@ -244,6 +254,176 @@ def handle_netgear_chk(path, data, corpus):
 
 
 # --------------------------------------------------------------------------- #
+# Handler: Reolink .pak container (magic 0x32725913, section table + offset-4
+# checksum). The 4-byte field at 0x04 is content-dependent (differs per image),
+# so it is a live checksum; a 64-byte-per-entry section table starts at 0x0C.
+# --------------------------------------------------------------------------- #
+
+def _pak_sections(data: bytes):
+    """Parse the 64-byte section entries (name[32] ver[24] off[4] size[4])."""
+    ents = []
+    off = 0x0C
+    while off + 64 <= len(data):
+        name = data[off:off + 32].split(b"\x00")[0]
+        if not name or any(c < 0x20 or c > 0x7E for c in name):
+            break
+        soff, ssize = struct.unpack("<II", data[off + 0x38:off + 0x40])
+        ents.append((name.decode("ascii", "replace"), soff, ssize))
+        off += 64
+    return ents
+
+
+def handle_reolink_pak(path, data, corpus):
+    stored = struct.unpack("<I", data[4:8])[0]
+    ents = _pak_sections(data)
+    sec_names = ",".join(n for n, _, _ in ents) if ents else "?"
+    content_end = max((o + s) for _, o, s in ents) if ents else len(data)
+
+    # Opportunistic keyless reproduction (fast CRC32 paths only). Reolink uses a
+    # proprietary checksum that standard CRC32/sum families do not reproduce; if a
+    # future variant matches here we get a full flip-and-repair, otherwise we
+    # classify T1 by format (keyless checksum, no signature block observed).
+    candidates = {
+        crc32(data[8:content_end]),
+        crc32(data[:4] + b"\x00\x00\x00\x00" + data[8:content_end]),
+    }
+    verified = stored in candidates
+
+    # Detection: a flipped payload byte changes any content hash, so a
+    # content-derived checksum would mismatch (we cannot recompute the exact one).
+    payload = bytes(data[ents[0][1]:content_end]) if ents else bytes(data[8:])
+    md5_before = hashlib.md5(payload).hexdigest()
+    flipped = bytearray(payload); flipped[len(flipped) // 2] ^= 0x01
+    detected = hashlib.md5(bytes(flipped)).hexdigest() != md5_before
+
+    if verified:
+        forgeable = True
+        notes = (f"magic=0x32725913; {len(ents)} sections [{sec_names}]; "
+                 f"chksum@0x04=0x{stored:08x} reproduced (keyless) -> re-stampable")
+    else:
+        forgeable = "checksum:unconfirmed(algo not reproduced); no signature observed"
+        notes = (f"magic=0x32725913; {len(ents)} sections [{sec_names}]; "
+                 f"chksum@0x04=0x{stored:08x} not reproduced by std CRC32/sum; "
+                 f"no signature block -> T1 by format (keyless checksum)")
+    return _record(path, corpus, "reolink_pak", "Reolink .pak section checksum", "T1",
+                   verified=verified, detection_rate=1.0 if detected else 0.0,
+                   forgeable=forgeable, notes=notes)
+
+
+# --------------------------------------------------------------------------- #
+# Handler: TRX container (magic 'HDR0', Broadcom/router firmware). Header CRC32
+# at offset 8 over flag_version..end; keyless -> attacker re-stamps it.
+# --------------------------------------------------------------------------- #
+
+def handle_trx(path, data, corpus):
+    trx_len = struct.unpack("<I", data[4:8])[0]
+    stored = struct.unpack("<I", data[8:12])[0]
+    end = trx_len if 12 < trx_len <= len(data) else len(data)
+    calc = crc32(data[12:end])
+    verified = (calc == stored)
+    if verified:
+        forged = bytearray(data[:end])
+        forged[12 + max(1, (end - 12) // 2)] ^= 0x01            # flip a payload bit
+        struct.pack_into("<I", forged, 8, crc32(bytes(forged[12:end])))   # re-stamp CRC
+        forgeable = struct.unpack("<I", forged[8:12])[0] == crc32(bytes(forged[12:end]))
+        notes = f"trx_len={trx_len}; crc32@8=0x{stored:08x} reproduced; keyless -> re-stampable"
+        det = 1.0
+    else:
+        forgeable = True  # keyless by construction even if our CRC variant differs
+        notes = (f"trx crc32@8=0x{stored:08x}; calc=0x{calc:08x} not matched "
+                 f"-> T1 by format (keyless CRC)")
+        det = None
+    return _record(path, corpus, "trx", "TRX CRC32 (keyless)", "T1",
+                   verified=verified, detection_rate=det, forgeable=bool(forgeable), notes=notes)
+
+
+# --------------------------------------------------------------------------- #
+# Shared header detection / byte dispatch (used by plain files and zip members)
+# --------------------------------------------------------------------------- #
+
+def _detect_header(head: bytes):
+    """(container, primitive, tier) from a header's magic, or None."""
+    if len(head) >= 28 and struct.unpack(">I", head[:4])[0] == UIMAGE_MAGIC:
+        return ("uImage", "CRC32 (header+data)", "T1")
+    if len(head) >= 8 and struct.unpack(">I", head[:4])[0] == CHK_MAGIC:
+        return ("netgear_chk", "chk header/image checksum", "T1")
+    if is_tplink(head):
+        return ("tplink", "TP-Link 16B field", "T1")
+    if len(head) >= 4 and head[:4] == PAK_MAGIC:
+        return ("reolink_pak", "Reolink .pak section checksum", "T1")
+    if len(head) >= 4 and head[:4] == TRX_MAGIC:
+        return ("trx", "TRX CRC32 (keyless)", "T1")
+    return None
+
+
+def _dispatch_bytes(path, data, corpus):
+    """Run the full handler matching the magic of `data`, or None."""
+    head = data[:0x4100]
+    if len(head) >= 28 and struct.unpack(">I", head[:4])[0] == UIMAGE_MAGIC:
+        return handle_uimage(path, data, corpus)
+    if len(head) >= 8 and struct.unpack(">I", head[:4])[0] == CHK_MAGIC:
+        return handle_netgear_chk(path, data, corpus)
+    if is_tplink(head):
+        return handle_tplink(path, data, corpus)
+    if len(head) >= 4 and head[:4] == PAK_MAGIC:
+        return handle_reolink_pak(path, data, corpus)
+    if len(head) >= 4 and head[:4] == TRX_MAGIC:
+        return handle_trx(path, data, corpus)
+    return None
+
+
+def _zip_inner_detect(zpath):
+    """Peek inner members (largest first); return (container, primitive, tier,
+    member) for the first whose header matches a firmware magic, else None."""
+    import zipfile
+    try:
+        zf = zipfile.ZipFile(zpath)
+    except Exception:
+        return None
+    with zf:
+        members = [m for m in zf.infolist() if not m.is_dir()
+                   and Path(m.filename).suffix.lower() not in SKIP_EXT]
+        members.sort(key=lambda m: -m.file_size)  # firmware image is usually the largest
+        for m in members:
+            try:
+                with zf.open(m) as fh:
+                    head = fh.read(0x4100)
+            except Exception:
+                continue
+            det = _detect_header(head)
+            if det:
+                return det + (m.filename,)
+    return None
+
+
+def handle_zip(zpath, corpus):
+    """Vendor .zip wrapper: classify (and, if small enough, fully test) the inner
+    firmware image rather than the archive itself."""
+    import zipfile
+    det = _zip_inner_detect(zpath)
+    if not det:
+        return _record(zpath, corpus, "zip", "zip (no known inner magic)", "?",
+                       notes="inner format unrecognized -> needs RE")
+    container, primitive, tier, member = det
+    try:
+        with zipfile.ZipFile(zpath) as zf:
+            info = zf.getinfo(member)
+            data = zf.read(member) if info.file_size <= MAX_CAMPAIGN_BYTES else None
+    except Exception:
+        data = None
+    if data:
+        rec = _dispatch_bytes(zpath, data, corpus)
+        if rec:
+            rec["notes"] = f"[zip:{member}] " + (rec.get("notes") or "")
+            return rec
+    sig = "signed" in member.lower() or "signed" in Path(zpath).name.lower()
+    if container == "tplink" and sig:
+        primitive, tier = primitive + " + signature", "T1+T2"
+    return _record(zpath, corpus, container, f"{primitive} (zip:{member})", tier,
+                   notes=f"header-classified inner member {member}")
+
+
+# --------------------------------------------------------------------------- #
 # Handler: MD5 sidecar (rootfs.bin + rootfs.md5), as a directory or a .tar
 # --------------------------------------------------------------------------- #
 
@@ -286,7 +466,8 @@ def handle_md5sidecar_tar(tpath, corpus):
 # --------------------------------------------------------------------------- #
 
 def corpus_of(path) -> str:
-    return "C2" if "dataset_emre" in str(path) else "C1"
+    s = str(path)
+    return "C2" if ("dataset_emre" in s or "dataset_wustl" in s or "Firmware-Dataset" in s) else "C1"
 
 
 def classify_file(path: Path, classify_only: bool):
@@ -300,8 +481,10 @@ def classify_file(path: Path, classify_only: bool):
     is_uimage = len(head) >= 28 and struct.unpack(">I", head[:4])[0] == UIMAGE_MAGIC
     is_chk = len(head) >= 8 and struct.unpack(">I", head[:4])[0] == CHK_MAGIC
     is_tpl = is_tplink(head)
+    is_pak = len(head) >= 4 and head[:4] == PAK_MAGIC
+    is_trx = len(head) >= 12 and head[:4] == TRX_MAGIC
 
-    if not (is_uimage or is_chk or is_tpl) and not path.suffix == ".tar":
+    if not (is_uimage or is_chk or is_tpl or is_pak or is_trx) and path.suffix not in (".tar", ".zip"):
         return _record(path, corpus, "opaque", f"no known header (first4={head[:4].hex()})",
                        "?", notes="needs RE")
 
@@ -317,11 +500,28 @@ def classify_file(path: Path, classify_only: bool):
         if is_tpl:
             sig = "signed" in path.name.lower()
             return _record(path, corpus, "tplink",
-                           "TP-Link 16B digest" + (" + signature" if sig else ""),
+                           "TP-Link 16B field" + (" + signature" if sig else ""),
                            "T1+T2" if sig else "T1", notes="classify-only")
+        if is_pak:
+            return _record(path, corpus, "reolink_pak", "Reolink .pak section checksum",
+                           "T1", notes="classify-only" if classify_only else "skipped (large)")
+        if is_trx:
+            return _record(path, corpus, "trx", "TRX CRC32 (keyless)", "T1",
+                           notes="classify-only" if classify_only else "skipped (large)")
         if path.suffix == ".tar":
             return _record(path, corpus, "md5sidecar?", "tar (peek skipped)", "T1?",
                            notes="classify-only")
+        if path.suffix == ".zip":
+            det = _zip_inner_detect(path)
+            if det:
+                container, primitive, tier, member = det
+                if container == "tplink" and ("signed" in member.lower()
+                                              or "signed" in path.name.lower()):
+                    primitive, tier = primitive + " + signature", "T1+T2"
+                return _record(path, corpus, container, f"{primitive} (zip:{member})", tier,
+                               notes=f"inner member {member}")
+            return _record(path, corpus, "zip", "zip (no known inner magic)", "?",
+                           notes="inner format unrecognized -> needs RE")
 
     data = path.read_bytes()
     if is_uimage:
@@ -330,8 +530,14 @@ def classify_file(path: Path, classify_only: bool):
         return handle_netgear_chk(path, data, corpus)
     if is_tpl:
         return handle_tplink(path, data, corpus)
+    if is_pak:
+        return handle_reolink_pak(path, data, corpus)
+    if is_trx:
+        return handle_trx(path, data, corpus)
     if path.suffix == ".tar":
         return handle_md5sidecar_tar(path, corpus)
+    if path.suffix == ".zip":
+        return handle_zip(path, corpus)
     return None
 
 

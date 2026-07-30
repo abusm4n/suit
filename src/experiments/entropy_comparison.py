@@ -17,8 +17,8 @@ import sys
 import io
 
 # Configuration
-ENTROPY_DIR = os.path.expanduser("~/update_traffic/controlled/entropy")
-OUTPUT_DIR = os.path.expanduser("~/update_traffic/controlled/analysis_output")
+ENTROPY_DIR = os.environ.get("ENTROPY_DIR", os.path.expanduser("~/update_traffic/controlled/entropy"))
+OUTPUT_DIR = os.environ.get("OUTPUT_DIR", os.path.expanduser("~/update_traffic/controlled/analysis_output"))
 FIGURES_DIR = os.path.join(OUTPUT_DIR, "figures")
 DATA_DIR = os.path.join(OUTPUT_DIR, "data")
 
@@ -233,10 +233,20 @@ def main():
                 plot_data.append(vals)
                 labels.append(device)
         
-        # Box plot
-        bp = axes[idx].boxplot(plot_data, labels=labels, patch_artist=True)
+        # Box plot. Use small, semi-transparent outlier markers.
+        bp = axes[idx].boxplot(
+            plot_data, labels=labels, patch_artist=True,
+            flierprops=dict(marker='o', markersize=1.0,
+                            markerfacecolor='gray', markeredgecolor='none', alpha=0.25),
+        )
         for patch in bp['boxes']:
             patch.set_facecolor('lightblue')
+        # High-volume devices produce outlier ("flier") clouds with up to hundreds
+        # of thousands of points. Drawn as vectors these bloat the PDF and make the
+        # page slow to render. Rasterize only the fliers, so the file stays small and
+        # renders instantly while boxes, whiskers, and labels remain crisp vectors.
+        for flier in bp['fliers']:
+            flier.set_rasterized(True)
         axes[idx].set_ylabel('Entropy Value', fontsize=13)
         axes[idx].set_title(f'{name} Entropy Distribution', fontsize=14) #fontweight='bold')
         axes[idx].grid(True, alpha=0.3, axis='y')
@@ -245,7 +255,8 @@ def main():
         axes[idx].tick_params(axis='y', labelsize=14)
     
     plt.tight_layout()
-    plt.savefig(os.path.join(FIGURES_DIR, "entropy_boxplots.pdf"), dpi=300, bbox_inches='tight')
+    # dpi only affects the rasterized flier layer; vector text/boxes stay crisp.
+    plt.savefig(os.path.join(FIGURES_DIR, "entropy_boxplots.pdf"), dpi=150, bbox_inches='tight')
     print(" Saved: entropy_boxplots.pdf")
     plt.close()
 

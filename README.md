@@ -3,12 +3,12 @@
 This repository contains the artifact, data, and technical report accompanying the paper:
 
 > **SUIT: Security of Update-related IoT Traffic**
-> Ahmad B. Usman¹, Emre Süren², Mikael Asplund¹
-> ¹ Linköping University, Sweden · ² KTH Royal Institute of Technology, Sweden
+<!-- > Ahmad B. Usman¹, Emre Süren², Mikael Asplund¹
+> ¹ Linköping University, Sweden · ² KTH Royal Institute of Technology, Sweden  -->
 
 A multidimensional, network-level analysis of how smart-home IoT devices receive
 software updates, combining entropy-based encryption characterization, cipher-suite
-evaluation, certificate security assessment, and CVE/CWE mapping.
+evaluation, certificate security assessment, and vulnerability analysis.
 
 ---
 
@@ -18,32 +18,23 @@ Software updates are essential for keeping IoT devices secure, yet the network-l
 behavior and security of update *delivery* remain underexplored. We study the update
 channel itself across two complementary datasets:
 
-- **Controlled experiments** — 10 heterogeneous devices (streaming devices, smart
+- **Controlled experiments** - 10 heterogeneous devices (streaming devices, smart
   assistants, network cameras) updated in a lab, with traffic captured via a
   Raspberry Pi 4 bridged access point (Wireshark / `tcpdump`).
-- **Retrospective analysis** — the Mon(IoT)r testbed (81 devices, 26 models, 34,586
+- **Retrospective analysis** - the Mon(IoT)r testbed (81 devices, 26 models, 34,586
   experiments), used to assess generalizability at scale.
 
 ### Research questions
 
 | RQ  | Focus |
 |-----|-------|
-| RQ1 | Update process characteristics — protocols, providers, server geography |
-| RQ2 | Channel trustworthiness — authenticity, confidentiality (entropy), cryptographic strength (cipher-suites & certificates) |
-| RQ3 | Vulnerability implications — mapping weak/insecure configurations to public CVE/CWE records |
+| RQ1 | Update process characteristics - protocols, providers, server geography |
+| RQ2 | Channel trustworthiness - authenticity, confidentiality (entropy), cryptographic strength (cipher-suites & certificates) |
+| RQ3 | Vulnerability implications - mapping weak/insecure configurations to public CVE/CWE records |
 
 ### Key findings
 
-- **TLS 1.2** dominates; **38.2%** of retrospective update flows are sent in cleartext,
-  with **60.1%** of undetermined encryption status.
-- Update-traffic entropy averages **0.77** (controlled) and **0.70** (retrospective),
-  both below the 0.80 encryption threshold.
-- Weak cipher-suites are the most prevalent tier in both studies; insecure suites persist.
-- Certificates average **115.4-bit** security strength — below the NIST 128-bit minimum
-  effective from 2031 — with **8.74-year** average validity.
-- Observed weak/insecure configurations map to **92 known CVEs** (avg CVSS **6.1**).
-
-See the technical report and paper for full results and figures.
+See the paper and the technical report for full results and figures.
 
 ---
 
@@ -67,7 +58,6 @@ See the technical report and paper for full results and figures.
 
 > **Note.** Large/local data and the paper source are intentionally not tracked
 > (see `.gitignore`): `controlled/`, `retrospective/`, `dataset/`, `latex/`, `doc/`,
-> the generated `SUIT_presentation.pptx`, etc.
 
 ---
 
@@ -101,15 +91,14 @@ RSA-2048 → 112-bit, RSA-3072+/EC P-256+ → ≥128-bit.
 
 ---
 
-## Citation
 
-If you use this artifact, please cite the paper. A BibTeX entry will be added upon
-publication.
+## Contact
+Added upon publication
+
 
 ## License
-
 See repository license (or contact the authors).
 
 ## Contact
 
-Ahmad B. Usman — `ahmad.usman@liu.se`
+Anynomous for now

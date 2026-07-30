@@ -92,8 +92,13 @@ RSA-2048 → 112-bit, RSA-3072+/EC P-256+ → ≥128-bit.
 ---
 
 
+## Contact
+Added upon publication
 
 
+## License
+See repository license (or contact the authors).
 
 ## Contact
 
+Anynomous for now

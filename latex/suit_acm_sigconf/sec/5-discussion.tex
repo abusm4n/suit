@@ -1,0 +1,27 @@
+\section{Discussion}
+\label{sec:discussion}
+
+\paragraph{Update process characteristics (RQ1)}
+Update delivery relies on third-party cloud and CDN infrastructure spanning multiple countries, over TCP and primarily TLS~1.2.
+Retrospectively, 38.2\% of update-related flows were plaintext and 60.1\% undetermined, leaving only a small fraction confidently encrypted.
+These are upper bounds on update-related traffic, limited by keyword-filter precision (limitation (i)); even so, substantial cleartext on the update paths of privacy-sensitive devices points to a recurring supply-chain gap rather than an isolated case.
+
+\paragraph{Encryption and cryptographic strength (RQ2)}
+Authenticity is the precondition for both properties: three devices exposed no certificate at all, and five rely at least partly on self-signed certificates, so entropy and cipher strength are moot for those sessions until server identity is established.
+Entropy averages 0.78 (controlled) and 0.71 (retrospective), below both the 0.80 threshold and the $H_{enc}=0.85$ baseline for general encrypted IoT traffic~\cite{10.1145/3355369.3355577}.
+Insecure and weak suites dominate what clients \emph{offer} (78.2\%) but not what servers \emph{negotiate} (97.0\% secure or recommended), so the realized exposure is to downgrade and to the residual devices that negotiate weak suites outright, not to pervasive weak encryption.
+Certificates average 115.4-bit strength (19.1\% at $\geq$128~bits) with 8.74-year validity.
+That average is not itself a vulnerability, but 46.8\% of validity windows exceed five years, and IoT devices rarely rotate keys or honor revocation~\cite{10.1145/2815675.2815685,10710264}, so a non-trivial share will plausibly still be deployed when 112-bit strength is disallowed in 2031, with no mechanism to replace them.
+Against the 2019 traces (limitation (ii)), this posture is improving rather than static: TLS~1.3 and stronger certificates appear only in the controlled set.
+
+\paragraph{Vulnerability implications (RQ3)}
+Mapping the observed insecure and weak configurations to public vulnerability records shows that these weaknesses are not merely theoretical: they correspond to known, actively tracked CVEs across multiple attack classes.
+We characterize the weakness \emph{classes} in those records; we neither attempted nor observed exploitation on the tested devices, and any realized impact would remain conditional on device-specific deployment.
+%and exploitability.
+
+\paragraph{Limitations and future work}
+(i)~\emph{Sampling and detection}: the controlled set covers ten devices, and retrospective detection relies on keyword filtering, which overcounts genuine transfers and whose recall is unmeasurable without ground truth; retrospective counts are therefore upper bounds, with the controlled experiments as the internally valid complement.
+(ii)~\emph{Temporal comparability}: the Mon(IoT)r traces predate our captures by several years, so cross-dataset differences reflect ecosystem change as much as a single snapshot; we read agreement across both datasets (sub-threshold entropy, broadly offered legacy suites, long certificate lifetimes) as structural rather than transient.
+(iii)~\emph{Passive perspective}: we infer risk from passive artifacts and do not validate negotiated-suite enforcement, on-device chain validation, or signature checking; a non-extractable certificate is not proof of absent authentication.
+(iv)~\emph{Exposure, not exploitation}: the CVE mapping is exposure-linked rather than exploit-validated.
+Future work follows directly from these bounds: multi-signal update detection (payload size, DNS, timing, learned classifiers) on a larger, longitudinally repeated testbed; active cipher-negotiation and certificate-validation probing; and end-to-end demonstration of downgrade-driven update substitution under our threat model.

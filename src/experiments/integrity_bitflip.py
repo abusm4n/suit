@@ -7,23 +7,23 @@ reproducible pipeline. For each firmware artifact it:
 
   1. Detects the container and locates the integrity primitive.
   2. Classifies it into a tier:
-       T0 = none, T1 = non-cryptographic (CRC/keyless checksum/keyless MD5),
-       T2 = cryptographic signature.
+       IL0 = none, IL1 = non-cryptographic (CRC/keyless checksum/keyless MD5),
+       IL2 = cryptographic signature.
   3. Runs a controlled bit-flip campaign measuring the two things that matter:
        - detection : does the embedded check notice a flipped payload bit?
        - forgeable : can an on-path attacker REPAIR the check with only public
                      information so the tampered artifact passes again?
-     Only T2 should resist repair. T1 being repairable is the headline result.
+     Only IL2 should resist repair. IL1 being repairable is the headline result.
 
 IMPORTANT: every flip/repair happens on an in-memory copy. This script NEVER
 modifies the firmware files on disk.
 
 Handlers (verified against real images in this corpus):
-  * uImage      - u-boot legacy uImage, CRC32 header+data        -> T1, repairable
-  * tplink      - TP-Link/Tapo 55aa..aa55 field (+ signature)    -> T1 field / T2 sig
-  * md5sidecar  - rootfs.bin + plaintext rootfs.md5 (dir or .tar) -> T1, repairable
-  * netgear_chk - NETGEAR .chk (magic *#$^) header/image checksum -> T1
-  * reolink_pak - Reolink .pak (magic 0x32725913) section checksum -> T1 (by format)
+  * uImage      - u-boot legacy uImage, CRC32 header+data        -> IL1, repairable
+  * tplink      - TP-Link/Tapo 55aa..aa55 field (+ signature)    -> IL1 field / IL2 sig
+  * md5sidecar  - rootfs.bin + plaintext rootfs.md5 (dir or .tar) -> IL1, repairable
+  * netgear_chk - NETGEAR .chk (magic *#$^) header/image checksum -> IL1
+  * reolink_pak - Reolink .pak (magic 0x32725913) section checksum -> IL1 (by format)
   * opaque      - no recognised header                            -> needs RE
 
 Usage examples are printed by `--help` and documented in the design note.
@@ -53,7 +53,7 @@ DEFAULT_ROOTS = [
     REPO_ROOT / "controlled" / "dataset" / "tapo-c100",
     REPO_ROOT / "controlled" / "dataset" / "tapo-c200" / "firmware",
     REPO_ROOT / "controlled" / "dataset" / "riolink" / "firmware",
-    REPO_ROOT / "dataset_emre" / "workspace",
+    REPO_ROOT / "dataset_wustl" / "fws",  # population-scale (787 files); corpus_of() tags it C2
 ]
 
 DEFAULT_OUT = REPO_ROOT / "controlled" / "analysis_output" / "integrity"
@@ -62,6 +62,22 @@ UIMAGE_MAGIC = 0x27051956
 CHK_MAGIC = 0x2A23245E  # NETGEAR '*#$^'
 PAK_MAGIC = b"\x13\x59\x72\x32"  # Reolink .pak container (uint32 LE 0x32725913)
 TRX_MAGIC = b"HDR0"              # Broadcom/router TRX container (CRC32, keyless)
+ZIP_MAGIC = b"\x50\x4b\x03\x04"  # local file header; vendors often ship these as .bin
+DLINK_HDR_MAGIC = b"\x20\x12\x11\x24"  # fixed vendor per-image header tag (BCD "20121124");
+                                        # identical on every cramfs/squashfs member across every
+                                        # D-Link image in this corpus -> not a content digest
+SIGNAPK_MARKER = b"signed by SignApk"  # AOSP SignApk whole-file PKCS#7 signature, appended as
+                                        # the ZIP end-of-central-directory comment; verified on
+                                        # every Kindle/Fire-TV update-*.bin in this corpus
+DAHUA_ZIP_MAGIC = b"\x44\x48\x03\x04"  # 'DH'+03 04: Amcrest/Dahua mangle the 'PK' local-file-header
+                                        # signature (every member, not just the first) to block naive
+                                        # unzip; central directory is untouched, so zipfile still opens
+                                        # the archive top-level. Verified: patching just the first 2
+                                        # bytes back to 'PK' on a real Amcrest sample yields a normal
+                                        # 13-member D-Link-style bundle (Install manifest, dhboot.bin.img,
+                                        # kernel.img, romfs/user/web-x.squashfs.img).
+HTML_PREFIXES = (b"<!doctype html", b"<html")  # broken/expired download saved as firmware by the
+                                                 # scraper (seen with a leading space + "<!DOCTYPE html")
 
 # Skip files larger than this in the full bit-flip campaign (still classified by
 # header). Keeps population-scale runs from hashing multi-hundred-MB blobs.
@@ -166,7 +182,7 @@ def handle_uimage(path, data, corpus):
     forgeable = _uimage_verify(forged)
 
     notes = f"data_crc=0x{dcrc:08x}; payload {size}B; CRC32 keyless -> attacker re-stamps both CRCs"
-    return _record(path, corpus, "uImage", "CRC32 (header+data)", "T1",
+    return _record(path, corpus, "uImage", "CRC32 (header+data)", "IL1",
                    verified=verified, detection_rate=det_rate,
                    forgeable=bool(forgeable), notes=notes)
 
@@ -198,7 +214,7 @@ def handle_tplink(path, data, corpus):
     md5_after = hashlib.md5(bytes(flipped)).hexdigest()
     detected = md5_before != md5_after  # always True; a signature would mismatch
 
-    tier = "T1+T2" if has_sig else "T1"
+    tier = "IL1+IL2" if has_sig else "IL1"
     primitive = "TP-Link 16B field @0x06" + (" + signature block" if has_sig else "")
     # The 16B field is a constant (not a content digest); signature needs vendor key.
     forgeable = "field:constant(not a content digest); signature:no" if has_sig \
@@ -246,9 +262,9 @@ def handle_netgear_chk(path, data, corpus):
     else:
         forgeable = True  # by construction: the .chk checksum is keyless
         notes = (f"image_chksum=0x{image_chksum:08x}; algo not reproduced "
-                 f"(calc=0x{calc:08x}) - classified T1 by format (keyless checksum)")
+                 f"(calc=0x{calc:08x}) - classified IL1 by format (keyless checksum)")
         det_rate = None
-    return _record(path, corpus, "netgear_chk", "chk header/image checksum", "T1",
+    return _record(path, corpus, "netgear_chk", "chk header/image checksum", "IL1",
                    verified=verified, detection_rate=det_rate,
                    forgeable=forgeable, notes=notes)
 
@@ -282,7 +298,7 @@ def handle_reolink_pak(path, data, corpus):
     # Opportunistic keyless reproduction (fast CRC32 paths only). Reolink uses a
     # proprietary checksum that standard CRC32/sum families do not reproduce; if a
     # future variant matches here we get a full flip-and-repair, otherwise we
-    # classify T1 by format (keyless checksum, no signature block observed).
+    # classify IL1 by format (keyless checksum, no signature block observed).
     candidates = {
         crc32(data[8:content_end]),
         crc32(data[:4] + b"\x00\x00\x00\x00" + data[8:content_end]),
@@ -304,10 +320,85 @@ def handle_reolink_pak(path, data, corpus):
         forgeable = "checksum:unconfirmed(algo not reproduced); no signature observed"
         notes = (f"magic=0x32725913; {len(ents)} sections [{sec_names}]; "
                  f"chksum@0x04=0x{stored:08x} not reproduced by std CRC32/sum; "
-                 f"no signature block -> T1 by format (keyless checksum)")
-    return _record(path, corpus, "reolink_pak", "Reolink .pak section checksum", "T1",
+                 f"no signature block -> IL1 by format (keyless checksum)")
+    return _record(path, corpus, "reolink_pak", "Reolink .pak section checksum", "IL1",
                    verified=verified, detection_rate=1.0 if detected else 0.0,
                    forgeable=forgeable, notes=notes)
+
+
+# --------------------------------------------------------------------------- #
+# Handler: Ubiquiti fw image (magic 'UBNT'/'OPEN', mkfwimage layout). Layout:
+#   header = magic[4] + version[256] + crc[4] + pad[4]                (268 B)
+#   part   = 'PART' + name[16] + pad[12] + 6*u32BE                     (56 B)
+#            + data[data_size] + crc32[4] + pad[4]
+# The per-part trailer is CRC32 over (part header || part data) -- verified
+# byte-exact on 14 images in this corpus (u-boot/kernel0 and kernel/rootfs
+# layouts). Keyless -> an attacker re-stamps it. 5 further UBNT-magic images in
+# the corpus use a different (newer) layout with no parseable PART table.
+# --------------------------------------------------------------------------- #
+
+UBNT_MAGICS = (b"UBNT", b"OPEN")
+UBNT_HDR_LEN = 268
+UBNT_PART_HDR_LEN = 56
+
+
+def _ubnt_parts(data: bytes):
+    """Yield (name, hdr_off, data_off, data_size, stored_crc) for each PART."""
+    off = UBNT_HDR_LEN
+    while off + UBNT_PART_HDR_LEN <= len(data) and data[off:off + 4] == b"PART":
+        name = data[off + 4:off + 20].split(b"\x00")[0].decode("ascii", "replace")
+        dsize = struct.unpack(">I", data[off + 48:off + 52])[0]
+        doff = off + UBNT_PART_HDR_LEN
+        if doff + dsize + 8 > len(data):
+            break
+        stored = struct.unpack(">I", data[doff + dsize:doff + dsize + 4])[0]
+        yield name, off, doff, dsize, stored
+        off = doff + dsize + 8
+
+
+def _ubnt_verify(data: bytes, ents) -> bool:
+    return bool(ents) and all(
+        crc32(bytes(data[hoff:doff + dsize])) == stored
+        for _n, hoff, doff, dsize, stored in ents)
+
+
+def handle_ubnt(path, data, corpus):
+    ents = list(_ubnt_parts(data))
+    magic = bytes(data[:4]).decode("ascii", "replace")
+    if not ents:
+        # UBNT magic but no parseable PART table (newer/rtl838x/UF-ONU variants).
+        return _record(path, corpus, "ubnt", f"Ubiquiti '{magic}' header, no PART table", "?",
+                       verified=False,
+                       notes="UBNT-family magic but PART table not at the mkfwimage offset "
+                             "-> different layout variant, needs RE")
+
+    verified = _ubnt_verify(data, ents)
+    names = ",".join(n for n, _, _, _, _ in ents)
+
+    # Detection: flip payload bits in the largest part, see if its CRC32 notices.
+    tgt = max(ents, key=lambda e: e[3])
+    _n, thoff, tdoff, tdsize, tstored = tgt
+    offsets = _flip_offsets(tdoff, tdoff + tdsize, N_FLIPS)
+    detected = 0
+    for o in offsets:
+        f = bytearray(data)
+        f[o] ^= 0x01
+        if crc32(bytes(f[thoff:tdoff + tdsize])) != tstored:
+            detected += 1
+    det_rate = detected / len(offsets) if offsets else None
+
+    # Forgeability: flip a payload bit, re-stamp that part's CRC32, re-verify all.
+    forged = bytearray(data)
+    forged[tdoff + tdsize // 2] ^= 0x01
+    struct.pack_into(">I", forged, tdoff + tdsize,
+                     crc32(bytes(forged[thoff:tdoff + tdsize])))
+    forgeable = _ubnt_verify(bytes(forged), list(_ubnt_parts(bytes(forged))))
+
+    notes = (f"magic={magic}; {len(ents)} parts [{names}]; per-part CRC32 over "
+             f"(hdr||data) reproduced={verified}; keyless -> attacker re-stamps the part CRC")
+    return _record(path, corpus, "ubnt", "Ubiquiti per-part CRC32 (keyless)", "IL1",
+                   verified=verified, detection_rate=det_rate,
+                   forgeable=bool(forgeable), notes=notes)
 
 
 # --------------------------------------------------------------------------- #
@@ -331,10 +422,184 @@ def handle_trx(path, data, corpus):
     else:
         forgeable = True  # keyless by construction even if our CRC variant differs
         notes = (f"trx crc32@8=0x{stored:08x}; calc=0x{calc:08x} not matched "
-                 f"-> T1 by format (keyless CRC)")
+                 f"-> IL1 by format (keyless CRC)")
         det = None
-    return _record(path, corpus, "trx", "TRX CRC32 (keyless)", "T1",
+    return _record(path, corpus, "trx", "TRX CRC32 (keyless)", "IL1",
                    verified=verified, detection_rate=det, forgeable=bool(forgeable), notes=notes)
+
+
+# --------------------------------------------------------------------------- #
+# Handler: Apple IPSW / OTA asset. A ZIP carrying BuildManifest.plist plus
+# per-component firmware images. Three generations appear in this corpus, each
+# with an RSA signature + Apple certificate chain (verified structurally):
+#   8900 / .img2  (S5L8900x, iPod1,1) - header(0x800) + data + footer sig(128B)
+#                                       + cert chain; offsets in the header
+#   Img3 / .img3  (S5L893xx, AppleTV2,1/3,x) - TLV tags; SHSH tag = 128B RSA
+#                                       signature over sigCheckArea, CERT tag
+#                                       = Apple cert chain
+#   IMG4 / .im4p  (A8+, OTA assets) - ASN.1 DER: IMG4 ::= { IM4P payload,
+#                                       IM4M manifest }; IM4M holds the signature
+# Every component's digest is also listed in BuildManifest.plist, and that
+# manifest is what Apple's signing server signs per device (ECID-bound APTicket),
+# so this is IL2 *plus* replay/rollback binding - stronger than a bare signature.
+# NOTE: this script confirms the signature STRUCTURE is present; it does not
+# cryptographically validate it against an Apple root CA.
+# --------------------------------------------------------------------------- #
+
+APPLE_MANIFESTS = ("buildmanifest.plist", "restore.plist")
+APPLE_FW_SUFFIXES = (".img2", ".img3", ".im4p", "-img4", ".dfu")
+
+
+APPLE_PROBE_BYTES = 8 * 1024 * 1024   # boot components are <8MB; the SHSH/CERT
+                                       # tags sit AFTER the big DATA tag, so a
+                                       # header-only read would miss the signature
+
+
+def _apple_probe_member(zf, name):
+    """Identify an Apple image format from a member. Reads <=APPLE_PROBE_BYTES so
+    the trailing signature tags are inside the window."""
+    try:
+        with zf.open(name) as fh:
+            head = fh.read(APPLE_PROBE_BYTES)
+    except Exception:
+        return None
+    if len(head) < 32:
+        return None
+    if head[:4][::-1] == b"Img3":
+        # walk the TLV tags looking for SHSH (signature) / CERT (chain)
+        sigarea = struct.unpack("<I", head[12:16])[0]
+        tags, off = [], 20
+        while off + 12 <= len(head):
+            tmag = head[off:off + 4][::-1]
+            tlen = struct.unpack("<I", head[off + 4:off + 8])[0]
+            if tlen < 12:
+                break
+            tags.append(tmag.decode("ascii", "replace"))
+            off += tlen
+        return ("Img3", tags, f"sigCheckArea={sigarea}")
+    if head[:4] == b"8900":
+        dsize, sigoff, certoff, certlen = struct.unpack("<4I", head[12:28])
+        tags = ["SIG"] if sigoff else []
+        if certlen:
+            tags.append("CERT")
+        return ("8900", tags, f"data={dsize} sig@{sigoff} cert@{certoff}+{certlen}")
+    if b"IMG4" in head[:32] or b"IM4P" in head[:32]:
+        tags = [t.decode() for t in (b"IMG4", b"IM4P", b"IM4M") if t in head]
+        return ("IMG4", tags, "ASN.1 DER container")
+    return None
+
+
+def _apple_ipsw_detect(zpath):
+    """(fmt, tags, detail, n_components, n_digests, member) or None."""
+    import zipfile
+    try:
+        zf = zipfile.ZipFile(zpath)
+    except Exception:
+        return None
+    with zf:
+        names = [i.filename for i in zf.infolist() if not i.is_dir()]
+        manifest = next((n for n in names
+                         if Path(n).name.lower() in APPLE_MANIFESTS), None)
+        fw = [n for n in names if n.lower().endswith(APPLE_FW_SUFFIXES)]
+        if not (manifest or fw):
+            return None
+
+        # count per-component digests in the signed manifest
+        n_dig = 0
+        if manifest:
+            try:
+                import plistlib
+                bm = plistlib.loads(zf.read(manifest))
+                for ident in bm.get("BuildIdentities", []):
+                    n_dig = max(n_dig, sum(1 for c in ident.get("Manifest", {}).values()
+                                           if c.get("Digest")))
+            except Exception:
+                pass
+
+        # Probe boot-chain components FIRST: those are the ones the bootrom must
+        # verify, so they carry the signature. Ranking by size instead would pick
+        # small unsigned assets (applelogo, batterycharging) and under-report.
+        chain = ("llb", "iboot", "ibss", "ibec", "kernelcache", "sep-firmware",
+                 "devicetree", "wtf")
+
+        def rank(info):
+            n = Path(info.filename).name.lower()
+            for j, key in enumerate(chain):
+                if n.startswith(key):
+                    return (0, j, info.file_size)
+            return (1, 0, info.file_size)
+
+        infos = sorted((i for i in zf.infolist() if i.filename in fw), key=rank)
+        first = None
+        for i in infos[:8]:                      # aggregate over a few members
+            got = _apple_probe_member(zf, i.filename)
+            if not got:
+                continue
+            fmt, tags, detail = got
+            if first is None:
+                first = (fmt, tags, detail, len(fw), n_dig, i.filename)
+            if {"SHSH", "CERT", "SIG", "IM4M"} & set(tags):
+                return fmt, tags, detail, len(fw), n_dig, i.filename
+        if first:
+            return first
+        if manifest:
+            return "ipsw", [], "manifest only", len(fw), n_dig, manifest
+    return None
+
+
+def handle_apple_ipsw(zpath, corpus, det):
+    fmt, tags, detail, n_fw, n_dig, member = det
+    # Embedded-signature evidence ONLY. IM4P is the payload wrapper, NOT a
+    # signature: the signed manifest is IM4M. Likewise an Img3 without a SHSH tag
+    # carries no signature of its own.
+    has_sig = bool({"SHSH", "CERT", "SIG", "IM4M"} & set(tags))
+
+    # Detection: any flipped payload bit changes the component digest that the
+    # signed manifest pins, so the signature no longer covers the image.
+    detected = None
+    import zipfile
+    try:
+        with zipfile.ZipFile(zpath) as zf:
+            with zf.open(member) as fh:
+                blob = fh.read(1 << 20)
+        if blob:
+            before = hashlib.sha384(blob).hexdigest()
+            flip = bytearray(blob)
+            flip[len(flip) // 2] ^= 0x01
+            detected = hashlib.sha384(bytes(flip)).hexdigest() != before
+    except Exception:
+        pass
+
+    if has_sig:
+        # Signature travels inside the shipped artifact (8900 SIG/CERT footer,
+        # Img3 SHSH/CERT tags).
+        tier = "IL2"
+        primitive = f"Apple {fmt} RSA signature + cert chain (embedded)"
+        forgeable = "signature:no (needs Apple private key)"
+        sig_note = "signature embedded in artifact"
+    else:
+        # Recognised Apple format with NO embedded signature. This is not an
+        # unknown format: from ~A5-rev/Img3-without-SHSH onward (and for all
+        # IMG4/IM4P assets) Apple ships the images unsigned and the device fetches
+        # a per-ECID signed manifest (APTicket/IM4M) from the TSS signing server at
+        # install time. Authentication is real but EXTERNAL to the artifact, and it
+        # is revocable: once Apple closes the signing window the same bytes can no
+        # longer be installed ("unsigned IPSW"), which is what gives anti-rollback.
+        tier = "IL2(ext)"
+        primitive = f"Apple {fmt}, unsigned in-artifact; per-device APTicket/IM4M at install"
+        forgeable = ("signature:no (needs Apple private key); not forgeable offline at all "
+                     "- the check is server-side + ECID-bound, so a valid ticket for one "
+                     "device does not transfer, and rollback is blocked once unsigned")
+        sig_note = ("NO embedded signature: authentication is the server-issued, "
+                    "ECID-personalised manifest fetched at install")
+    notes = (f"[{fmt}] member={Path(member).name}; tags={','.join(tags) or 'none'}; "
+             f"{detail}; {n_fw} firmware components, {n_dig} manifest digests; "
+             f"{sig_note}; structure only - this script does NOT cryptographically "
+             f"validate against an Apple root CA")
+    return _record(zpath, corpus, "apple_ipsw", primitive, tier,
+                   verified=None,
+                   detection_rate=(1.0 if detected else 0.0) if detected is not None else None,
+                   forgeable=forgeable, notes=notes)
 
 
 # --------------------------------------------------------------------------- #
@@ -344,15 +609,18 @@ def handle_trx(path, data, corpus):
 def _detect_header(head: bytes):
     """(container, primitive, tier) from a header's magic, or None."""
     if len(head) >= 28 and struct.unpack(">I", head[:4])[0] == UIMAGE_MAGIC:
-        return ("uImage", "CRC32 (header+data)", "T1")
+        return ("uImage", "CRC32 (header+data)", "IL1")
     if len(head) >= 8 and struct.unpack(">I", head[:4])[0] == CHK_MAGIC:
-        return ("netgear_chk", "chk header/image checksum", "T1")
+        return ("netgear_chk", "chk header/image checksum", "IL1")
     if is_tplink(head):
-        return ("tplink", "TP-Link 16B field", "T1")
+        return ("tplink", "TP-Link 16B field", "IL1")
     if len(head) >= 4 and head[:4] == PAK_MAGIC:
-        return ("reolink_pak", "Reolink .pak section checksum", "T1")
+        return ("reolink_pak", "Reolink .pak section checksum", "IL1")
     if len(head) >= 4 and head[:4] == TRX_MAGIC:
-        return ("trx", "TRX CRC32 (keyless)", "T1")
+        return ("trx", "TRX CRC32 (keyless)", "IL1")
+    if len(head) >= UBNT_HDR_LEN + 4 and head[:4] in UBNT_MAGICS \
+            and head[UBNT_HDR_LEN:UBNT_HDR_LEN + 4] == b"PART":
+        return ("ubnt", "Ubiquiti per-part CRC32 (keyless)", "IL1")
     return None
 
 
@@ -369,6 +637,8 @@ def _dispatch_bytes(path, data, corpus):
         return handle_reolink_pak(path, data, corpus)
     if len(head) >= 4 and head[:4] == TRX_MAGIC:
         return handle_trx(path, data, corpus)
+    if len(head) >= 4 and head[:4] in UBNT_MAGICS:
+        return handle_ubnt(path, data, corpus)
     return None
 
 
@@ -396,14 +666,84 @@ def _zip_inner_detect(zpath):
     return None
 
 
+def _zip_signapk_comment(zpath):
+    """Length of the ZIP end-of-central-directory comment if it carries an AOSP
+    SignApk whole-file PKCS#7 signature, else None. Cheap: zipfile only reads
+    the EOCD record, never the (possibly huge) compressed payload."""
+    import zipfile
+    try:
+        with zipfile.ZipFile(zpath) as zf:
+            comment = zf.comment
+    except Exception:
+        return None
+    return len(comment) if comment.startswith(SIGNAPK_MARKER) else None
+
+
+def _zip_dlink_hdr_note(zpath):
+    """If every top-level member opens with the fixed D-Link per-image header tag,
+    say so (still needs RE past that point: no checksum field in it reproduces
+    against the payload, and the real cramfs/squashfs superblock sits further in)."""
+    import zipfile
+    try:
+        zf = zipfile.ZipFile(zpath)
+    except Exception:
+        return None
+    with zf:
+        # size filter drops tiny manifests/config members (e.g. InstallDesc JSON)
+        # that aren't part of the fixed-header image family we're checking for
+        members = [m for m in zf.infolist() if not m.is_dir()
+                   and Path(m.filename).suffix.lower() not in SKIP_EXT
+                   and m.file_size > 4096]
+        if not members:
+            return None
+        for m in members:
+            try:
+                with zf.open(m) as fh:
+                    head = fh.read(4)
+            except Exception:
+                return None
+            if head != DLINK_HDR_MAGIC:
+                return None
+    return (f"all {len(members)} members open with fixed vendor header tag "
+            f"{DLINK_HDR_MAGIC.hex()} (constant, not a content digest); "
+            f"no checksum field in it reproduces against the payload -> needs RE")
+
+
+def _zip_no_inner_magic_record(zpath, corpus):
+    """Fallback when no member matches a known firmware container magic: check
+    for a whole-package signature before giving up as unrecognized."""
+    apple = _apple_ipsw_detect(zpath)
+    if apple:
+        return handle_apple_ipsw(zpath, corpus, apple)
+    sig_len = _zip_signapk_comment(zpath)
+    if sig_len:
+        return _record(zpath, corpus, "zip",
+                       "ZIP + AOSP SignApk whole-file PKCS#7 signature (EOCD comment)",
+                       "IL1+IL2",
+                       forgeable="signature:no (needs vendor private key); envelope CRC32:keyless",
+                       notes=(f"SignApk marker + {sig_len}B PKCS#7 blob in EOCD comment "
+                              f"(verified against corpus samples); IL2 candidate, not "
+                              f"re-verified against a trust root by this script"))
+    try:
+        with open(zpath, "rb") as fh:
+            is_dahua = fh.read(4) == DAHUA_ZIP_MAGIC
+    except OSError:
+        is_dahua = False
+    dahua_note = ("Amcrest/Dahua ZIP with mangled 'DH' local-file-header signature "
+                  "(central directory intact, members unreadable without un-mangling) "
+                  if is_dahua else "")
+    dlink_note = _zip_dlink_hdr_note(zpath)
+    return _record(zpath, corpus, "zip", "zip (no known inner magic)", "?",
+                   notes=(dahua_note + (dlink_note or "inner format unrecognized -> needs RE")))
+
+
 def handle_zip(zpath, corpus):
     """Vendor .zip wrapper: classify (and, if small enough, fully test) the inner
     firmware image rather than the archive itself."""
     import zipfile
     det = _zip_inner_detect(zpath)
     if not det:
-        return _record(zpath, corpus, "zip", "zip (no known inner magic)", "?",
-                       notes="inner format unrecognized -> needs RE")
+        return _zip_no_inner_magic_record(zpath, corpus)
     container, primitive, tier, member = det
     try:
         with zipfile.ZipFile(zpath) as zf:
@@ -418,7 +758,7 @@ def handle_zip(zpath, corpus):
             return rec
     sig = "signed" in member.lower() or "signed" in Path(zpath).name.lower()
     if container == "tplink" and sig:
-        primitive, tier = primitive + " + signature", "T1+T2"
+        primitive, tier = primitive + " + signature", "IL1+IL2"
     return _record(zpath, corpus, container, f"{primitive} (zip:{member})", tier,
                    notes=f"header-classified inner member {member}")
 
@@ -437,7 +777,7 @@ def _md5sidecar_eval(path, corpus, rootfs_bytes, stored_md5, source):
     forgeable = True                            # attacker rewrites rootfs.md5 with new_md5
     notes = (f"{source}: stored={stored_md5[:8]} calc={calc[:8]} match={verified}; "
              f"keyless MD5 -> rewrite sidecar to {new_md5[:8]}")
-    return _record(path, corpus, "md5sidecar", "plaintext MD5 sidecar (rootfs.md5)", "T1",
+    return _record(path, corpus, "md5sidecar", "plaintext MD5 sidecar (rootfs.md5)", "IL1",
                    verified=verified, detection_rate=1.0 if detected else 0.0,
                    forgeable=forgeable, notes=notes)
 
@@ -478,13 +818,22 @@ def classify_file(path: Path, classify_only: bool):
     except OSError as e:
         return _record(path, corpus, "error", str(e), "?", notes="unreadable")
 
+    if head.lstrip()[:15].lower().startswith(HTML_PREFIXES):
+        return _record(path, corpus, "not_firmware", "HTML content, not a firmware image", "N/A",
+                       notes="download appears to have failed (scraper saved an HTML error/"
+                             "redirect page under a firmware filename) -> exclude from corpus, "
+                             "don't RE")
+
     is_uimage = len(head) >= 28 and struct.unpack(">I", head[:4])[0] == UIMAGE_MAGIC
     is_chk = len(head) >= 8 and struct.unpack(">I", head[:4])[0] == CHK_MAGIC
     is_tpl = is_tplink(head)
     is_pak = len(head) >= 4 and head[:4] == PAK_MAGIC
     is_trx = len(head) >= 12 and head[:4] == TRX_MAGIC
+    is_zip = len(head) >= 4 and head[:4] in (ZIP_MAGIC, DAHUA_ZIP_MAGIC)
+    is_ubnt = len(head) >= 4 and head[:4] in UBNT_MAGICS
 
-    if not (is_uimage or is_chk or is_tpl or is_pak or is_trx) and path.suffix not in (".tar", ".zip"):
+    if not (is_uimage or is_chk or is_tpl or is_pak or is_trx or is_zip or is_ubnt) \
+            and path.suffix != ".tar":
         return _record(path, corpus, "opaque", f"no known header (first4={head[:4].hex()})",
                        "?", notes="needs RE")
 
@@ -492,36 +841,43 @@ def classify_file(path: Path, classify_only: bool):
     if classify_only or size > MAX_CAMPAIGN_BYTES:
         # Fast path: tier from format only, no full hashing / flips.
         if is_uimage:
-            return _record(path, corpus, "uImage", "CRC32 (header+data)", "T1",
+            return _record(path, corpus, "uImage", "CRC32 (header+data)", "IL1",
                            notes="classify-only" if classify_only else "skipped campaign (large)")
         if is_chk:
-            return _record(path, corpus, "netgear_chk", "chk header/image checksum", "T1",
+            return _record(path, corpus, "netgear_chk", "chk header/image checksum", "IL1",
                            notes="classify-only" if classify_only else "skipped campaign (large)")
         if is_tpl:
             sig = "signed" in path.name.lower()
             return _record(path, corpus, "tplink",
                            "TP-Link 16B field" + (" + signature" if sig else ""),
-                           "T1+T2" if sig else "T1", notes="classify-only")
+                           "IL1+IL2" if sig else "IL1", notes="classify-only")
         if is_pak:
             return _record(path, corpus, "reolink_pak", "Reolink .pak section checksum",
-                           "T1", notes="classify-only" if classify_only else "skipped (large)")
+                           "IL1", notes="classify-only" if classify_only else "skipped (large)")
         if is_trx:
-            return _record(path, corpus, "trx", "TRX CRC32 (keyless)", "T1",
+            return _record(path, corpus, "trx", "TRX CRC32 (keyless)", "IL1",
+                           notes="classify-only" if classify_only else "skipped (large)")
+        if is_ubnt:
+            has_parts = (len(head) >= UBNT_HDR_LEN + 4
+                         and head[UBNT_HDR_LEN:UBNT_HDR_LEN + 4] == b"PART")
+            return _record(path, corpus, "ubnt",
+                           "Ubiquiti per-part CRC32 (keyless)" if has_parts
+                           else "Ubiquiti header, no PART table",
+                           "IL1" if has_parts else "?",
                            notes="classify-only" if classify_only else "skipped (large)")
         if path.suffix == ".tar":
-            return _record(path, corpus, "md5sidecar?", "tar (peek skipped)", "T1?",
+            return _record(path, corpus, "md5sidecar?", "tar (peek skipped)", "IL1?",
                            notes="classify-only")
-        if path.suffix == ".zip":
+        if is_zip:
             det = _zip_inner_detect(path)
             if det:
                 container, primitive, tier, member = det
                 if container == "tplink" and ("signed" in member.lower()
                                               or "signed" in path.name.lower()):
-                    primitive, tier = primitive + " + signature", "T1+T2"
+                    primitive, tier = primitive + " + signature", "IL1+IL2"
                 return _record(path, corpus, container, f"{primitive} (zip:{member})", tier,
                                notes=f"inner member {member}")
-            return _record(path, corpus, "zip", "zip (no known inner magic)", "?",
-                           notes="inner format unrecognized -> needs RE")
+            return _zip_no_inner_magic_record(path, corpus)
 
     data = path.read_bytes()
     if is_uimage:
@@ -534,9 +890,11 @@ def classify_file(path: Path, classify_only: bool):
         return handle_reolink_pak(path, data, corpus)
     if is_trx:
         return handle_trx(path, data, corpus)
+    if is_ubnt:
+        return handle_ubnt(path, data, corpus)
     if path.suffix == ".tar":
         return handle_md5sidecar_tar(path, corpus)
-    if path.suffix == ".zip":
+    if is_zip:
         return handle_zip(path, corpus)
     return None
 
@@ -620,7 +978,7 @@ def main():
                 rec = (handle_md5sidecar_dir(path, corpus_of(path))
                        if not args.classify_only else
                        _record(path, corpus_of(path), "md5sidecar",
-                               "plaintext MD5 sidecar (rootfs.md5)", "T1", notes="classify-only"))
+                               "plaintext MD5 sidecar (rootfs.md5)", "IL1", notes="classify-only"))
             else:
                 rec = classify_file(path, args.classify_only)
         except Exception as e:  # never let one bad file kill the run

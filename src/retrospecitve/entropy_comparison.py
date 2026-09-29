@@ -16,9 +16,10 @@ from scipy import stats
 import sys
 import io
 
-# Configuration
-ENTROPY_DIR = os.environ.get("ENTROPY_DIR", os.path.expanduser("~/update_traffic/retrospective/entropy/selected10"))
-OUTPUT_DIR = os.environ.get("OUTPUT_DIR", os.path.expanduser("~/update_traffic/retrospective/analysis_output"))
+# Configuration (defaults relative to the repository root; this file is in src/<dir>/)
+REPO = Path(__file__).resolve().parents[2]
+ENTROPY_DIR = os.environ.get("ENTROPY_DIR", str(REPO / "retrospective/entropy/selected10"))
+OUTPUT_DIR = os.environ.get("OUTPUT_DIR", str(REPO / "retrospective" / "analysis_output"))
 FIGURES_DIR = os.path.join(OUTPUT_DIR, "figures")
 DATA_DIR = os.path.join(OUTPUT_DIR, "data")
 
@@ -294,37 +295,48 @@ def main():
 
 
 
-    # Figure 3: Heatmap of mean entropy values
-    heatmap_data = stats_df[['device', 'shannon_mean', 'renyi_mean', 'tsallis_mean']].set_index('device')
-    heatmap_data.columns = ['Shannon', 'Rényi', 'Tsallis']
-    # Compute vmin/vmax and center for symmetric-looking colormap
+    # Figure 3: Heatmap of per-device mean entropy, each cell annotated with
+    # "mean ± std" (the paper's caption reports both). Sized for one ACM
+    # two-column figure (3.33 in wide) so fonts print at their nominal size.
+    metric_labels = [('shannon', 'Shannon'), ('renyi', 'Rényi'), ('tsallis', 'Tsallis')]
+    by_dev = stats_df.set_index('device')
+    heatmap_data = by_dev[[f'{m}_mean' for m, _ in metric_labels]]
+    heatmap_std = by_dev[[f'{m}_std' for m, _ in metric_labels]]
+    heatmap_data.columns = heatmap_std.columns = [label for _, label in metric_labels]
+    annot = np.array([[f"{mu:.3f}\n±{sd:.3f}" for mu, sd in zip(mrow, srow)]
+                      for mrow, srow in zip(heatmap_data.T.values, heatmap_std.T.values)])
+    # Colour range from the data, centred between min and max (as before)
     vmin = heatmap_data.values.min()
     vmax = heatmap_data.values.max()
     center = (vmin + vmax) / 2.0
-    plt.figure(figsize=(8, 6))
-    sns.heatmap(
-        heatmap_data.T,
-        annot=True,
-        fmt='.4f',
-        cmap='RdYlGn',
-        vmin=vmin,
-        vmax=vmax,
-        center=center,
-        cbar_kws={'label': 'Entropy Value', 'shrink': 0.35, 'fraction': 0.046, 'pad': 0.04},
-        linewidths=1,
-        linecolor='gray',
-        square=True,
-    )
-    # Rotate device names on x-axis for readability and avoid clipping
-    plt.xticks(rotation=45, ha='right', fontsize=10)
-    plt.subplots_adjust(bottom=0.22)
-    #plt.title('Mean Entropy Values by Device', fontsize=12, fontweight='bold')
-    plt.xlabel('')
-    plt.ylabel('Entropy Metric', fontsize=11)
-    plt.tight_layout()
-    plt.savefig(os.path.join(FIGURES_DIR, "entropy_heatmap_re.pdf"), dpi=300, bbox_inches='tight')
-    print("    Saved: entropy_heatmap_re.pdf")
-    plt.close()
+    with plt.rc_context({'font.size': 6, 'axes.linewidth': 0.5}):
+        fig, ax = plt.subplots(figsize=(3.45, 1.9))
+        sns.heatmap(
+            heatmap_data.T,
+            annot=annot,
+            fmt='',
+            annot_kws={'fontsize': 5.0, 'linespacing': 1.05},
+            cmap='RdYlGn',
+            vmin=vmin,
+            vmax=vmax,
+            center=center,
+            cbar_kws={'label': 'Entropy', 'fraction': 0.035, 'pad': 0.015},
+            linewidths=0.5,
+            linecolor='gray',
+            ax=ax,
+        )
+        ax.set_xticklabels(ax.get_xticklabels(), rotation=40, ha='right', fontsize=6)
+        ax.set_yticklabels(ax.get_yticklabels(), rotation=90, va='center', fontsize=6)
+        ax.tick_params(length=1.5, width=0.4, pad=1)
+        cbar = ax.collections[0].colorbar
+        cbar.ax.tick_params(labelsize=5, length=1.5, width=0.4)
+        cbar.ax.yaxis.label.set_size(5.8)
+        ax.set_xlabel('')
+        ax.set_ylabel('')
+        fig.tight_layout(pad=0.15)
+        fig.savefig(os.path.join(FIGURES_DIR, "entropy_heatmap_re.pdf"), bbox_inches='tight', pad_inches=0.01)
+        plt.close(fig)
+    print("  ✓ Saved: entropy_heatmap_re.pdf")
     
     # Figure 4: Violin plots for Shannon entropy across all 10 devices
     fig, ax = plt.subplots(figsize=(14, 6))

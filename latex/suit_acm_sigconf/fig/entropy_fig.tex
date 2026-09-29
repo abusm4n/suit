@@ -1,0 +1,12 @@
+%\pgfplotstableread[col sep=comma]{data/tapo.csv}\raw
+
+%\pgfplotstablecreatecol[
+%  create col/assign/.code={
+ %   \pgfmathtruncatemacro{\skip}{mod(\pgfplotstablerow, 50)}%
+  %  \ifnum\skip=0
+   %   \pgfkeyssetvalue{/pgfplots/table/create col/assign/result}{\pgfplotstablegetelem{\pgfplotstablerow}{entropy_shannon}}
+   % \else
+    %  \pgfkeyssetvalue{/pgfplots/table/create col/assign/result}{}
+    %\fi
+  %}
+%]{entropy_sampled}\raw

@@ -1,0 +1,46 @@
+\section{Related Work}
+\label{sec:related}
+
+\paragraph{IoT traffic measurement and datasets}
+{\emergencystretch=1em % avoids an overfull line at the unbreakable "Mon(IoT)r"
+Ren et al.~\cite{10.1145/3355369.3355577} conducted a large-scale measurement of consumer IoT devices using the Mon(IoT)r testbed, covering 34,586 experiments across 81 devices; they identified update-related traffic and inferred encryption status via Shannon entropy, but did not evaluate the security quality of the update channel itself.
+%\emph{We reuse this dataset directly as our retrospective experiment, applying it to update-related flows specifically and extending the analysis with Rényi and Tsallis entropy, and cipher-suite classification.}
+Dong et al.~\cite{10.1145/3618257.3624815} studied TLS usage and server-side certificate management across 2,014 real-world IoT devices sourced from a crowdsourced dataset, uncovering widespread use of customised TLS libraries and inconsistent PKI practices among vendors; however, their analysis is not restricted to update traffic and does not examine cipher-suite strength in the context of firmware delivery.\par}
+
+\paragraph{IoT software update practices}
+Prakash et al.~\cite{10.1145/3560835.3564551} inferred update practices from User-Agent strings in HTTP traffic, providing insight into versioning patterns but limited to cleartext channels.
+Bradley and Barrera~\cite{10.1007/978-3-031-30122-3_25} characterised IoT update behaviour in a controlled lab environment, focusing exclusively on insecure HTTP exchanges without assessing encrypted channels or cryptographic configurations.
+Bauwens et al.~\cite{8999425} surveyed over-the-air update mechanisms with an emphasis on energy efficiency and dissemination protocols, but did not analyse the cryptographic properties of the update channel.
+Dejon et al.~\cite{10.1007/978-3-030-41702-4_14} proposed an automated framework for the security analysis of IoT software updates, targeting binary-level properties of firmware images rather than the confidentiality or integrity of the update delivery channel.
+Seitz et al.~\cite{icissp23} outlined secure software update requirements derived from industry standards, identifying gaps between specification and practice, though without empirical traffic measurement.
+Nordahl et al.~\cite{10710264} addressed component-level software updates in IoT systems with a focus on microservice architectures, without evaluating the cryptographic protection of the delivery channel.
+Tollefsen and Anshus~\cite{9881713} examined timing-based detection of update arrivals at resource-constrained IoT nodes, but did not assess encryption quality or cipher-suite strength.
+
+\paragraph{Firmware update security and vulnerabilities}
+Wu et al.~\cite{294541} performed a systematic study of firmware update vulnerabilities across embedded devices, identifying flaws in update authenticity mechanisms; their scope is the firmware binary and update protocol logic rather than the network-layer cryptographic properties studied here.
+Usman and Asplund ~\cite{USMAN2026105019} analysed update-related vulnerabilities and proposed recommendations for reducing their exposure in IoT update processes, complementing our empirical findings on cipher suite and certificate weaknesses.
+
+\paragraph{Entropy and encrypted traffic analysis}
+Bianchi et al.~\cite{10.1007/978-3-032-00624-0_11} investigated encrypted traffic classification using inter-flow signals, but did not apply this to update-related traffic.
+Yu et al.~\cite{yu2024renyi} proposed a Rényi entropy-based method for network anomaly detection with dynamic thresholds, while Lima et al.~\cite{6088496} compared Shannon, Rényi, and Tsallis entropy for attribute selection in intrusion detection; neither study considers IoT firmware update channels.
+
+% Shorten
+%\vspace{1mm}
+%\rev{Our work differs from the above along three angles. 
+%First, where prior measurement studies either infer encryption status for IoT traffic \emph{in general}~\cite{10.1145/3355369.3355577} or analyze TLS/PKI practice without isolating firmware delivery~\cite{10.1145/3618257.3624815}, and where firmware-security work targets the binary and protocol logic~\cite{294541,10.1007/978-3-030-41702-4_14}, we assess the \emph{cryptographic quality of the update delivery channel itself}, jointly across confidentiality (entropy), negotiated cipher strength, and certificate posture, and connect each to the authenticity and integrity preconditions for secure updates. 
+%Second, by reusing the Mon(IoT)r dataset~\cite{10.1145/3355369.3355577}; which inferred encryption via Shannon entropy but did not evaluate channel security, and re-analyzing it for update flows specifically, we extend it with Rényi and Tsallis entropy, cipher suites classification, and certificate analysis. 
+%Third, because Mon(IoT)r dataset predates our controlled captures by several years, we make a measurement of how update-channel cryptography has changed over time.
+%And finally, we identify the adversarial capabilities resulting from the insecure and weak cryptographic configurations.}
+%with CVE mapping.
+
+
+
+
+
+
+
+
+
+
+%Even though detection of deviation at the network level has been widely studied, the current approach in this context depends on either anomaly-based or statistical approaches \cite{yu2024renyi}. 
+

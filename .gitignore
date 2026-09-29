@@ -8,7 +8,17 @@ extracted_keywords/
 cvelistV5-main/
 doc/
 Technical_Report_Latex/
-latex/
+# latex/: ignore build output and large figure binaries, but DO track the
+# sigconf paper's sources. Note the form: 'latex/**' rather than 'latex/',
+# plus '!.../**/' to re-include directories -- git will not descend into an
+# excluded directory, so file-level negations alone would never match.
+latex/**
+!latex/suit_acm_sigconf/
+!latex/suit_acm_sigconf/**/
+!latex/suit_acm_sigconf/**/*.tex
+!latex/suit_acm_sigconf/**/*.bib
+!latex/suit_acm_sigconf/**/*.cls
+!latex/suit_acm_sigconf/**/*.bst
 
 SUIT_presentation.pptx
 
@@ -37,7 +47,7 @@ sample.csv
 
 
 esorics/
-suit_acm_sigconf/
+#suit_acm_sigconf/
 dataset_emre
 dataset_wustl/
 Note.md 

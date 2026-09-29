@@ -8,10 +8,11 @@ import pandas as pd
 from datetime import datetime
 from pathlib import Path
 
-# Configuration
-INPUT_FILE = Path('/home/ab/update_traffic/controlled/analysis_output/data/certificate_summary_all_devices.csv')
-OUTPUT_PATH = Path('/home/ab/update_traffic/controlled/analysis_output/data')
-DATASET_BASE = Path('/home/ab/update_traffic/controlled/dataset')
+# Configuration (paths relative to the repository root; this file is in scripts/)
+REPO = Path(__file__).resolve().parents[1]
+INPUT_FILE = REPO / 'controlled/analysis_output/data/certificate_summary_all_devices.csv'
+OUTPUT_PATH = REPO / 'controlled/analysis_output/data'
+DATASET_BASE = REPO / 'controlled/dataset'
 OUTPUT_PATH.mkdir(parents=True, exist_ok=True)
 CERT_FOLDER_CANDIDATES = [
     'certificates',
@@ -50,7 +51,10 @@ def assess_strength(key_type, key_size):
             return 'STRONG', 128
         else:
             return 'UNKNOWN', 0
-    elif key_type == 'EllipticCurvePublicKey':
+    elif key_type in ('EllipticCurvePublicKey', 'ECPublicKey'):
+        # public_key_type is type(key).__name__; the Rust-backed classes of
+        # cryptography >= 42 are named ECPublicKey, not EllipticCurvePublicKey.
+        # Matching only the old name scored every EC key as UNKNOWN / 0 bits.
         # Standard EC curves: P-256 (128), P-384 (192), P-521 (256)
         if key_size == 256:
             return 'STRONG', 128

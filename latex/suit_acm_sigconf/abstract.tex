@@ -1,0 +1,19 @@
+\begin{abstract}
+Software updates are essential for maintaining the security of smart home IoT devices, yet the network-level behavior and the security of update delivery remain largely underexplored in this domain.
+We present a multidimensional analysis of IoT update traffic, identifying characteristics of the update process and combining entropy-based encryption characterization, cipher suite evaluation, and certificate security assessment.
+Our study covers controlled experiments on ten heterogeneous devices in a laboratory environment and retrospective analysis of a large-scale real-world dataset, which together assess generalizability and provide a temporal view of how update-channel cryptography has evolved.
+The results reveal recurring weaknesses and important distinctions: a substantial share of update traffic is carried over plaintext channels; 
+weak cipher suites dominate TLS configurations, and a portion of certificates fall below the NIST 128-bit security minimum recommended for protection from 2031 onward, highlighting concrete long-term risks.
+By mapping weak and insecure cryptographic configurations to public vulnerability records, we demonstrate that the observed weaknesses correspond to known, actively tracked security risks, underscoring the concrete threats to update delivery confidentiality, integrity, and authenticity.
+
+
+
+
+%update-related payloads show less byte-level randomness than the general IoT baseline; weak and insecure cipher suites dominate the lists clients \emph{offer}, whereas servers mostly \emph{negotiate} secure or recommended suites; and certificates combine sub-128-bit strength with long validity windows that complicate the NIST~2031 transition.
+
+% Keywords: set with \keywords{} in main.tex (acmart front matter).
+
+
+
+
+\end{abstract}

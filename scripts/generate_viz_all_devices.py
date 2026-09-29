@@ -2,14 +2,16 @@
 Generate PDF visualizations for all 10 IoT devices combined certificate analysis.
 """
 
+import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 from pathlib import Path
 
-# Configuration
-INPUT_ANALYSIS = Path('/home/ab/update_traffic/controlled/analysis_output/data/certificate_security_analysis_all_devices.csv')
-OUTPUT_FIGURES = Path('/home/ab/update_traffic/controlled/analysis_output/figures')
+# Configuration (paths relative to the repository root; this file is in scripts/)
+REPO = Path(__file__).resolve().parents[1]
+INPUT_ANALYSIS = REPO / 'controlled/analysis_output/data/certificate_security_analysis_all_devices.csv'
+OUTPUT_FIGURES = REPO / 'controlled/analysis_output/figures'
 OUTPUT_FIGURES.mkdir(parents=True, exist_ok=True)
 
 # Plot styling
@@ -40,6 +42,8 @@ def key_size_color(key_size):
         return '#fdae61'  # transitional (amber)
     if key_size == 256:
         return '#66c2a5'  # strong ECC (teal)
+    if key_size == 384:
+        return '#3288bd'  # stronger ECC (blue)
     if key_size == 3072:
         return '#4daf4a'  # strong RSA baseline (green)
     if key_size == 4096:
@@ -183,36 +187,61 @@ def plot_device_comparison_strength(df):
     plt.close()
 
 def plot_security_bits_boxplot(df):
-    """Plot security bits by key size with NIST reference lines."""
-    fig, ax = plt.subplots(figsize=(12, 7))
-    
-    # Create boxplot using explicit positions
-    key_sizes_unique = sorted(df['public_key_size'].unique())
-    data_by_size = [df[df['public_key_size'] == ks]['security_bits'].values for ks in key_sizes_unique]
-    
-    bp = ax.boxplot(data_by_size, positions=range(len(key_sizes_unique)), patch_artist=True,
-                     tick_labels=key_sizes_unique, widths=0.6)
-    
-    # Color the boxes
-    for patch in bp['boxes']:
-        patch.set_facecolor('#1f77b4')
-        patch.set_alpha(0.7)
-    
-    # Add NIST reference lines
-    ax.axhline(y=80, color='red', linestyle='--', linewidth=2, label='NIST Minimum (80 bits)')
-    ax.axhline(y=112, color='orange', linestyle='--', linewidth=2, label='NIST Transition (112 bits)')
-    ax.axhline(y=128, color='green', linestyle='--', linewidth=2, label='NIST Future (128 bits)')
-    
-    ax.set_title('Security Bits Distribution by Key Size', fontweight='bold', pad=12)
-    ax.set_xlabel('Key Size (bits)', fontsize=14)
-    ax.set_ylabel('Security Bits (NIST SP 800-57)', fontsize=14)
-    ax.legend(loc='upper left')
-    style_axes(ax)
-    
-    plt.tight_layout()
-    plt.savefig(OUTPUT_FIGURES / 'security_bits_boxplot_all_devices.pdf', format='pdf', dpi=300)
+    """Plot the per-device distribution of certificate security strength.
+
+    One box per device (unique certificates, NIST SP 800-57 bits) with the
+    individual certificates overlaid, and the 80/112/128-bit NIST levels as
+    dashed lines. Sized for one ACM two-column figure (3.33 in wide), so the
+    fonts print at their nominal size when included at \\linewidth.
+    """
+    devices = sorted(df['device'].unique())
+    data = [df.loc[df['device'] == d, 'security_bits'].to_numpy() for d in devices]
+    rng = np.random.default_rng(0)  # fixed seed: reproducible jitter
+
+    with plt.rc_context({
+        'font.size': 7, 'axes.labelsize': 7, 'xtick.labelsize': 6.5,
+        'ytick.labelsize': 6.5, 'legend.fontsize': 6, 'axes.linewidth': 0.6,
+    }):
+        fig, ax = plt.subplots(figsize=(3.4, 2.1))
+        bp = ax.boxplot(
+            data, positions=range(len(devices)), widths=0.55, patch_artist=True,
+            showfliers=False, medianprops=dict(color='black', linewidth=1.0),
+            whiskerprops=dict(linewidth=0.7), capprops=dict(linewidth=0.7),
+            boxprops=dict(linewidth=0.7),
+        )
+        for patch in bp['boxes']:
+            patch.set_facecolor('#9ecae1')
+            patch.set_alpha(0.8)
+        for i, vals in enumerate(data):
+            x = i + rng.uniform(-0.18, 0.18, len(vals))
+            ax.scatter(x, vals, s=5, color='#08519c', alpha=0.55, linewidths=0, zorder=3)
+
+        for bits, color, label in [
+            (80, '#d62728', '80 bits (disallowed)'),
+            (112, '#ff7f0e', '112 bits (transitional)'),
+            (128, '#2ca02c', '128 bits (acceptable)'),
+        ]:
+            ax.axhline(y=bits, color=color, linestyle='--', linewidth=0.9, label=label, zorder=1)
+
+        ax.set_xticks(range(len(devices)))
+        ax.set_xticklabels(devices, rotation=35, ha='right')
+        ax.set_xlim(-0.6, len(devices) - 0.4)
+        ax.set_ylim(60, 205)
+        ax.set_yticks([80, 112, 128, 160, 192])
+        ax.set_ylabel('Security strength (bits)')
+        # Upper right is empty (those devices stay at or below 128 bits); keeps
+        # apple-tv's 192-bit (P-384) certificates visible on the left.
+        ax.legend(loc='upper right', frameon=True, framealpha=0.9, ncol=1,
+                  handlelength=1.8, borderpad=0.3, labelspacing=0.25)
+        ax.grid(axis='y', linestyle=':', alpha=0.35)
+        ax.grid(axis='x', visible=False)
+        ax.spines['top'].set_visible(False)
+        ax.spines['right'].set_visible(False)
+
+        fig.tight_layout(pad=0.2)
+        fig.savefig(OUTPUT_FIGURES / 'security_bits_boxplot_all_devices.pdf', format='pdf')
+        plt.close(fig)
     print("✓ Saved security_bits_boxplot_all_devices.pdf")
-    plt.close()
 
 def plot_validity_analysis(df):
     """Plot certificate validity periods."""

@@ -30,7 +30,7 @@
 # directory, so file-level negations alone would never match.)
 # ---------------------------------------------------------------------------
 latex/**
-!latex/suit_acm_sigconf/
+latex/suit_acm_sigconf/
 !latex/suit_acm_sigconf/**/
 !latex/suit_acm_sigconf/**/*.tex
 !latex/suit_acm_sigconf/**/*.bib

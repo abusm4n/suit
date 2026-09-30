@@ -1,3 +1,7 @@
-pandas
-seaborn
-scapy
+# Python 3.10 or newer (tested with 3.12). Install with: pip install -r requirements.txt
+#
+# Figures are typeset by pdflatex through matplotlib's PGF backend, so the figure step
+# also needs a TeX installation with the 'libertine' package (e.g. texlive-fonts-extra).
+# The steps that read raw captures need tshark (Wireshark 3.6 or newer; tested with 4.6).
+cryptography>=42     # X.509 parsing: leaf certificates, revocation pointers
+matplotlib>=3.8      # figures (PGF backend, constrained layout, 'outside' legends)

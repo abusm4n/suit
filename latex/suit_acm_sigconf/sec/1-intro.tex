@@ -1,0 +1,30 @@
+
+\section{Introduction}
+
+Software updates are the main way to fix vulnerabilities in deployed IoT devices, yet the update mechanism is itself an attack surface, and the process for firmware and software updates in IoT is non-trivial~\cite{294541,10710264}.
+Standards and frameworks for secure updates, such as the IETF SUIT architecture~\cite{rfc9019,rfc9124}, TUF~\cite{samuel2010tuf}, and Uptane~\cite{kuppusamy2016uptane}, therefore protect the update file itself with signed metadata, independently of the network connection that carries it.
+How consumer devices actually receive their updates, and how the delivery channel and the protection inside the image cover each other's gaps, has received little empirical attention: prior work examined unencrypted HTTP update exchanges~\cite{10.1007/978-3-031-30122-3_25,10.1145/3560835.3564551}, update requirements~\cite{icissp23}, the information that IoT devices expose in general~\cite{10.1145/3355369.3355577}, or vulnerabilities in the update logic on the device~\cite{294541,USMAN2026105019}.
+
+The channel matters even when images are signed.
+Update checks and downloads can reveal the model and exact firmware version of a device to anyone on the path, who can then single out unpatched devices.
+Not every vendor signs every update file, and for unsigned images and metadata the channel is the only protection against tampering.
+Conversely, a weak channel is not automatically exploitable when the device verifies a vendor signature before installing the image.
+A meaningful assessment therefore has to (i)~separate update traffic from everything else a device exchanges while it updates, and (ii)~read each channel together with the protection of the image it delivers.
+Neither is standard practice: measurement studies commonly select update traffic by keywords and report statistics over entire captures, and we show that both choices distort the picture.
+
+We measure update delivery at the network layer in two datasets: our own update experiments with ten consumer devices, and a re-analysis of the 2019 Mon(IoT)r traces~\cite{10.1145/3355369.3355577}, which serves as a baseline from several years earlier.
+In summary, we make the following contributions:
+
+\begin{itemize}
+    \item[\textbullet]
+    \textcolor{blue}{Controlled update experiments with ten consumer IoT devices (streaming devices, a smart speaker, and network cameras), in which we trigger real updates and record all traffic of each device while it updates. Seven devices installed a new firmware version, one of them pushed across the home network by a desktop application (\S\ref{subsec:datasets}, \S\ref{subsec:profiles}).}
+    \item[\textbullet]
+    \textcolor{blue}{A method that identifies update traffic by its servers, found via DNS names, TLS server names, and web requests and confirmed by hand. In our captures, only 250 of 2,219 flows are update traffic, yet for six of the seven devices that installed an update they carry 96--100\% of the bytes; in the public dataset, the method narrows 38,355 captures to 308. Keyword matching, in contrast, mostly matches protocol vocabulary: over 95\% of the captures a keyword filter selects contain no update traffic (\S\ref{subsec:attribution}).}
+    \item[\textbullet]
+    \textcolor{blue}{A per-device account of how each update was delivered, relating the channel (protocol, negotiated TLS settings, server certificate and its revocation) to the integrity protection of the delivered image, and showing what unencrypted update requests reveal about a device (\S\ref{subsec:profiles}--\S\ref{subsec:image}).}
+    \item[\textbullet]
+    \textcolor{blue}{A comparison of update channels in 2019 and today, and a mapping of each observed weakness to the attack it enables and to the conditions that attack requires (\S\ref{subsec:preconditions}).}
+    \item[\textbullet]  We make our artifact (code, \textcolor{blue}{the lists of confirmed update servers, a dated cipher-suite classification snapshot,} intermediate data, and technical report) available for reproducibility and further research\footnote{Artifact \& data  available at \url{https://anonymous.4open.science/r/suit-369E}}.
+\end{itemize}
+
+\textcolor{blue}{In brief, three of the seven devices that downloaded an update received the image unencrypted, but the two HTTP downloads carry signatures; TLS servers mostly negotiate strong, forward-secret suites; and weak or long-lived server certificates, never checked for revocation, appear only where vendors run their own certificate authorities.}

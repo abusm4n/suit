@@ -1,0 +1,16 @@
+device,endpoint,connections,staple_requested,stapled,tls12,issuer,ocsp,crl,captures,captures_with_revocation_lookup,lookup_hosts
+apple-tv,gdmf-ados.apple.com,2,2,0,0,,,,1,1,ocsp.comodoca.com ocsp.comodoca.com.cdn.cloudflare.net ocsp.digicert.com ocsp.usertrust.com ocsp2.apple.com ocsp2.g.aaplimg.com
+apple-tv,gdmf.apple.com,15,15,15,15,"C=US,O=Apple Inc.,OU=Certification Authority,CN=Apple Server Authentication CA",http://ocsp.apple.com/ocsp03-appleserverauth12,http://crl.apple.com/appleserverauthca1.crl,1,1,ocsp.comodoca.com ocsp.comodoca.com.cdn.cloudflare.net ocsp.digicert.com ocsp.usertrust.com ocsp2.apple.com ocsp2.g.aaplimg.com
+apple-tv,gs.apple.com,1,1,0,1,"C=US,O=Apple Inc.,OU=Certification Authority,CN=Apple Server Authentication CA",http://ocsp.apple.com/ocsp03-appleserverauth14,http://crl.apple.com/appleserverauthca1.crl,1,1,ocsp.comodoca.com ocsp.comodoca.com.cdn.cloudflare.net ocsp.digicert.com ocsp.usertrust.com ocsp2.apple.com ocsp2.g.aaplimg.com
+apple-tv,mesu.apple.com,11,11,0,0,,,,1,1,ocsp.comodoca.com ocsp.comodoca.com.cdn.cloudflare.net ocsp.digicert.com ocsp.usertrust.com ocsp2.apple.com ocsp2.g.aaplimg.com
+apple-tv,updates.cdn-apple.com,53,53,0,0,,,,1,1,ocsp.comodoca.com ocsp.comodoca.com.cdn.cloudflare.net ocsp.digicert.com ocsp.usertrust.com ocsp2.apple.com ocsp2.g.aaplimg.com
+eufy-cam,cdn-eu-public.eufylife.com,4,0,0,4,"CN=Go Daddy Secure Certificate Authority - G2,OU=http://certs.godaddy.com/repository/,O=GoDaddy.com\, Inc.,L=Scottsdale,ST=Arizona,C=US",http://ocsp.godaddy.com/,http://crl.godaddy.com/gdig2s1-63621.crl,1,0,
+eufy-cam,security-app-eu.eufylife.com,3,0,0,3,"CN=Go Daddy Secure Certificate Authority - G2,OU=http://certs.godaddy.com/repository/,O=GoDaddy.com\, Inc.,L=Scottsdale,ST=Arizona,C=US",http://ocsp.godaddy.com/,http://crl.godaddy.com/gdig2s1-63621.crl,1,0,
+fire-tv,softwareupdates.amazon.com,1,1,1,1,"CN=DigiCert Global CA G2,O=DigiCert Inc,C=US",http://ocsp.digicert.com,http://crl3.digicert.com/DigiCertGlobalCAG2.crl http://crl4.digicert.com/DigiCertGlobalCAG2.crl,1,0,
+homepod,gdmf.apple.com,3,3,0,0,,,,1,0,
+homepod,updates.cdn-apple.com,5,5,0,0,,,,1,0,
+sony-tv,ssm1.internet.sony.tv,1,0,0,1,"CN=Amazon RSA 2048 M03,O=Amazon,C=US",http://ocsp.r2m03.amazontrust.com,http://crl.r2m03.amazontrust.com/r2m03.crl,1,0,
+tapo-c200,n-deventry-dcipc.tplinkcloud.com,1,0,0,1,"CN=TP-LINK CA P1,DC=tp-link,DC=com,DC=cn",none,http://tpcrl.tp-link.com.cn/certdata/TP-LINK_CA_P1.crl,1,0,
+tapo-c200,n-device-api.tplinkcloud.com,142,0,0,142,"CN=TP-LINK CA P1,DC=tp-link,DC=com,DC=cn",none,http://tpcrl.tp-link.com.cn/certdata/TP-LINK_CA_P1.crl,1,0,
+tapo-c200,n-euw1-devs-dcipc.tplinkcloud.com,1,0,0,1,"CN=TP-LINK CA P1,DC=tp-link,DC=com,DC=cn",none,http://tpcrl.tp-link.com.cn/certdata/TP-LINK_CA_P1.crl,1,0,
+xiaomi-cam,fk-res-abroad-cdn.home.mi.com,1,0,0,1,"CN=Go Daddy Secure Certificate Authority - G2,OU=http://certs.godaddy.com/repository/,O=GoDaddy.com\, Inc.,L=Scottsdale,ST=Arizona,C=US",http://ocsp.godaddy.com/,http://crl.godaddy.com/gdig2s1-60577.crl,1,0,

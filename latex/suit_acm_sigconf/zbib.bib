@@ -1,0 +1,575 @@
+@article{USMAN2026105019,
+title = {Understanding security risks in update mechanisms of computing systems},
+journal = {Computers \& Security},
+volume = {170},
+pages = {105019},
+year = {2026},
+issn = {0167-4048},
+doi = {10.1016/j.cose.2026.105019},
+author = {Ahmad B. Usman and Mikael Asplund},
+keywords = {Secure updates, Software updates, Firmware updates, Vulnerability analysis, Target-system classification, Mitigation recommendations},
+}
+
+
+@inproceedings{10.1145/2815675.2815685,
+author = {Liu, Yabing and Tome, Will and Zhang, Liang and Choffnes, David and Levin, Dave and Maggs, Bruce and Mislove, Alan and Schulman, Aaron and Wilson, Christo},
+title = {An End-to-End Measurement of Certificate Revocation in the Web's {PKI}},
+year = {2015},
+isbn = {9781450338486},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+doi = {10.1145/2815675.2815685},
+abstract = {Critical to the security of any public key infrastructure (PKI) is the ability to revoke previously issued certificates. While the overall SSL ecosystem is well-studied, the frequency with which certificates are revoked and the circumstances under which clients (e.g., browsers) check whether certificates are revoked are still not well-understood.In this paper, we take a close look at certificate revocations in the Web's PKI. Using 74 full IPv4 HTTPS scans, we find that a surprisingly large fraction (8\%) of the certificates served have been revoked, and that obtaining certificate revocation information can often be expensive in terms of latency and bandwidth for clients. We then study the revocation checking behavior of 30 different combinations of web browsers and operating systems; we find that browsers often do not bother to check whether certificates are revoked (including mobile browsers, which uniformly never check). We also examine the CRLSet infrastructure built into Google Chrome for disseminating revocations; we find that CRLSet only covers 0.35\% of all revocations. Overall, our results paint a bleak picture of the ability to effectively revoke certificates today.},
+booktitle = {Proceedings of the 2015 Internet Measurement Conference},
+pages = {183–196},
+numpages = {14},
+keywords = {certificates, crlset, extended validation, https, pki, revocation, ssl, tls, web browsers, x.509},
+location = {Tokyo, Japan},
+series = {IMC '15}
+}
+
+
+@article{10.1007/s10207-026-01233-1,
+  title={Bridging remote attestation and secure software updates in embedded systems},
+  author={Usman, Ahmad B and Afzal, Zeeshan and Asplund, Mikael},
+  journal={International Journal of Information Security},
+  volume={25},
+  number={2},
+  pages={75},
+  year={2026},
+  doi = {10.1007/s10207-026-01233-1},
+  publisher={Springer}
+}
+
+
+@inproceedings{10.1145/3618257.3624815,
+author = {Dong, Hongying and Shu, Hao and Prakash, Vijay and Zhang, Yizhe and Paracha, Muhammad Talha and Choffnes, David and Torres-Arias, Santiago and Huang, Danny Yuxing and Sun, Yixin},
+title = {Behind the Scenes: Uncovering {TLS} and Server Certificate Practice of {IoT} Device Vendors in the Wild},
+year = {2023},
+isbn = {9798400703829},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+doi = {10.1145/3618257.3624815},
+abstract = {IoT devices are increasingly used in consumer homes. Despite recent works in characterizing IoT TLS usage for a limited number of in-lab devices, there exists a gap in quantitatively understanding TLS behaviors from devices in the wild and server-side certificate management.To bridge this knowledge gap, we conduct a new measurement study by focusing on the practice of device vendors, through a crowdsourced dataset of network traffic from 2,014 real-world IoT devices across 721 global users. By quantifying the sharing of TLS fingerprints across vendors and across devices, we uncover the prevalent use of customized TLS libraries (i.e., not matched to any known TLS libraries) and potential security concerns resulting from co-located TLS stacks of different services. Furthermore, we present the first known study on server-side certificate management for servers contacted by IoT devices. Our study highlights potential concerns in the TLS/PKI practice by IoT device vendors. We aim to raise visibility for these issues and motivate vendors to improve security practice.},
+booktitle = {Proceedings of the 2023 ACM on Internet Measurement Conference},
+pages = {457–477},
+numpages = {21},
+keywords = {internet of things, iot, measurements, network security, pki, public key infrastructure, tls, transport layer security},
+location = {Montreal QC, Canada},
+series = {IMC '23}
+}
+
+
+
+@techreport{NIST2020-SP800-57,
+  author      = {Barker, Elaine},
+  title       = {Recommendation for Key Management: Part 1 --- General},
+  institution = {National Institute of Standards and Technology},
+  year        = {2020},
+  month       = {5},
+  type        = {NIST Special Publication},
+  number      = {800-57 Part 1 Rev. 5},
+  doi         = {10.6028/NIST.SP.800-57pt1r5},
+}
+
+
+
+
+@misc{rfc4055,
+    series =    {Request for Comments},
+    number =    4055,
+    howpublished =  {RFC 4055},
+    publisher = {RFC Editor},
+    doi =       {10.17487/RFC4055},
+    author =    {Russ Housley and Jim Schaad and Burt Kaliski},
+    title =     {{Additional Algorithms and Identifiers for RSA Cryptography for use in the Internet X.509 Public Key Infrastructure Certificate and Certificate Revocation List (CRL) Profile}},
+    pagetotal = 25,
+    year =      2005,
+    month =     jun,
+    abstract =  {This document supplements RFC 3279. It describes the conventions for using the RSA Probabilistic Signature Scheme (RSASSA-PSS) signature algorithm, the RSA Encryption Scheme - Optimal Asymmetric Encryption Padding (RSAES-OAEP) key transport algorithm and additional one-way hash functions with the Public-Key Cryptography Standards (PKCS) \#1 version 1.5 signature algorithm in the Internet X.509 Public Key Infrastructure (PKI). Encoding formats, algorithm identifiers, and parameter formats are specified. {[}STANDARDS-TRACK{]}},
+}
+
+
+@misc{rfc5480,
+    series =    {Request for Comments},
+    number =    5480,
+    howpublished =  {RFC 5480},
+    publisher = {RFC Editor},
+    doi =       {10.17487/RFC5480},
+    author =    {Tim Polk and Russ Housley and Sean Turner and Daniel R. L. Brown and Kelvin Yiu},
+    title =     {{Elliptic Curve Cryptography Subject Public Key Information}},
+    pagetotal = 20,
+    year =      2009,
+    month =     mar,
+    abstract =  {This document specifies the syntax and semantics for the Subject Public Key Information field in certificates that support Elliptic Curve Cryptography. This document updates Sections 2.3.5 and 5, and the ASN.1 module of "Algorithms and Identifiers for the Internet X.509 Public Key Infrastructure Certificate and Certificate Revocation List (CRL) Profile", RFC 3279. {[}STANDARDS-TRACK{]}},
+}
+
+
+@misc{rfc5280,
+    series =    {Request for Comments},
+    number =    5280,
+    howpublished =  {RFC 5280},
+    publisher = {RFC Editor},
+    doi =       {10.17487/RFC5280},
+    author =    {Sharon Boeyen and Stefan Santesson and Tim Polk and Russ Housley and Stephen Farrell and David Cooper},
+    title =     {{Internet X.509 Public Key Infrastructure Certificate and Certificate Revocation List (CRL) Profile}},
+    pagetotal = 151,
+    year =      2008,
+    month =     may,
+    abstract =  {This memo profiles the X.509 v3 certificate and X.509 v2 certificate revocation list (CRL) for use in the Internet. An overview of this approach and model is provided as an introduction. The X.509 v3 certificate format is described in detail, with additional information regarding the format and semantics of Internet name forms. Standard certificate extensions are described and two Internet-specific extensions are defined. A set of required certificate extensions is specified. The X.509 v2 CRL format is described in detail along with standard and Internet-specific extensions. An algorithm for X.509 certification path validation is described. An ASN.1 module and examples are provided in the appendices. {[}STANDARDS-TRACK{]}},
+}
+
+
+@article{Alsowaigh_2025, title={{CrowdStrike} Causes Global {Microsoft} Outage: A Case Study}, volume={8}, 
+DOI={10.26735/QHDD4798}, abstractNote={&lt;p&gt; In today’s world, reliance on technology is rapidly growing across critical sectors such as business, banking, healthcare, and education. While technology enhances convenience and efficiency in daily activities, its failure can lead to significant disruptions. A notable global incident caused by a fault in CrowdStrike software disrupted the availability aspect of the Confidentiality, Integrity, and Availability (CIA) triad in cybersecurity, impacting Microsoft Windows users. The issue stemmed from the Falcon sensor, a faulty update that triggered the Blue Screen of Death (BSOD) due to a mismatch in parameters within the sensor code and the Inter-Process Communication (IPC) Template Type. To resolve the problem, CrowdStrike implemented runtime array bounds checks in the Content Interpreter function and validated input parameters to ensure system stability. These corrective measures aimed to prevent similar incidents and restore normal functionality for affected users. This paper introduces a case study that provides an overview of CrowdStrike, examines the incident in detail, identifies the root cause, outlines the remediation techniques employed, and highlights key lessons learned. It emphasizes the importance of effective incident response strategies and the use of canary testing to mitigate the impact of future technological failures.&lt;/p&gt;}, number={1}, journal={Journal of Information Security and Cybercrimes Research}, author={E. Alsowaigh, Reef}, year={2025}, month={Jun.}, pages={63-76} }
+
+@online{ciphersuite.info,
+  author  = {Hans Christian Rudolph and Nils Grundmann},
+  title   = {ciphersuite.info: {TLS} Cipher Suite Search},
+  url     = {https://ciphersuite.info},
+  urldate = {2026-09-30},
+  note    = {API snapshot of 351 cipher suites retrieved 2026-09-30, included in the artifact}
+}
+
+
+
+
+
+
+
+
+
+
+@online{IANA_parameters,
+  author  = {Yoav Nir and Rich Salz and Nick Sullivan},
+  title   = {{Transport Layer Security (TLS) Parameters}, {Internet Assigned Numbers Authority (IANA)}},
+  url     = {https://www.iana.org/assignments/tls-parameters/tls-parameters.xhtml},
+  urldate = {2026-09-30},
+  note    = {Registry version last updated 2026-09-18}
+}
+
+
+
+
+
+@article{wang2025cybersecurity,
+  title={Cybersecurity in Ophthalmology Practices: Analysis of Cyber-Attack Patterns and Mitigation Strategies},
+  author={Wang, Chen and Sarossy, Alex and Sarossy, Marc},
+  journal={Investigative Ophthalmology \& Visual Science},
+  volume={66},
+  number={8},
+  pages={3890--3890},
+  year={2025},
+  publisher={The Association for Research in Vision and Ophthalmology}
+}
+
+
+
+
+@INPROCEEDINGS{6088496,
+  author={Ferreira Lemos Lima, Christiane and Assis, Francisco M. and de Souza, Cleonilson Protásio},
+  booktitle={2011 IEEE International Workshop on Measurements and Networking Proceedings (M\&N)}, 
+  title={A comparative study of use of {Shannon}, {Rényi} and {Tsallis} entropy for attribute selecting in network intrusion detection}, 
+  year={2011},
+  volume={},
+  number={},
+  comment={pages={77-82}},
+  keywords={Entropy;Intrusion detection;Clustering algorithms;Decision trees;Accuracy;Machine learning;Monitoring;Attribute selection;network intrusion detection;Rényi and Tsallis entropy},
+  doi={10.1109/IWMN.2011.6088496}}
+
+
+
+
+@online{CVE_Program,
+  author  = {{CVE Program}},
+  title   = {{Common Vulnerabilities and Exposures (CVE)}},
+  url     = {https://www.cve.org},
+  urldate = {2026-09-30}
+}
+
+
+
+
+
+@online{raspi-config,
+  author  = {{Raspberry-pi-config}},
+  title   = {Host a wireless network from your {Raspberry Pi}},
+  url     = {https://www.raspberrypi.com/documentation/computers/configuration.html},
+  urldate = {2026-02-12}
+}
+
+
+@techreport{ietf-tls-grease-01,
+    number =    {draft-ietf-tls-grease-01},
+    type =      {Internet-Draft},
+    institution =   {Internet Engineering Task Force},
+    publisher = {Internet Engineering Task Force},
+    note =      {Work in Progress},
+    url =       {https://datatracker.ietf.org/doc/draft-ietf-tls-grease/01/},
+    author =    {David Benjamin},
+    title =     {{Applying GREASE to TLS Extensibility}},
+    pagetotal = 10,
+    year =      2018,
+    month =     jun,
+    day =       6,
+    abstract =  {This document describes GREASE (Generate Random Extensions And Sustain Extensibility), a mechanism to prevent extensibility failures in the TLS ecosystem. It reserves a set of TLS protocol values that may be advertised to ensure peers correctly handle unknown values.},
+}
+
+
+@article{kapoor2025predicting,
+  title={Predicting Video {QoE} from Encrypted Traffic: Leveraging Video Fingerprinting and Providing System-Level Insights},
+  author={Kapoor, Somiya and Witwer, Ethan and Hasselquist, David and Asplund, Mikael and Carlsson, Niklas},
+  year={2025},
+    booktitle = {IFIP Networking Conference (IFIP Networking)}
+}
+
+@InProceedings{10.1007/978-3-031-92886-4_7,
+author="Usman, Ahmad B.
+and Asplund, Mikael",
+editor="Nemec Zlatolas, Lili
+and Rannenberg, Kai
+and Welzer, Tatjana
+and Garcia-Alfaro, Joaquin",
+title="Update at Your Own Risk: Analysis and Recommendations for Update-Related Vulnerabilities",
+booktitle="ICT Systems Security and Privacy Protection",
+year="2025",
+publisher="Springer Nature Switzerland",
+address="Cham",
+pages="97--110",
+isbn="978-3-031-92886-4",
+doi="10.1007/978-3-031-92886-4_7"
+}
+
+
+
+@conference{icissp23,
+author={Ludwig Seitz and Marco Tiloca and Martin Gunnarsson and Rikard Höglund},
+title={Secure Software Updates for {IoT} Based on Industry Requirements},
+booktitle={Proceedings of the 9th International Conference on Information Systems Security and Privacy - ICISSP},
+year={2023},
+pages={698-705},
+publisher={SciTePress},
+organization={INSTICC},
+doi={10.5220/0011790100003405},
+isbn={978-989-758-624-8},
+issn={2184-4356},
+}
+
+
+
+@INPROCEEDINGS{9881713,
+  author={Tollefsen, Roberth and Anshus, Otto},
+  booktitle={2022 18th International Conference on Distributed Computing in Sensor Systems (DCOSS)}, 
+  title={Detecting the Arrival of an Update at Mostly Sleeping Cyber-Physical {IoT} Nodes}, 
+  year={2022},
+  volume={},
+  number={},
+  pages={175-182},
+  keywords={Schedules;Energy consumption;Prototypes;Energy measurement;Time measurement;Software;Sensor systems;Arctic tundra;Resource-challenged environments;IoT;Cyber Physical System;Updates;Detecting;Scheduling},
+  doi={10.1109/DCOSS54816.2022.00040}}
+
+
+
+
+
+
+@InProceedings{10.1007/978-3-030-41702-4_14,
+author="Dejon, Nicolas
+and Caputo, Davide
+and Verderame, Luca
+and Armando, Alessandro
+and Merlo, Alessio",
+editor="Laurent, Maryline
+and Giannetsos, Thanassis",
+title="Automated Security Analysis of {IoT} Software Updates",
+booktitle="Information Security Theory and Practice",
+year="2020",
+publisher="Springer International Publishing",
+address="Cham",
+pages="223--239",
+isbn="978-3-030-41702-4",
+doi="10.1007/978-3-030-41702-4_14"
+}
+
+
+@INPROCEEDINGS{10710264,
+  author={Nordahl, Mattias and Åkesson, Alfred and Johnsson, Björn A. and Hedin, Görel and Magnusson, Boris},
+  booktitle={2024 11th International Conference on Internet of Things: Systems, Management and Security (IOTSMS)}, 
+  title={Software Component Update for {IoT} Systems}, 
+  year={2024},
+  volume={},
+  number={},
+  pages={124-131},
+  keywords={Microservice architectures;Switches;Telecommunication traffic;Software;Safety;Internet;Electronic healthcare;Servers;Security;Domain specific languages;IoT;software updates;component-oriented software;configuration language;microservices;eHealth},
+  doi={10.1109/IOTSMS62296.2024.10710264}}
+
+
+
+@ARTICLE{8999425,
+  author={Bauwens, Jan and Ruckebusch, Peter and Giannoulis, Spilios and Moerman, Ingrid and Poorter, Eli De},
+  journal={IEEE Communications Magazine}, 
+  title={Over-the-Air Software Updates in the {Internet of Things}: An Overview of Key Principles}, 
+  year={2020},
+  volume={58},
+  number={2},
+  pages={35-41},
+  keywords={Internet of Things;Wireless sensor networks;Security;Data dissemination;Computer bugs;Enregy consumption;Operating systems},
+  doi={10.1109/MCOM.001.1900125}}
+
+
+
+
+
+
+@inproceedings {294541,
+author = {Yuhao Wu and Jinwen Wang and Yujie Wang and Shixuan Zhai and Zihan Li and Yi He and Kun Sun and Qi Li and Ning Zhang},
+title = {Your Firmware Has Arrived: A Study of Firmware Update Vulnerabilities},
+booktitle = {33rd USENIX Security Symposium (USENIX Security 24)},
+year = {2024},
+isbn = {978-1-939133-44-1},
+address = {Philadelphia, PA},
+pages = {5627--5644},
+url = {https://www.usenix.org/conference/usenixsecurity24/presentation/wu-yuhao},
+publisher = {USENIX Association},
+month = aug
+}
+
+
+
+@article{yu2024renyi,
+  title={{Renyi} entropy-driven network traffic anomaly detection with dynamic threshold},
+  author={Yu, Haoran and Yang, Wenchuan and Cui, Baojiang and Sui, Runqi and Wu, Xuedong},
+  journal={Cybersecurity},
+  volume={7},
+  number={1},
+  pages={1--13},
+  year={2024},
+  publisher={Springer}
+}
+
+@inproceedings{10.1145/3560835.3564551,
+author = {Prakash, Vijay and Xie, Sicheng and Huang, Danny Yuxing},
+title = {Inferring Software Update Practices on Smart Home {IoT} Devices Through User Agent Analysis},
+year = {2022},
+isbn = {9781450398855},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+doi = {10.1145/3560835.3564551},
+booktitle = {Proceedings of the 2022 ACM Workshop on Software Supply Chain Offensive Research and Ecosystem Defenses},
+pages = {93–103},
+numpages = {11},
+keywords = {iot, supply chain, updates},
+location = {Los Angeles, CA, USA},
+series = {SCORED'22}
+}
+
+
+
+@InProceedings{10.1007/978-3-031-30122-3_25,
+author="Bradley, Conner
+and Barrera, David",
+editor="Jourdan, Guy-Vincent
+and Mounier, Laurent
+and Adams, Carlisle
+and S{\`e}des, Florence
+and Garcia-Alfaro, Joaquin",
+title="Towards Characterizing {IoT} Software Update Practices",
+booktitle="Foundations and Practice of Security",
+year="2023",
+publisher="Springer Nature Switzerland",
+address="Cham",
+pages="406--422",
+isbn="978-3-031-30122-3",
+doi="10.1007/978-3-031-30122-3_25"
+}
+
+
+@inproceedings{10.1145/3355369.3355577,
+author = {Ren, Jingjing and Dubois, Daniel J. and Choffnes, David and Mandalari, Anna Maria and Kolcun, Roman and Haddadi, Hamed},
+title = {Information Exposure From Consumer {IoT} Devices: A Multidimensional, Network-Informed Measurement Approach},
+year = {2019},
+isbn = {9781450369480},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+doi = {10.1145/3355369.3355577},
+booktitle = {Proceedings of the Internet Measurement Conference},
+pages = {267–279},
+numpages = {13},
+location = {Amsterdam, Netherlands},
+series = {IMC '19}
+}
+
+
+@InProceedings{10.1007/978-3-032-00624-0_11,
+author="Bianchi, Federica
+and Di Paolo, Edoardo
+and Spognardi, Angelo",
+editor="Dalla Preda, Mila
+and Schrittwieser, Sebastian
+and Naessens, Vincent
+and De Sutter, Bjorn",
+title="Generalized Encrypted Traffic Classification Using Inter-flow Signals",
+booktitle="Availability, Reliability and Security",
+year="2025",
+publisher="Springer Nature Switzerland",
+address="Cham",
+pages="221--231",
+isbn="978-3-032-00624-0",
+doi="10.1007/978-3-032-00624-0_11"
+}
+
+
+
+%% ---- Added for the SAC 2027 revision (2026-09-30) ----
+
+@misc{rfc9019,
+    series =    {Request for Comments},
+    number =    9019,
+    howpublished =  {RFC 9019},
+    publisher = {RFC Editor},
+    doi =       {10.17487/RFC9019},
+    author =    {Brendan Moran and Hannes Tschofenig and David Brown and Milosz Meriac},
+    title =     {{A Firmware Update Architecture for Internet of Things}},
+    year =      2021,
+    month =     apr,
+}
+
+@misc{rfc9124,
+    series =    {Request for Comments},
+    number =    9124,
+    howpublished =  {RFC 9124},
+    publisher = {RFC Editor},
+    doi =       {10.17487/RFC9124},
+    author =    {Brendan Moran and Hannes Tschofenig and Henk Birkholz},
+    title =     {{A Manifest Information Model for Firmware Updates in Internet of Things (IoT) Devices}},
+    year =      2022,
+    month =     jan,
+}
+
+@misc{rfc9325,
+    series =    {Request for Comments},
+    number =    9325,
+    howpublished =  {RFC 9325 (BCP 195)},
+    publisher = {RFC Editor},
+    doi =       {10.17487/RFC9325},
+    author =    {Yaron Sheffer and Peter Saint-Andre and Thomas Fossati},
+    title =     {{Recommendations for Secure Use of Transport Layer Security (TLS) and Datagram Transport Layer Security (DTLS)}},
+    year =      2022,
+    month =     nov,
+}
+
+@misc{rfc8446,
+    series =    {Request for Comments},
+    number =    8446,
+    howpublished =  {RFC 8446},
+    publisher = {RFC Editor},
+    doi =       {10.17487/RFC8446},
+    author =    {Eric Rescorla},
+    title =     {{The Transport Layer Security (TLS) Protocol Version 1.3}},
+    year =      2018,
+    month =     aug,
+}
+
+@misc{rfc5746,
+    series =    {Request for Comments},
+    number =    5746,
+    howpublished =  {RFC 5746},
+    publisher = {RFC Editor},
+    doi =       {10.17487/RFC5746},
+    author =    {Eric Rescorla and Marsh Ray and Steve Dispensa and Nasko Oskov},
+    title =     {{Transport Layer Security (TLS) Renegotiation Indication Extension}},
+    year =      2010,
+    month =     feb,
+}
+
+@misc{rfc7507,
+    series =    {Request for Comments},
+    number =    7507,
+    howpublished =  {RFC 7507},
+    publisher = {RFC Editor},
+    doi =       {10.17487/RFC7507},
+    author =    {Bodo Moeller and Adam Langley},
+    title =     {{TLS Fallback Signaling Cipher Suite Value (SCSV) for Preventing Protocol Downgrade Attacks}},
+    year =      2015,
+    month =     apr,
+}
+
+@misc{rfc8701,
+    series =    {Request for Comments},
+    number =    8701,
+    howpublished =  {RFC 8701},
+    publisher = {RFC Editor},
+    doi =       {10.17487/RFC8701},
+    author =    {David Benjamin},
+    title =     {{Applying Generate Random Extensions And Sustain Extensibility (GREASE) to TLS Extensibility}},
+    year =      2020,
+    month =     jan,
+}
+
+@inproceedings{samuel2010tuf,
+  author    = {Justin Samuel and Nick Mathewson and Justin Cappos and Roger Dingledine},
+  title     = {Survivable Key Compromise in Software Update Systems},
+  booktitle = {Proceedings of the 17th {ACM} Conference on Computer and Communications Security ({CCS})},
+  pages     = {61--72},
+  year      = {2010},
+  doi       = {10.1145/1866307.1866315},
+}
+
+@inproceedings{kuppusamy2016uptane,
+  author    = {Trishank Karthik Kuppusamy and Akan Brown and Sebastien Awwad and Damon McCoy and Russ Bielawski and Cameron Mott and Sam Lauzon and Andr{\'e} Weimerskirch and Justin Cappos},
+  title     = {{Uptane}: Securing Software Updates for Automobiles},
+  booktitle = {International Conference on Embedded Security in Cars ({escar} Europe)},
+  year      = {2016},
+}
+
+
+
+@article{holz2020tls13,
+  author  = {Ralph Holz and Jens Hiller and Johanna Amann and Abbas Razaghpanah and Thomas Jost and Narseo Vallina-Rodriguez and Oliver Hohlfeld},
+  title   = {Tracking the Deployment of {TLS} 1.3 on the Web: A Story of Experimentation and Centralization},
+  journal = {ACM SIGCOMM Computer Communication Review},
+  volume  = {50},
+  number  = {3},
+  pages   = {3--15},
+  year    = {2020},
+  doi     = {10.1145/3411740.3411742},
+}
+
+@inproceedings{beurdouche2015freak,
+  author    = {Benjamin Beurdouche and Karthikeyan Bhargavan and Antoine Delignat-Lavaud and C{\'e}dric Fournet and Markulf Kohlweiss and Alfredo Pironti and Pierre-Yves Strub and Jean Karim Zinzindohoue},
+  title     = {A Messy State of the Union: Taming the Composite State Machines of {TLS}},
+  booktitle = {{IEEE} Symposium on Security and Privacy ({S\&P})},
+  pages     = {535--552},
+  year      = {2015},
+  doi       = {10.1109/SP.2015.39},
+}
+
+@inproceedings{adrian2015logjam,
+  author    = {David Adrian and Karthikeyan Bhargavan and Zakir Durumeric and Pierrick Gaudry and Matthew Green and J. Alex Halderman and Nadia Heninger and Drew Springall and Emmanuel Thom{\'e} and Luke Valenta and Benjamin VanderSloot and Eric Wustrow and Santiago Zanella-B{\'e}guelin and Paul Zimmermann},
+  title     = {Imperfect Forward Secrecy: How {Diffie-Hellman} Fails in Practice},
+  booktitle = {Proceedings of the 22nd {ACM} {SIGSAC} Conference on Computer and Communications Security ({CCS})},
+  pages     = {5--17},
+  year      = {2015},
+  doi       = {10.1145/2810103.2813707},
+}
+
+@online{cabf-br,
+  author  = {{CA/Browser Forum}},
+  title   = {Baseline Requirements for the Issuance and Management of Publicly-Trusted {TLS} Server Certificates},
+  url     = {https://cabforum.org/working-groups/server/baseline-requirements/},
+  urldate = {2026-09-30},
+}
+
+@online{mitre-cwe,
+  author  = {{MITRE}},
+  title   = {Common Weakness Enumeration ({CWE})},
+  url     = {https://cwe.mitre.org},
+  urldate = {2026-09-30},
+}
+
+@online{apple-platform-security,
+  author  = {{Apple Inc.}},
+  title   = {Apple Platform Security},
+  url     = {https://support.apple.com/guide/security/welcome/web},
+  urldate = {2026-09-30},
+}

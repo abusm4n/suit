@@ -1,44 +1,72 @@
-# --- Large local data / build folders (kept out of the repo) ---
-controlled/
-retrospective/
-dataset/
-extracted/
-imc19_dataset/
-extracted_keywords/
-cvelistV5-main/
-doc/
-Technical_Report_Latex/
-latex/
+# ---------------------------------------------------------------------------
+# Raw data and local working folders. They are large, and the Mon(IoT)r traces
+# are under a data-sharing agreement, so they never enter the repository (see
+# README.md, "Data"). The versioned data lives in data/.
+# ---------------------------------------------------------------------------
+# (a leading '/' anchors a pattern at the repository root, so that for example
+# data/derived/controlled/ is not caught by the rule for /controlled/)
+/controlled/
+/retrospective/
+/dataset/
+/dataset_emre/
+/dataset_wustl/
+/extracted/
+/extracted_keywords/
+/imc19_dataset/
+/cvelistV5-main/
+/cache/
 
-SUIT_presentation.pptx
+# local notes and drafts
+/doc/
+/esorics/
+/Technical_Report_Latex/
+/Note.md
+/SUIT_presentation.pptx
 
-# --- Python ---
+# ---------------------------------------------------------------------------
+# Paper: track the sources of latex/suit_acm_sigconf and the figures it
+# includes; other venues, backups and build output under latex/ stay local.
+# ('latex/**' plus '!.../**/' is needed: git does not descend into an excluded
+# directory, so file-level negations alone would never match.)
+# ---------------------------------------------------------------------------
+latex/**
+!latex/suit_acm_sigconf/
+!latex/suit_acm_sigconf/**/
+!latex/suit_acm_sigconf/**/*.tex
+!latex/suit_acm_sigconf/**/*.bib
+!latex/suit_acm_sigconf/*.cls
+!latex/suit_acm_sigconf/*.bst
+!latex/suit_acm_sigconf/*.bbx
+!latex/suit_acm_sigconf/*.cbx
+!latex/suit_acm_sigconf/*.dbx
+!latex/suit_acm_sigconf/fig/system_setup.pdf
+!latex/suit_acm_sigconf/fig/devices_labels_fixed.jpeg
+!latex/suit_acm_sigconf/fig/keyword_baseline.pdf
+!latex/suit_acm_sigconf/fig/traffic_composition.pdf
+!latex/suit_acm_sigconf/fig/update_timelines.pdf
+!latex/suit_acm_sigconf/fig/entropy_by_channel.pdf
+!latex/suit_acm_sigconf/fig/offered_negotiated.pdf
+!latex/suit_acm_sigconf/fig/leaf_lifetimes.pdf
+!latex/suit_acm_sigconf/fig/channel_image.pdf
+# figure sources of other projects that are not part of this paper
+latex/suit_acm_sigconf/fig/tikz/
+
+# ---------------------------------------------------------------------------
+# Python, logs, editors
+# ---------------------------------------------------------------------------
 __pycache__/
 *.pyc
 .venv/
-
-# --- Logs / scratch data ---
+.ipynb_checkpoints/
 logs/
 *.log
 sample.json
 sample.csv
 
-# Ignore JSON everywhere
+# JSON files are large extraction outputs everywhere except the dated API snapshot
 **/*.json
+!data/reference/*.json
 
-# --- Editor / OS / lock files ---
-.ipynb_checkpoints/
 .DS_Store
 .~lock.*#
-
-
-# add .gitignore to .gitignore to prevent it from being ignored
-.gitignore
-
-
-esorics/
-suit_acm_sigconf/
-dataset_emre
-dataset_wustl/
-Note.md 
-
+.claude/

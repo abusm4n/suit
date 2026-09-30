@@ -1,0 +1,29 @@
+endpoint,uri_regex,role,decision,evidence
+softwareupdates.amazon.com,,update check,keep,Amazon software-update service
+mesu.apple.com,,update catalog,keep,Apple software-update catalog (UpdateBrain XML once over HTTP)
+gdmf.apple.com,,update metadata,keep,Apple software-update metadata service
+updates-http.cdn-apple.com,,asset download,keep,signed MobileAsset archives (voice resources; time-zone updates)
+fw-update2.smartthings.com,,firmware update,keep,SmartThings hub firmware server (leaf CN=STFWSRV)
+awsota.linkplay.com,,OTA,keep,LinkPlay OTA server (Allure speaker)
+hub-updates.winkapp.com,,hub update,keep,Wink hub update server
+fwuprod.clouddevice.io,,firmware update,keep,Honeywell thermostat firmware server (mutual TLS)
+otn.samsungcloudcdn.com,^/firmware/,firmware metadata,keep,/firmware/tv/*/SWU-*/OUITHeaders.dat over HTTP
+wrpd.dlink.com,/firmware/,firmware query,keep,/router/firmware/query.aspx?model=<model>_FW_<version>_<MAC> over HTTP
+api.dch.dlink.com,/agent/upgrade,upgrade agent,keep,/agent/upgrade?p=<app-layer encrypted> over HTTP
+snu.lge.com,SWAutoUpdate,update check,keep,/CheckSWAutoUpdate.laf over HTTP
+fw.ring.com,,,reject,serves the doorbell event API (/doorbots_api/dings and /motions)
+cdn.cnbj2.fds.api.mi-img.com,,,reject,camera alarm video clips (.mp4)
+ngfts.lge.com,,,reject,promotional image downloads (gftsDownload.lge?func_code=RECOMM_PROMOTION_IMAGE)
+aic-ngfts.lge.com,,,reject,promotional image downloads
+gfts.lge.com,,,reject,promotional content downloads
+go.microsoft.com,,,reject,fwlink redirects
+s.amazon-adsystem.com,,,reject,advertising update_dev_info calls
+aax-eu.amazon-adsystem.com,,,reject,advertising update_dev_info calls
+d1oxlq5h9kq8q5.cloudfront.net,,,reject,TV-store icon packages
+a.tuyaus.com,,,reject,s.gw.update device-information report (not an update check)
+amcrestview.com,,,reject,/p2pdev/update P2P registration
+log.eu.xiaoyi.com,,,reject,logging beacon
+su.itunes.apple.com,,,reject,app-store catalog (not device software)
+continuum.dds.microsoft.com,,,reject,Cortana device service
+fw-update2.smartthings.com.unctrl.dada.lab,,,reject,lab DNS search-domain artifact of fw-update2.smartthings.com
+192.168.10.143:49153,,,reject,LAN UPnP firmwareupdate.xml service description (Wemo)

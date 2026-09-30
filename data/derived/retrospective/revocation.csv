@@ -1,0 +1,14 @@
+device,endpoint,connections,staple_requested,stapled,tls12,issuer,ocsp,crl,captures,captures_with_revocation_lookup,lookup_hosts
+allure-speaker,awsota.linkplay.com,36,0,0,36,"CN=Amazon,OU=Server CA 1B,O=Amazon,C=US",http://ocsp.sca1b.amazontrust.com,http://crl.sca1b.amazontrust.com/sca1b.crl,12,0,
+appletv,gdmf.apple.com,12,12,0,12,"C=US,O=Apple Inc.,OU=Certification Authority,CN=Apple Server Authentication CA",http://ocsp.apple.com/ocsp03-appleserverauth12,http://crl.apple.com/appleserverauthca1.crl,28,7,ocsp.apple.com ocsp.digicert.com
+appletv,mesu.apple.com,118,118,115,118,"C=US,O=Apple Inc.,OU=Certification Authority,CN=Apple IST CA 8 - G1",http://ocsp.apple.com/ocsp03-appleistca8g105,http://crl.apple.com/appleistca8g1.crl,28,7,ocsp.apple.com ocsp.digicert.com
+cloudcam,softwareupdates.amazon.com,4,0,0,4,"CN=DigiCert Global CA G2,O=DigiCert Inc,C=US",http://ocsp.digicert.com,http://crl3.digicert.com/DigiCertGlobalCAG2.crl http://crl4.digicert.com/DigiCertGlobalCAG2.crl,4,2,prod.amazoncrl.com
+echodot,softwareupdates.amazon.com,7,0,0,7,"CN=DigiCert Global CA G2,O=DigiCert Inc,C=US",http://ocsp.digicert.com,http://crl3.digicert.com/DigiCertGlobalCAG2.crl http://crl4.digicert.com/DigiCertGlobalCAG2.crl,7,6,prod.amazoncrl.com
+echoplus,softwareupdates.amazon.com,8,0,0,8,"CN=DigiCert Global CA G2,O=DigiCert Inc,C=US",http://ocsp.digicert.com,http://crl3.digicert.com/DigiCertGlobalCAG2.crl http://crl4.digicert.com/DigiCertGlobalCAG2.crl,8,7,prod.amazoncrl.com
+echospot,softwareupdates.amazon.com,1,0,0,1,"CN=DigiCert Global CA G2,O=DigiCert Inc,C=US",http://ocsp.digicert.com,http://crl3.digicert.com/DigiCertGlobalCAG2.crl http://crl4.digicert.com/DigiCertGlobalCAG2.crl,1,1,prod.amazoncrl.com
+firetv,softwareupdates.amazon.com,4,0,0,4,"CN=DigiCert Global CA G2,O=DigiCert Inc,C=US",http://ocsp.digicert.com,http://crl3.digicert.com/DigiCertGlobalCAG2.crl http://crl4.digicert.com/DigiCertGlobalCAG2.crl,4,1,prod.amazoncrl.com
+honeywell-thermostat,fwuprod.clouddevice.io,1,1,1,1,"CN=Honeywell Product Service CA,O=Honeywell International Inc.,C=US",http://hppki.honeywell.com/ocsp,http://hppki.honeywell.com/crl/HoneywellProductService.crl,1,0,
+smartthings-hub,fw-update2.smartthings.com,1494,0,0,1494,"CN=STCA,OU=SmartThings,O=SmartThings,ST=Minnesota,C=US",none,none,205,0,
+t-echodot,softwareupdates.amazon.com,3,0,0,3,"CN=DigiCert Global CA G2,O=DigiCert Inc,C=US",http://ocsp.digicert.com,http://crl3.digicert.com/DigiCertGlobalCAG2.crl http://crl4.digicert.com/DigiCertGlobalCAG2.crl,3,1,prod.amazoncrl.com
+t-smartthings-hub,fw-update2.smartthings.com,729,0,0,729,"CN=STCA,OU=SmartThings,O=SmartThings,ST=Minnesota,C=US",none,none,7,0,
+wink-hub2,hub-updates.winkapp.com,6,0,0,6,"CN=COMODO RSA Domain Validation Secure Server CA,O=COMODO CA Limited,L=Salford,ST=Greater Manchester,C=GB",http://ocsp.comodoca.com,http://crl.comodoca.com/COMODORSADomainValidationSecureServerCA.crl,6,0,

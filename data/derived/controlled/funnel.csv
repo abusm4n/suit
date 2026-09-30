@@ -1,0 +1,11 @@
+device,flows,lan,wan,update_flows,update_tls,update_http,update_lan,update_mb,update_share,endpoints
+apple-tv,716,276,440,83,82,1,0,1947.99,0.964,gdmf-ados.apple.com;gdmf.apple.com;gs.apple.com;mesu.apple.com;updates-http.cdn-apple.com;updates.cdn-apple.com
+d-link-cam,81,78,3,0,0,0,0,0.0,0.0,
+eufy-cam,35,3,32,7,7,0,0,19.73,0.999,cdn-eu-public.eufylife.com;security-app-eu.eufylife.com
+fire-tv,253,72,181,1,1,0,0,0.04,0.005,softwareupdates.amazon.com
+homepod,54,31,23,8,8,0,0,1105.2,1.0,gdmf.apple.com;updates.cdn-apple.com
+reolink-cam,18,7,11,2,0,0,2,30.97,0.999,LAN:192.168.0.11
+sony-tv,27,2,25,1,1,0,0,0.01,0.366,ssm1.internet.sony.tv
+tapo-c100,17,13,4,1,0,1,0,6.72,0.996,ota-download.tplinkcloud.com
+tapo-c200,957,203,754,145,144,1,0,9.11,0.14,download.tplinkcloud.com;n-deventry-dcipc.tplinkcloud.com;n-device-api.tplinkcloud.com;n-euw1-devs-dcipc.tplinkcloud.com
+xiaomi-cam,61,30,31,2,2,0,0,16.45,0.969,de.ots.io.mi.com;fk-res-abroad-cdn.home.mi.com

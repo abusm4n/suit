@@ -1,0 +1,7 @@
+device,endpoint,requests,model,hardware,installed,offered,build,region,mac,platform,example_request
+appletv,updates-http.cdn-apple.com,69,"AppleTV5,3",t7000,12.2.1,,16L250,,,,GET /2019/ios/041-56423-20190416-A28D856A-5D5B-11E9-94CD-20B785AAEB6E/com_apple_MobileAsset_VoiceServices_VoiceResources
+samsungtv-wired,otn.samsungcloudcdn.com,21,T-KTM2LDEUC,,,01202,,,,,GET /firmware/tv/561/SWU-OU_T-KTM2LDEUC_01202_181204/OUITHeaders.dat
+appletv,mesu.apple.com,1,,,,,,,,,GET /assets/tv/com_apple_MobileAsset_MobileSoftwareUpdate_UpdateBrain/com_apple_MobileAsset_MobileSoftwareUpdate_UpdateB
+dlink-mov,wrpd.dlink.com,18,DCH-S150,Ax,0123,,,,yes,,GET /router/firmware/query.aspx?model=DCH-S150_Ax_Default_FW_0123_<MAC>
+dlink-mov,api.dch.dlink.com,17,,,,,,,,,GET /agent/upgrade?p=f38KTCQYew34HZaf9rx1hmD3YCgX%2BAIPktZbNrpNgJHjGSUlWwD6MBTl9czV%2Fx%2FA6RskfYjvKfxR8F8YFQ1fsHROv3KrX
+lgtv-wired,snu.lge.com,6,HE_DTV_W17H_AFADATAA,,04.71.00,,,US2,yes,webOSTV 3.5,POST /CheckSWAutoUpdate.laf

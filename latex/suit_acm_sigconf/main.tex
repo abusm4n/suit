@@ -1,0 +1,232 @@
+
+%% The first command in your LaTeX source must be the \documentclass
+%% command.
+%% balance=false: acmart balances the last page by default, and the balance
+%% package silently drops floats still queued at the end of the document
+%% (here: the appendix tables and figures).
+\documentclass[sigconf,natbib=false,balance=false]{acmart}
+%%
+%% \BibTeX command to typeset BibTeX logo in the docs
+\AtBeginDocument{%
+  \providecommand\BibTeX{{%
+    Bib\TeX}}}
+
+%% Rights management information. These are the SAC 2027 template values;
+%% replace them with the commands ACM sends after the rights form is
+%% completed (camera-ready only).
+\setcopyright{acmlicensed}
+%\setcopyright{cc}
+%\setcctype[4.0]{by}
+
+\copyrightyear{2027}
+\acmYear{2027}
+\acmDOI{XXXXXXX.XXXXXXX}
+\acmConference[SAC'27]{The 42nd ACM/SIGAPP Symposium on Applied Computing}{April 5--9, 2027}{Gwangju, South Korea}
+\acmISBN{979-X-XXXX-XXXX-X/27/04}
+
+%% Blind review hygiene: do not copy the metadata of included figure PDFs
+%% (e.g. the embedded draw.io source and browser strings) into the output.
+\ifdefined\pdfsuppressptexinfo \pdfsuppressptexinfo=-1 \fi
+
+%%
+%% Bibliography style (as in the SAC 2027 template: BibLaTeX + biber)
+\RequirePackage[
+  datamodel=acmdatamodel,
+  style=acmnumeric,
+  ]{biblatex}
+
+%% Declare bibliography sources (one \addbibresource command per source)
+\addbibresource{zbib.bib}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%
+%% my addition
+%%%
+%% acmart already loads graphicx, xcolor, booktabs, amsmath, hyperref,
+%% comment and T1 fonts; LNCS-only packages (cite, orcidlink, fontenc)
+%% are dropped.
+
+\newcommand{\rev}[1]{{\color{blue}#1}}
+%% Revision marks (SAC 2027 revision): new and changed text is written as
+%% \textcolor{blue}{...} (tables: \color{blue}). For the submitted PDF, uncomment
+%% the next line; it prints all revision marks in black and leaves the white
+%% author placeholders untouched.
+%\definecolor{blue}{rgb}{0,0,0}
+
+%% Keyword-filter baseline numbers (src/update_attribution/keyword_baseline.py)
+\newcommand{\KWsel}{6,537}
+\newcommand{\KWvocab}{85\%}
+\newcommand{\KWtcp}{59\%}
+\newcommand{\KWstun}{22\%}
+\newcommand{\KWsip}{10\%}
+\newcommand{\KWprec}{4.7\%}
+\newcommand{\KWacc}{32}
+
+\usepackage{multirow}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+% tikz externalization (\tikzexternalize) needs -shell-escape; left off.
+
+\usepackage{pifont}
+\newcommand{\yesmark}{\textcolor{teal}{\ding{52}}}
+\newcommand{\xcross}{\textcolor{red}{\ding{54}}}
+\newcommand{\alert}{\textcolor{olive}{\ding{115}}}
+
+\usepackage{listings}
+\usepackage[many]{tcolorbox}
+\usepackage{bm}
+\usepackage{tikz}
+\usetikzlibrary{positioning,arrows.meta}
+
+\usepackage{subcaption}
+\usepackage{array}
+\usepackage{wrapfig}
+
+
+%%%%%%%%% Table circle:
+\newcommand*\emptycirc[1][1ex]{\raisebox{-0.5ex}{\tikz\draw[thick] (0,0) circle (#1);}}
+
+\newcommand*\halfcirc[1][1ex]{%
+  \raisebox{-0.5ex}{%
+    \begin{tikzpicture}
+      \draw[fill] (0,0)-- (90:#1) arc (90:270:#1) -- cycle ;
+      \draw[thick] (0,0) circle (#1);
+    \end{tikzpicture}%
+  }%
+}
+
+\newcommand*\fullcirc[1][1ex]{\raisebox{-0.5ex}{\tikz\fill (0,0) circle (#1);}}
+%%%%%%%%% Table circle: End
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%
+%% end of the preamble, start of the body of the document source.
+\begin{document}
+
+
+%\title{SUIT: Security of Update-related IoT Traffic}
+\title{Over the Wire: A Network-Level Measurement of Consumer IoT Update Delivery}
+% Please make sure that the short title does not exceed the width of one column
+\renewcommand{\shorttitle}{Over the Wire: IoT Update Delivery}
+
+%%
+%% Authors. For the blind submission the real author block is commented out
+%% and replaced by the placeholders below. For the camera-ready version,
+%% uncomment the real block (and \shortauthors), delete the placeholders,
+%% and restore the de-anonymized artifact link and self-citations.
+%\author{Ahmad B. Usman}
+%\orcid{0000-0001-6781-1420}
+%\affiliation{%
+%  \department{Dept. of Computer and Information Science}
+%  \institution{Link{\"o}ping University}
+%  \city{Link{\"o}ping}
+%  \country{Sweden}}
+%\email{ahmad.usman@liu.se}
+%
+%\author{Emre S{\"u}ren}
+%\orcid{0000-0003-2356-8590}
+%\affiliation{%
+%  \institution{KTH Royal Institute of Technology}
+%  \city{Stockholm}
+%  \country{Sweden}}
+%\email{emsuren@kth.se}
+%
+%\author{Mikael Asplund}
+%\orcid{0000-0003-1916-3398}
+%\affiliation{%
+%  \department{Dept. of Computer and Information Science}
+%  \institution{Link{\"o}ping University}
+%  \city{Link{\"o}ping}
+%  \country{Sweden}}
+%\email{mikael.asplund@liu.se}
+%
+%This command displays author info in page headers
+% Please use the following convention:
+% One author: J. Smith
+% Two authors: J. Smith and I. Jones
+% Three and more authors: J. Smith et al.
+%\renewcommand{\shortauthors}{A. B. Usman et al.}
+
+%% Anonymized placeholders (blind review). obeypunctuation=true stops acmart
+%% from printing a visible comma between the (white) city and country.
+\author{\textcolor{white}{.}}
+\affiliation[obeypunctuation=true]{%
+  \institution{\textcolor{white}{.}}
+  \city{\textcolor{white}{.}}
+  \country{\textcolor{white}{.}}}
+
+%%
+%% The abstract is a short summary of the work to be presented in the
+%% article (SAC: 100-200 words).
+\input{abstract}
+
+%%
+%% CCS concepts, from the ACM CCS 2012 (https://dl.acm.org/ccs).
+\begin{CCSXML}
+<ccs2012>
+   <concept>
+       <concept_id>10002978.10003014.10003015</concept_id>
+       <concept_desc>Security and privacy~Security protocols</concept_desc>
+       <concept_significance>500</concept_significance>
+       </concept>
+   <concept>
+       <concept_id>10002978.10003001.10003003</concept_id>
+       <concept_desc>Security and privacy~Embedded systems security</concept_desc>
+       <concept_significance>500</concept_significance>
+       </concept>
+   <concept>
+       <concept_id>10003033.10003079.10011704</concept_id>
+       <concept_desc>Networks~Network measurement</concept_desc>
+       <concept_significance>300</concept_significance>
+       </concept>
+   <concept>
+       <concept_id>10002978.10003006.10011634</concept_id>
+       <concept_desc>Security and privacy~Vulnerability management</concept_desc>
+       <concept_significance>100</concept_significance>
+       </concept>
+ </ccs2012>
+\end{CCSXML}
+
+\ccsdesc[500]{Security and privacy~Security protocols}
+\ccsdesc[500]{Security and privacy~Embedded systems security}
+\ccsdesc[300]{Networks~Network measurement}
+\ccsdesc[100]{Security and privacy~Vulnerability management}
+
+%%
+%% Keywords (SAC: no more than five).
+\keywords{Software Update, Traffic Analysis, IoT Security, TLS}
+
+%%
+%% This command processes the author and affiliation and title
+%% information and builds the first part of the formatted document.
+\maketitle
+
+\input{sec/1-intro}
+\input{sec/2-related}
+\input{sec/3-threat}
+\input{sec/3-methodology}
+\input{sec/4-results}
+\input{sec/5-discussion}
+\input{conclusion}
+
+%%
+%% Acknowledgments go in the "acks" environment (not a \section); leave it
+%% out of the blind submission.
+%\begin{acks}
+%This study was funded by X (grant number Y).
+%\end{acks}
+
+%%
+%% Print the bibliography
+\printbibliography
+
+%%
+%% Appendix
+%% The appendix held only the device photo, now Figure~\ref{fig:devices} in Section 4.
+%\appendix
+%\input{appendix}
+
+\end{document}
+\endinput

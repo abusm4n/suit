@@ -1,32 +1,4 @@
-%%
-%% SUIT: Security of Update-related IoT Traffic
-%% ACM SAC 2027 (SEC@SAC track) submission, built on the official
-%% ACM SAC 2027 article template (acmart v2.19, sigconf, BibLaTeX).
-%%
-%% Content: SUIT_NordSec (LNCS) ported to the ACM conference format.
-%%
-%% Submission rules (SEC@SAC 2027 CFP / SAC 2027 author kit):
-%%  - 8 pages standard; up to 10 pages maximum (pages 9-10 incur an
-%%    extra-page fee). The limit covers everything: references and
-%%    appendices included.
-%%  - Blind review: the paper must include only its title and nothing about
-%%    its authors; self-citations in the third person.
-%%  - Abstract 100-200 words; at most five keywords; CCS concepts required.
-%%
-%% Compile: pdflatex main && biber main && pdflatex main && pdflatex main
-%%          (or simply: latexmk -pdf main)
-%%
-%% Commands for TeXCount
-%TC:macro \cite [option:text,text]
-%TC:macro \citep [option:text,text]
-%TC:macro \citet [option:text,text]
-%TC:envir table 0 1
-%TC:envir table* 0 1
-%TC:envir tabular [ignore] word
-%TC:envir displaymath 0 word
-%TC:envir math 0 word
-%TC:envir comment 0 0
-%%
+
 %% The first command in your LaTeX source must be the \documentclass
 %% command.
 %% balance=false: acmart balances the last page by default, and the balance
@@ -76,6 +48,20 @@
 %% are dropped.
 
 \newcommand{\rev}[1]{{\color{blue}#1}}
+%% Revision marks (SAC 2027 revision): new and changed text is written as
+%% \textcolor{blue}{...} (tables: \color{blue}). For the submitted PDF, uncomment
+%% the next line; it prints all revision marks in black and leaves the white
+%% author placeholders untouched.
+%\definecolor{blue}{rgb}{0,0,0}
+
+%% Keyword-filter baseline numbers (src/update_attribution/keyword_baseline.py)
+\newcommand{\KWsel}{6,537}
+\newcommand{\KWvocab}{85\%}
+\newcommand{\KWtcp}{59\%}
+\newcommand{\KWstun}{22\%}
+\newcommand{\KWsip}{10\%}
+\newcommand{\KWprec}{4.7\%}
+\newcommand{\KWacc}{32}
 
 \usepackage{multirow}
 \usepackage{pgfplots}
@@ -91,6 +77,7 @@
 \usepackage[many]{tcolorbox}
 \usepackage{bm}
 \usepackage{tikz}
+\usetikzlibrary{positioning,arrows.meta}
 
 \usepackage{subcaption}
 \usepackage{array}
@@ -118,12 +105,11 @@
 %% end of the preamble, start of the body of the document source.
 \begin{document}
 
-%%
-%% The "title" command has an optional parameter,
-%% allowing the author to define a "short title" to be used in page headers.
-\title{SUIT: Security of Update-related IoT Traffic}
+
+%\title{SUIT: Security of Update-related IoT Traffic}
+\title{Over the Wire: A Network-Level Measurement of Consumer IoT Update Delivery}
 % Please make sure that the short title does not exceed the width of one column
-\renewcommand{\shorttitle}{SUIT: Security of Update-related IoT Traffic}
+\renewcommand{\shorttitle}{Over the Wire: IoT Update Delivery}
 
 %%
 %% Authors. For the blind submission the real author block is commented out
@@ -210,7 +196,7 @@
 
 %%
 %% Keywords (SAC: no more than five).
-\keywords{Software Update, Traffic Analysis, IoT Security}
+\keywords{Software Update, Traffic Analysis, IoT Security, TLS}
 
 %%
 %% This command processes the author and affiliation and title
@@ -218,8 +204,8 @@
 \maketitle
 
 \input{sec/1-intro}
-%\input{sec/background}
 \input{sec/2-related}
+\input{sec/3-threat}
 \input{sec/3-methodology}
 \input{sec/4-results}
 \input{sec/5-discussion}
@@ -238,8 +224,9 @@
 
 %%
 %% Appendix
-\appendix
-\input{appendix}
+%% The appendix held only the device photo, now Figure~\ref{fig:devices} in Section 4.
+%\appendix
+%\input{appendix}
 
 \end{document}
 \endinput

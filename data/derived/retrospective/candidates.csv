@@ -1,0 +1,51 @@
+candidate,devices,decision
+ /2019/ios/041-40362-201949-40155C7C-5A46-11E9-A550-615A9959EE58/com_apple_Mobile,appletv:1,unvetted
+ /CheckSWAutoUpdate.laf,lgtv-wired:5,unvetted
+ /agent/upgrade,dlink-mov:17,unvetted
+ /api3/update_dev_info,firetv:7,unvetted
+ /assets/tv/com_apple_MobileAsset_MobileSoftwareUpdate_UpdateBrain/com_apple_Mobi,appletv:1,unvetted
+ /firmware/tv/487/SWU-OU_T-KTMAKUC_01262_181218/OUITHeaders.dat,samsungtv-wired:18,unvetted
+ /firmware/tv/561/SWU-OU_T-KTM2LDEUC_01202_181204/OUITHeaders.dat,samsungtv-wired:3,unvetted
+ /firmwareupdate.xml,t-wemo-plug:2;firetv:1,unvetted
+ /fts/gftsDownload.lge,lgtv-wired:159,unvetted
+ /fts/gftsFilePathDownload.lge,lgtv-wired:1,unvetted
+ /fwlink/,samsungtv-wired:7,unvetted
+ /gw.json,bulb1:12,unvetted
+ /info.gif,yi-camera:1,unvetted
+ /p2pdev/update,amcrest-cam-wired:14,unvetted
+ /router/firmware/query.aspx,dlink-mov:18,unvetted
+ /s/api3/update_dev_info,firetv:6,unvetted
+ /tvstore/contents/121299000612/icon_package2_20161024154223000.img,samsungtv-wired:1,unvetted
+ /tvstore/contents/3201812017511/icon_package2_20190102144607000.img,samsungtv-wired:1,unvetted
+192.168.10.143:49153 /firmwareupdate.xml,t-wemo-plug:2;firetv:1,reject
+a.tuyaus.com /gw.json,bulb1:12,reject
+aax-eu.amazon-adsystem.com /s/api3/update_dev_info,firetv:6,reject
+aic-ngfts.lge.com /fts/gftsDownload.lge,lgtv-wired:59,reject
+"aic-ngfts.lge.com,aic-ngfts.lge.com /fts/gftsDownload.lge",lgtv-wired:1,unvetted
+amcrestview.com /p2pdev/update,amcrest-cam-wired:14,reject
+api.dch.dlink.com /agent/upgrade,dlink-mov:17,keep
+awsota.linkplay.com,allure-speaker:118,keep
+d1oxlq5h9kq8q5.cloudfront.net /tvstore/contents/121299000612/icon_package2_20161024154223000.img,samsungtv-wired:1,reject
+d1oxlq5h9kq8q5.cloudfront.net /tvstore/contents/3201812017511/icon_package2_20190102144607000.img,samsungtv-wired:1,reject
+fw-update2.smartthings.com,smartthings-hub:3007;t-smartthings-hub:1458,keep
+fw-update2.smartthings.com.unctrl.dada.lab,smartthings-hub:16,reject
+fw.ring.com,ring-doorbell:67,reject
+fwuprod.clouddevice.io,honeywell-thermostat:1,keep
+gdmf.apple.com,appletv:24,keep
+gfts.lge.com /fts/gftsFilePathDownload.lge,lgtv-wired:1,reject
+go.microsoft.com /fwlink/,samsungtv-wired:7,reject
+hub-updates.winkapp.com,wink-hub2:30,keep
+log.eu.xiaoyi.com /info.gif,yi-camera:1,reject
+mesu.apple.com,appletv:188,keep
+mesu.apple.com /assets/tv/com_apple_MobileAsset_MobileSoftwareUpdate_UpdateBrain/com_apple_Mobi,appletv:1,keep
+ngfts.lge.com /fts/gftsDownload.lge,lgtv-wired:99,reject
+"ngfts.lge.com,ngfts.lge.com /fts/gftsDownload.lge",lgtv-wired:1,unvetted
+"ngfts.lge.com,ngfts.lge.com,ngfts.lge.com /fts/gftsDownload.lge",lgtv-wired:6,unvetted
+otn.samsungcloudcdn.com /firmware/tv/487/SWU-OU_T-KTMAKUC_01262_181218/OUITHeaders.dat,samsungtv-wired:18,keep
+otn.samsungcloudcdn.com /firmware/tv/561/SWU-OU_T-KTM2LDEUC_01202_181204/OUITHeaders.dat,samsungtv-wired:3,keep
+s.amazon-adsystem.com /api3/update_dev_info,firetv:7,reject
+snu.lge.com:80 /CheckSWAutoUpdate.laf,lgtv-wired:6,unvetted
+softwareupdates.amazon.com,echoplus:16;echodot:14;firetv:8;cloudcam:8;t-echodot:6;echospot:2,keep
+updates-http.cdn-apple.com,appletv:73,keep
+updates-http.cdn-apple.com /2019/ios/041-40362-201949-40155C7C-5A46-11E9-A550-615A9959EE58/com_apple_Mobile,appletv:1,keep
+wrpd.dlink.com /router/firmware/query.aspx,dlink-mov:18,keep

@@ -1,50 +1,30 @@
 
 \section{Introduction}
 
-The rapid adoption of IoT devices in smart homes and industrial settings has raised significant security and privacy challenges. To address these issues, IoT devices rely on software updates, which can be applied when a vulnerability is discovered, either manually by the user or automatically. However, update mechanisms also introduce a new attack surface, and the process for firmware and software updates in IoT is non-trivial~\cite{10710264}.
-Despite this, network-level analysis of update-related traffic remains underexplored.
-Prior work has primarily focused on insecure channels such as HTTP~\cite{10.1007/978-3-031-30122-3_25,10.1145/3560835.3564551}, update requirements and distribution~\cite{icissp23, 9881713}, or update-related vulnerabilities~\cite{294541, USMAN2026105019}, without assessing the characteristics and security of the update delivery channel itself.
-%This gap is significant because a channel may use TLS yet still be insecure: weak cipher suites expose it to downgrade attacks, under-strength certificates enable server impersonation, and low-entropy payloads betray poor or absent encryption, each dimension independently exploitable, yet none captured by studying any single dimension alone.
+Software updates are the main way to fix vulnerabilities in deployed IoT devices, yet the update mechanism is itself an attack surface, and the process for firmware and software updates in IoT is non-trivial~\cite{294541,10710264}.
+Standards and frameworks for secure updates, such as the IETF SUIT architecture~\cite{rfc9019,rfc9124}, TUF~\cite{samuel2010tuf}, and Uptane~\cite{kuppusamy2016uptane}, therefore protect the update file itself with signed metadata, independently of the network connection that carries it.
+How consumer devices actually receive their updates, and how the delivery channel and the protection inside the image cover each other's gaps, has received little empirical attention: prior work examined unencrypted HTTP update exchanges~\cite{10.1007/978-3-031-30122-3_25,10.1145/3560835.3564551}, update requirements~\cite{icissp23}, the information that IoT devices expose in general~\cite{10.1145/3355369.3355577}, or vulnerabilities in the update logic on the device~\cite{294541,USMAN2026105019}.
 
-An adversary who can observe update traffic can fingerprint devices, observe weak or legacy cryptographic configurations (offered cipher suites and certificate metadata), map them to known vulnerability classes, and prioritize targets.
-The consequences of neglecting update-channel security are well documented; recent large-scale update incidents show how fragile software delivery trust can be when update channels fail or are abused~\cite{294541,USMAN2026105019,10.1007/978-3-031-92886-4_7,10.1007/s10207-026-01233-1,10.1007/978-3-031-30122-3_25}.
-Furthermore, certificate deployments across vendors are often inconsistent, with mixed key sizes, long validity windows, and legacy cryptography still present in the traffic~\cite{10.1007/978-3-031-30122-3_25}.
-Beyond encryption, \emph{authenticity} is a foundational requirement: a device must verify that it is communicating with a legitimate update server before any form of encryption can offer meaningful protection.
-Firmware binaries can increasingly be considered sensitive data, since their interception enables reverse engineering, vulnerability identification, credential extraction, and downgrade attacks by replaying older or vulnerable images.
-%Without proper server authentication, even an encrypted channel may terminate at an adversary-controlled endpoint, rendering confidentiality protections moot.
-%Wu et al.~\cite{294541} demonstrate that firmware authenticity is ensured by verifying the digital signature of the received binary.  At the same time, integrity relies on checking the digest embedded in the update manifest. 
-Our network-level analysis reveals that the channel-level precondition for both properties is already at risk: three out of ten devices did not use TLS certificates during the update process. 
-At the same time, five more occasionally rely on self-signed certificates that bypass the public Certificate Authority (CA) trust chain. 
-These findings suggest that even if on-device signature verification were implemented, the binaries being delivered may originate from unverified endpoints.
+The channel matters even when images are signed.
+Update checks and downloads can reveal the model and exact firmware version of a device to anyone on the path, who can then single out unpatched devices.
+Not every vendor signs every update file, and for unsigned images and metadata the channel is the only protection against tampering.
+Conversely, a weak channel is not automatically exploitable when the device verifies a vendor signature before installing the image.
+A meaningful assessment therefore has to (i)~separate update traffic from everything else a device exchanges while it updates, and (ii)~read each channel together with the protection of the image it delivers.
+Neither is standard practice: measurement studies commonly select update traffic by keywords and report statistics over entire captures, and we show that both choices distort the picture.
 
-In this paper, we apply traffic analysis to study update-related IoT communication.
-% this sentence sounds like a background
-%Traffic analysis infers details about encrypted traffic by analyzing network-level patterns such as packet directions, timing, and sizes~\cite{kapoor2025predicting}, without requiring payload decryption, making it particularly suitable for studying IoT updates where encrypted channels are common.
-We conducted controlled experiments on ten %heterogeneous  
-IoT devices and complemented them with retrospective analysis of a large-scale real-world dataset to assess generalizability and compare how update-channel cryptography has evolved.
+We measure update delivery at the network layer in two datasets: our own update experiments with ten consumer devices, and a re-analysis of the 2019 Mon(IoT)r traces~\cite{10.1145/3355369.3355577}, which serves as a baseline from several years earlier.
 In summary, we make the following contributions:
 
 \begin{itemize}
-    \item[\textbullet] 
-    We conduct traffic analysis of update-related network communications to identify \emph{update process characteristics} of IoT devices, including the update providers, protocols, and the geographic distribution of contacted servers.
-    %, including the contacted infrastructure and the protocols employed.
-    \item[\textbullet] 
-    We assess the trustworthiness of update delivery channels across three dimensions: (i)~\textit{authenticity}, examining whether devices perform authentication to verify update sources; (ii)~\textit{confidentiality}, evaluating encryption quality via multiple entropy metrics; %(\texttt{Shannon}, \texttt{Rényi}, and \texttt{Tsallis}); 
-    and (iii)~\textit{cryptographic strength}, analyzing cipher-suites and certificates extracted from TLS sessions, assessing key sizes, algorithms, validity periods, and compliance with NIST SP~800-57 guidelines \cite{NIST2020-SP800-57}.
-
-    \item[\textbullet] 
-    We map weak and insecure cryptographic configurations to known vulnerability records, assess their severity, and identify the adversarial capabilities.
-    %they enable.
-
-    
-
-    \item [\textbullet]  We make our artifact (code, intermediate data, and technical report) available for reproducibility and further research\footnote{Artifact \& data  available at \url{https://anonymous.4open.science/r/suit-369E}}.
+    \item[\textbullet]
+    \textcolor{blue}{Controlled update experiments with ten consumer IoT devices (streaming devices, a smart speaker, and network cameras), in which we trigger real updates and record all traffic of each device while it updates. Seven devices installed a new firmware version, one of them pushed across the home network by a desktop application (\S\ref{subsec:datasets}, \S\ref{subsec:profiles}).}
+    \item[\textbullet]
+    \textcolor{blue}{A method that identifies update traffic by its servers, found via DNS names, TLS server names, and web requests and confirmed by hand. In our captures, only 250 of 2,219 flows are update traffic, yet for six of the seven devices that installed an update they carry 96--100\% of the bytes; in the public dataset, the method narrows 38,355 captures to 308. Keyword matching, in contrast, mostly matches protocol vocabulary: over 95\% of the captures a keyword filter selects contain no update traffic (\S\ref{subsec:attribution}).}
+    \item[\textbullet]
+    \textcolor{blue}{A per-device account of how each update was delivered, relating the channel (protocol, negotiated TLS settings, server certificate and its revocation) to the integrity protection of the delivered image, and showing what unencrypted update requests reveal about a device (\S\ref{subsec:profiles}--\S\ref{subsec:image}).}
+    \item[\textbullet]
+    \textcolor{blue}{A comparison of update channels in 2019 and today, and a mapping of each observed weakness to the attack it enables and to the conditions that attack requires (\S\ref{subsec:preconditions}).}
+    \item[\textbullet]  We make our artifact (code, \textcolor{blue}{the lists of confirmed update servers, a dated cipher-suite classification snapshot,} intermediate data, and technical report) available for reproducibility and further research\footnote{Artifact \& data  available at \url{https://anonymous.4open.science/r/suit-369E}}.
 \end{itemize}
 
-
-% Shorten 
-
-%The remainder of this paper is structured as follows: \S\ref{sec:related} reviews related work. \S\ref{sec:methodology} describes the methodology. \S\ref{sec:results} presents the results. \S\ref{sec:discussion} discusses the findings. Finally, \S\ref{sec:conclusion} concludes the paper.
-
-
-
+\textcolor{blue}{In brief, three of the seven devices that downloaded an update received the image unencrypted, but the two HTTP downloads carry signatures; TLS servers mostly negotiate strong, forward-secret suites; and weak or long-lived server certificates, never checked for revocation, appear only where vendors run their own certificate authorities.}

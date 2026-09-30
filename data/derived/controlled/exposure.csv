@@ -1,0 +1,4 @@
+device,endpoint,requests,model,hardware,installed,offered,build,region,mac,platform,example_request
+apple-tv,updates-http.cdn-apple.com,1,,,,,,,,,GET /2019/ios/061-31438-20191017-BF5FF55A-F131-11E9-975B-00FCAC750694/com_apple_MobileAsset_SecExperimentAssets/d3ab95a9
+tapo-c100,ota-download.tplinkcloud.com,1,C100,5,,1.4.3,251128,en,,,GET /firmware/Tapo_C100v5_en_1.4.3_Build_251128_Rel.63757n_up_boot-signed_1768266673670.bin
+tapo-c200,download.tplinkcloud.com,2,C200,1,,1.3.16,240909,en,,,HEAD /firmware/Tapo_C200v1_en_1.3.16_Build_240909_Rel.37802n_up_boot-signed_1730104664878.bin

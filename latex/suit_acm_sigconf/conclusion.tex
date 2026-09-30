@@ -1,13 +1,20 @@
 
 \section{Conclusion}
 \label{sec:conclusion}
-Software updates are essential to smart home IoT security, yet the security of update delivery remains largely underexplored at the network level.
-We presented a multidimensional analysis of IoT update traffic, combining entropy-based encryption characterization, cipher-suite evaluation, and certificate assessment across controlled experiments on ten devices and a large-scale retrospective dataset.
-Update traffic still relies on TLS~1.2, with a substantial cleartext share on the update paths of privacy-sensitive devices.
-On \emph{confidentiality}, entropy remains below the 0.80 threshold in both settings (0.78 controlled, 0.71 retrospective) and below the baseline reported for general encrypted IoT traffic, with complete firmware binaries recoverable from the update traffic for some devices.
-On \emph{cipher suites}, insecure and weak suites dominate what clients offer (78.2\%), leaving devices dependent on correct server-side configuration for the protection they actually receive and without recourse if a server is misconfigured or compromised.
-On \emph{authenticity and cryptographic strength}, certain IoT devices exposed no TLS certificate in their update traffic, and others relied at least partly on self-signed certificates outside the public CA trust chain, while certificates average 115.4-bit strength with 8.74-year validity, leaving a non-trivial share in service past the NIST 2031 transition.
-Mapping these configurations to public vulnerability records yields 92 CVEs spanning broken or risky algorithms, inadequate encryption strength, and improper certificate validation, with impacts ranging from traffic interception and man-in-the-middle downgrade to brute-force key recovery and arbitrary code execution, and with severity trending upward over the past five years.
+We measured how consumer IoT devices receive software updates in our own update experiments and in an earlier public dataset, and separated update traffic from everything else before assessing it.
+This separation matters: keyword matching selects protocol vocabulary rather than updates, and statistics over whole captures mix update channels with video streams, local control traffic, and the certificates of unrelated services.
+On the update channels themselves, three of the seven devices that downloaded an update received the image unencrypted\textcolor{blue}{, and unencrypted update requests disclose model and firmware version, in 2019 together with MAC addresses}.
+Encrypted channels mostly use strong settings, with outdated key exchange and cipher modes as exceptions, and the legacy options that devices offer mirror software defaults rather than what is actually used.
+Weak or long-lived server certificates appear only where vendors run their own certificate authorities\textcolor{blue}{, and the devices that trust them never checked whether a certificate had been revoked}.
+Whether these weaknesses let an attacker alter an update depends on the signature inside the image, which the two unencrypted downloads carry, and the local push appears to lack, so the channel and the image have to be assessed together.
+
+% ---- Acknowledgments ----
+%\begin{credits}
+%\subsubsection{\ackname} A bold run-in heading in small font size at the end of the paper is
+%used for general acknowledgments, for example: This study was funded
+%by X (grant number Y).
+%\end{credits}
+
 
 %Against the 2019 traces this posture has \emph{moved} rather than improved outright: TLS~1.3 now appears where it did not.
 %}

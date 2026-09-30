@@ -1,0 +1,9 @@
+endpoint,role,subject,issuer,key,not_before,not_after,validity_days,connections
+awsota.linkplay.com,server,*.linkplay.com,Amazon,RSA-2048,2018-08-13,2019-09-13,396,36
+fw-update2.smartthings.com,server,STFWSRV,STCA,RSA-1024,2015-03-05,2025-03-02,3650,2223
+fwuprod.clouddevice.io,client,(withheld: device identifier),Jasper Thermostat CA,EC-256,2018-11-02,9999-04-14,2914798,1
+fwuprod.clouddevice.io,server,fwuprod.clouddevice.io,Honeywell Product Service CA,EC-256,2019-02-27,2021-02-27,731,1
+gdmf.apple.com,server,gdmf.apple.com,Apple Server Authentication CA,RSA-2048,2017-06-27,2019-07-27,760,12
+hub-updates.winkapp.com,server,hub-updates.winkapp.com,COMODO RSA Domain Validation Secure Server CA,RSA-2048,2018-05-11,2020-05-10,730,6
+mesu.apple.com,server,mesu.apple.com,Apple IST CA 8 - G1,EC-256,2019-03-11,2021-04-09,760,115
+softwareupdates.amazon.com,server,updates.amazon.com,DigiCert Global CA G2,RSA-2048,2019-02-20,2020-01-22,336,27

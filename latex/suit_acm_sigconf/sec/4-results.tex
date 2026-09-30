@@ -1,1350 +1,272 @@
 \section{Results}
 \label{sec:results}
-%This section presents the findings on update process characteristics (RQ1), the authenticity, entropy-based encryption quality, ciphersuite evaluation, and certificate  analysis (RQ2), and provides vulnerability implications of insecure/weak update traffic(RQ3).
-%This section presents findings on update process characteristics (RQ1), encryption quality, cipher suite, and certificate analysis (RQ2), and vulnerability implications of insecure and weak update traffic (RQ3).
 
+\subsection{\texorpdfstring{\textcolor{blue}{Update Delivery (RQ1)}}{Update Delivery (RQ1)}}
+\label{subsec:profiles}
 
-This section presents the results of our controlled experiments on the IoT devices and of the retrospective analysis, covering how updates are delivered and how well the delivery channel is protected.
+\paragraph{\textcolor{blue}{How much of the traffic is update traffic}}
+\textcolor{blue}{Update flows are a small part of what devices exchange while they update (Table~\ref{tab:funnel}, Figure~\ref{fig:composition}).
+In our captures, 715 of 2,219 flows stay on the local network, e.g., tapo-c200's live video to the phone (86\% of its bytes), and most Internet flows serve streaming, telemetry, and time synchronization.
+Where an image was transferred, however, the 250 update flows carry almost all bytes: 96 to 100\% for apple-tv, homepod, eufy-cam, xiaomi-cam, reolink-cam, and tapo-c100.
+Separating the traffic also corrects individual observations: the only HTTP download of an Apple image in the apple-tv capture is a 5.5\,MB partial fetch of a 2013 restore image for an older Apple~TV model by a system component %(\texttt{TVDisplayAssistant}); 
+the update itself arrived over TLS~1.3.}
 
-
-
-
-
-
-
-
-
-% accidental duplicate removed
-
-
-
-
-
-%All experiments were conducted on a workstation equipped with an NVIDIA GeForce RTX 4070 GPU (8 GB VRAM), an Intel Core i7-13620H CPU, 16 GB of RAM, and a 512 GB SSD, running Ubuntu 24.04 LTS.
-
-
-
-
-
-
-
-
-
-
-\subsection{Update Process Characteristics (RQ1)}
-\paragraph{Devices used}
-Table~\ref{tab:devices_controlled}
-%in Appendix \ref{app:app} 
-summarizes the ten IoT devices.
-%evaluated. 
-%together with their firmware versions before and after the update process and their corresponding network configurations. 
-The table reports the current firmware version detected on each device and the updated version installed during the experiment. 
-Three (sony-tv, fire-tv, and d-link-cam) of the ten devices were already up to date at the time of testing; for these devices, we checked update availability and recorded the resulting network traffic.
-The \texttt{packets} column shows the total number of packets captured during each update session, showing variability across devices. 
-For example, apple-tv (1,405,566 packets) and homepod (767,196 packets) generated significantly higher traffic volumes, likely due to large firmware downloads and/or higher gap version numbers. In contrast, sony-tv (up to date) produced only 51 packets, indicating minimal observable update traffic, since we only triggered the availability of software updates. 
-The remaining devices exhibited moderate traffic volumes, ranging from a few thousand packets (e.g., d-link-cam, fire-tv, tapo-c100) to tens of thousands (e.g., eufy, reolink, tapo-c200).
-We also reported their corresponding network configurations, such as IP and MAC addresses. 
-
-\begin{table}[!htbp]
+\begin{figure}[!t]
     \centering
-    \caption{IoT devices and their current and updated firmware version, and their configuration in controlled experiments.}
-    \label{tab:devices_controlled}
-    \resizebox{\linewidth}{!}{%
-    \begin{tabular}{@{} l l c c r c c @{}}
-        \toprule
-        \textbf{No.} & \textbf{Device} & \textbf{Current} & \textbf{Updated} & \textbf{Packets} & \textbf{IP Address} & \textbf{MAC Address} \\
-        \midrule
-        1  & apple-tv       & v18.6    & v26.2    & 1,405,566 & 10.42.0.25   & C4:F7:C1:2E:F7:9E \\
-        2  & d-link-cam     & v1.05    & v1.05    & 3,574     & 10.42.0.152  & B0:C5:54:55:58:08 \\
-        3  & eufy-cam       & v2.1.0.2 & v2.3.1.6 & 33,540    & 10.42.0.160  & 8C:85:80:E3:97:90 \\
-        4  & fire-tv        & v7.7.0.8 & v7.7.0.8 & 7,163     & 10.42.0.23   & D8:BE:65:A2:0E:94 \\
-        5  & homepod        & v18.6    & v26.2    & 767,196   & 10.42.0.79   & 14:14:7D:25:71:1A \\
-        6  & reolink-cam    & v3.0.0   & v3.1.0   & 71,568    & 10.42.0.170  & 38:54:39:CC:0F:2F \\
-        7  & sony-tv        & v3.10.79 & v3.10.79 & 51        & 10.42.0.157  & 94:53:30:1C:0C:B9 \\
-        8  & tapo-c100      & v1.0.11  & v1.4.3   & 5,922     & 10.42.0.135  & E0:D3:62:95:2F:0F \\
-        9  & tapo-c200      & v1.0.10  & v1.3.16  & 70,526    & 10.42.0.173  & 3C:84:6A:0A:85:30 \\
-        10 & xiaomi-cam     & v3.5.1   & v4.0.9   & 12,885    & 10.42.0.207  & 78:8B:2A:AB:90:75 \\
-        \bottomrule
-
-    \end{tabular}%
-    }
-\end{table}
-
-
-
-
-
-
-
-
-
-
-\paragraph{Update providers}
-To further characterize the infrastructure involved in 
-%firmware and software 
-the update delivery, we analyzed the organizational ownership of remote endpoints contacted by each device.
-%during controlled update procedures. %Specifically, IP addresses associated with update-related network traffic were mapped to their corresponding hosting organizations using Autonomous System (AS) and provider attribution.
-Table~\ref{tab:update_provider_controlled}
-%in Appendix \ref{app:app} 
-summarizes the service providers associated with update-related communications observed for each device. 
-%A checkmark indicates that at least one endpoint contacted during the update process was hosted within infrastructure operated by the corresponding organization.
-The results show that update retrieval frequently involves third-party cloud and Content Delivery Network (CDN) platforms (e.g., Amazon, Akamai, Cloudflare, Microsoft, and Google), suggesting that IoT vendors rely on external infrastructure for distributing firmware binaries and update metadata.
-
-\begin{table}[!htbp]
-    \centering
-    \setlength{\tabcolsep}{3pt}
-    \caption{Update service providers contacted by each device.}
-    \label{tab:update_provider_controlled}
-    \resizebox{\linewidth}{!}{%
-    \begin{tabular}{@{} l *{10}{c} @{}}
-        \toprule
-            \textbf{Provider}
-          & \rotatebox[origin=l]{50}{\textbf{apple-tv}} & \rotatebox[origin=l]{50}{\textbf{d-link}}
-          & \rotatebox[origin=l]{50}{\textbf{eufy}} & \rotatebox[origin=l]{50}{\textbf{fire-tv}}
-          & \rotatebox[origin=l]{50}{\textbf{homepod}} & \rotatebox[origin=l]{50}{\textbf{reolink}}
-          & \rotatebox[origin=l]{50}{\textbf{sony-tv}} & \rotatebox[origin=l]{50}{\textbf{tapo-c100}}
-          & \rotatebox[origin=l]{50}{\textbf{tapo-c200}} & \rotatebox[origin=l]{50}{\textbf{xiaomi}} \\
-
-        \midrule
-        A100 ROW           & \yesmark &          & \yesmark &          &          & \yesmark &          &          &          & \yesmark \\
-        Akamai             & \yesmark &          &          &          & \yesmark &          &          &          &          &          \\
-        Aliyun (Alibaba)   &          &          &          &          &          &          &          &          &          & \yesmark \\
-        Amazon             & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark &          \\
-        Apple              & \yesmark &          &          &          & \yesmark &          &          &          &          &          \\
-        CloudFlare         & \yesmark &          &          &          &          &          & \yesmark &          &          &          \\
-        Dreamscape         &          &          &          &          &          &          &          &          & \yesmark &          \\
-        Google             &          &          &          & \yesmark &          &          & \yesmark &          &          &          \\
-        Microsoft          &          &          &          &          &          &          &          &          & \yesmark & \yesmark \\
-        Netflix            &          &          &          & \yesmark &          &          &          &          &          &          \\
-        NIST               &          &          & \yesmark &          &          &          &          &          & \yesmark &          \\
-        Telesmart          &          &          &          &          &          &          &          &          & \yesmark &          \\
-        Univ.\ of Colorado &          &          &          &          &          &          &          &          & \yesmark &          \\
-        vGRID              &          &          &          &          &          &          &          &          & \yesmark &          \\
-        \bottomrule
-    \end{tabular}%
-    }
-\end{table}
-
-%This reflects the common industry practice of leveraging distributed cloud-based delivery networks to ensure reliable and scalable update dissemination across geographically diverse deployments.
-
-
-
-\begin{comment}
-    
-
-
-
-
-\begin{table}
-\centering
-\caption{Observed network protocols across ten IoT devices during controlled experiments. 
-Protocols are grouped by TCP/IP layer. 
-Blue entries denote protocols with potential involvement in firmware update mechanisms.}
-\label{tab:all_protocols}
-\resizebox{0.99999\textwidth}{!}{%
-\begin{tabular}{llcccccccccc}
-\toprule
-\textbf{Layer} & \textbf{Protocol} 
-& apple-tv & d-link & eufy & fire-tv & homepod & reoLink 
-& sony-tv & tapo-c1 & tapo-c2 & xiaomi \\
-\midrule
-
-\multirow{56}{*}{\textbf{Application}}
-& \textcolor{blue}{HTTP}      & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark & - & \yesmark & \yesmark & \yesmark & - \\
-& \textcolor{blue}{HTTP/JSON} & - & - & - & - & - & - & - & \yesmark & - & - \\
-& DHCP   & \yesmark & - & \yesmark & \yesmark & - & \yesmark & - & \yesmark & \yesmark & \yesmark \\
-% & DHCPv6 & - & - & - & - & \yesmark & - & - & - & - & - \\
-% & DNS    & \yesmark & \yesmark & - & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark \\
-& mDNS   & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark \\
-& NTP    & \yesmark & - & \yesmark & \yesmark & - & \yesmark & - & \yesmark & \yesmark & \yesmark \\
-& SSDP   & - & \yesmark & - & \yesmark & - & - & - & \yesmark & - & - \\
-& UDP/XML  & - & - & \yesmark & - & - & - & - & \yesmark & - & - \\
-& MPEG-TS  & - & - & - & - & - & - & - & \yesmark & - & - \\
-% & ARP      & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark & - & \yesmark & \yesmark & \yesmark \\
-& pkix1implicit & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark & - & \yesmark & \yesmark & \yesmark \\
-& pkix1explicit & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark & - & \yesmark & \yesmark & \yesmark \\
-& OCSP      & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark & - & - & \yesmark & - \\
-& XMPP      & - & - & \yesmark & - & - & - & - & - & \yesmark & \yesmark \\
-& XML       & - & - & \yesmark & - & - & \yesmark & - & - & \yesmark & \yesmark \\
-& EAPOL     & \yesmark & - & \yesmark & \yesmark & - & \yesmark & - & - & \yesmark & \yesmark \\
-& x509sat   & \yesmark & \yesmark & - & \yesmark & \yesmark & \yesmark & - & \yesmark & \yesmark & \yesmark \\
-& x509ce    & \yesmark & \yesmark & - & \yesmark & \yesmark & \yesmark & - & \yesmark & \yesmark & \yesmark \\
-& pkixalgs  & \yesmark & - & - & \yesmark & - & - & - & \yesmark & \yesmark & - \\
-% & data      & \yesmark & \yesmark & - & \yesmark & \yesmark & \yesmark & - & \yesmark & \yesmark & \yesmark \\
-& data-text-lines & \yesmark & \yesmark & - & - & - & - & - & - & - & - \\
-& media     & \yesmark & \yesmark & - & \yesmark & - & - & - & \yesmark & \yesmark & - \\
-& h1        & \yesmark & - & - & - & - & - & - & - & - & - \\
-& quic      & \yesmark & \yesmark & - & \yesmark & \yesmark & \yesmark & - & \yesmark & \yesmark & \yesmark \\
-& ssl       & - & \yesmark & - & \yesmark & \yesmark & \yesmark & - & \yesmark & \yesmark & \yesmark \\
-& ssdp      & - & \yesmark & - & - & - & - & - & \yesmark & - & - \\
-& icmp      & - & \yesmark & - & - & - & - & - & - & - & - \\
-& json      & - & - & - & \yesmark & - & - & - & \yesmark & \yesmark & - \\
-& image-jfif & - & - & - & \yesmark & - & - & - & - & - & - \\
-& urlencoded-form & - & - & - & \yesmark & - & - & - & - & - & - \\
-& ipv6.hopopts & \yesmark & - & - & \yesmark & \yesmark & \yesmark & - & - & \yesmark & - \\
-& gryphon   & - & - & - & - & \yesmark & - & - & - & - & - \\
-& hipercontracer & - & - & - & - & - & - & - & \yesmark & \yesmark & - \\
-& tplink-smarthome & - & - & - & - & - & - & - & \yesmark & \yesmark & - \\
-%& igmp      & - & - & - & - & - & - & - & \yesmark & - & - \\
-%& mp2t      & - & - & - & - & - & - & - & - & \yesmark & - \\
-%& mpeg\_sect & - & - & - & - & - & - & - & - & \yesmark & - \\
-%& mpeg      & - & - & - & - & - & - & - & - & \yesmark & - \\
-%& ts        & - & - & - & - & - & - & - & - & \yesmark & - \\
-%& mpeg\_dsmcc & - & - & - & - & - & - & - & - & \yesmark & - \\
-%& mpeg\_pmt  & - & - & - & - & - & - & - & - & \yesmark & - \\
-%& mpeg\_ca   & - & - & - & - & - & - & - & - & \yesmark & - \\
-%& mime\_multipart & - & - & - & - & - & - & - & - & \yesmark & - \\
-%& dvb\_eit   & - & - & - & - & - & - & - & - & \yesmark & - \\
-%& dvb\_data\_mpe & - & - & - & - & - & - & - & - & \yesmark & - \\
-%& dvb\_tot   & - & - & - & - & - & - & - & - & \yesmark & - \\
-%& dvb\_sdt   & - & - & - & - & - & - & - & - & \yesmark & - \\
-%& dvb\_tdt   & - & - & - & - & - & - & - & - & \yesmark & - \\
-& llc       & - & - & - & - & - & - & - & - & \yesmark & - \\
-%& ipv6      & - & - & - & - & - & - & - & - & - & \yesmark \\
-
-\midrule
-
-\multirow{14}{*}{\textbf{Transport}}
-& \textcolor{blue}{TCP}     & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark \\
-& UDP       & \yesmark & \yesmark & - & \yesmark & \yesmark & \yesmark & - & \yesmark & \yesmark & \yesmark \\
-& \textcolor{blue}{TLSv1}   & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark \\
-& \textcolor{blue}{TLSv1.2} & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark \\
-& \textcolor{blue}{TLSv1.3} & \yesmark & \yesmark & - & \yesmark & \yesmark & \yesmark & - & \yesmark & \yesmark & \yesmark \\
-& SSL       & - & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark & - & \yesmark & \yesmark & \yesmark \\
-& sslv2     & \yesmark & - & - & - & \yesmark & - & - & - & - & - \\
-& MPTCP     & - & - & \yesmark & - & - & - & - & - & \yesmark & - \\
-& tls       & \yesmark & \yesmark & - & \yesmark & \yesmark & \yesmark & - & \yesmark & \yesmark & \yesmark \\
-& quic      & - & \yesmark & - & - & - & \yesmark & - & \yesmark & \yesmark & \yesmark \\
-& hipercontracer & - & - & - & - & - & - & - & \yesmark & \yesmark & - \\
-& mptcp     & - & - & - & - & - & - & - & - & \yesmark & - \\
-& mp2t      & - & - & - & - & - & - & - & - & \yesmark & - \\
-
-\midrule
-
-\multirow{17}{*}{\textbf{Internet}}
-& ICMP   & \yesmark & \yesmark & - & \yesmark & \yesmark & \yesmark & - & \yesmark & \yesmark & \yesmark \\
-& ICMPv6 & \yesmark & \yesmark & - & \yesmark & \yesmark & \yesmark & - & \yesmark & \yesmark & - \\
-& IGMP   & \yesmark & - & - & \yesmark & \yesmark & \yesmark & - & \yesmark & \yesmark & - \\
-& IGMPv3 & \yesmark & - & - & \yesmark & \yesmark & \yesmark & - & \yesmark & \yesmark & - \\
-% & IPv4   & \yesmark & \yesmark & - & \yesmark & \yesmark & \yesmark & - & \yesmark & \yesmark & \yesmark \\
-% & IPv6   & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark & - & \yesmark & \yesmark & \yesmark \\
-% & ipv6.hopopts & \yesmark & - & - & - & - & \yesmark & - & - & \yesmark & - \\
-% & eth/ethertype & \yesmark & \yesmark & - & \yesmark & \yesmark & \yesmark & - & \yesmark & \yesmark & \yesmark \\
-% & arp      & - & \yesmark & - & - & \yesmark & \yesmark & - & \yesmark & \yesmark & \yesmark \\
-& eapol    & - & - & - & \yesmark & - & \yesmark & - & - & \yesmark & \yesmark \\
-%& dhcpv6   & - & - & - & - & \yesmark & - & - & - & - & - \\
-& ntp      & - & - & - & - & - & \yesmark & - & - & - & - \\
-& igmp     & - & - & - & - & - & - & - & \yesmark & - & - \\
-& llc      & - & - & - & - & - & - & - & - & \yesmark & - \\
-& dvb\_data\_mpe & - & - & - & - & - & - & - & - & \yesmark & - \\
-& mpeg\_dsmcc & - & - & - & - & - & - & - & - & \yesmark & - \\
-& ipv6      & - & - & - & - & - & - & - & - & - & \yesmark \\
-
-\bottomrule
-\end{tabular}%
-}
-\end{table}
-
-
-
-
-
-
-
-
-
-
-\end{comment}
-
-
-
-
-\paragraph{Protocols found}
-{\emergencystretch=1em % avoids an overfull line at "non-update-related"
-Table~\ref{tab:all_protocols}
-%in Appendix \ref{app:app} 
-presents the network protocols observed 
-%across the ten IoT devices
-%during controlled firmware and software update experiments, 
-after filtering out background traffic artifacts and non-update-related communications. 
-The protocols are categorized according to the TCP/IP networking model to reflect their functional roles across the application, transport, and internet layers.
-Update-related communications were primarily conducted over application-layer web protocols such as HTTP and HTTPS secured by TLS (v1.2 and v1.3), supported by auxiliary services including DNS, DHCP, mDNS, and NTP. At the transport layer, all devices relied on TCP, with several using QUIC and, in limited cases, Multipath TCP (MPTCP).\par}
-
-\begin{table}
-\centering
-\caption{Network protocols observed during controlled experiments, grouped by TCP/IP layer. Blue entries indicate protocols involved in update traffic.}
-\label{tab:all_protocols}
-\resizebox{\linewidth}{!}{%
-\begin{tabular}{llcccccccccc}
-\toprule
-\textbf{} & \textbf{Protocol} 
-& apple-tv & dlink & eufy & fire-tv & homepod & reoLink 
-& sony-tv & tapo-c1 & tapo-c2 & xiaomi \\
-\midrule
-
-% ================= APPLICATION =================
-\multirow{10}{*}{\rotatebox{90}{\textbf{Application}}}
-& \textcolor{blue}{HTTP}      & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark & - & \yesmark & \yesmark & \yesmark & - \\
-& \textcolor{blue}{HTTPS (TLS)} & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark \\
-& \textcolor{blue}{TLS 1.2}   & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark \\
-& \textcolor{blue}{TLS 1.3}   & \yesmark & \yesmark & - & \yesmark & \yesmark & \yesmark & - & \yesmark & \yesmark & \yesmark \\
-& DNS     & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark \\
-& DHCP    & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark \\
-& mDNS    & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark \\
-& SSDP    & - & \yesmark & - & \yesmark & - & - & - & \yesmark & - & - \\
-& NTP     & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark \\
-& XMPP    & - & - & \yesmark & - & - & - & - & - & \yesmark & \yesmark \\
-
-\midrule
-
-% ================= TRANSPORT =================
-\multirow{4}{*}{\rotatebox{90}{\textbf{Transport}}}
-& \textcolor{blue}{TCP}     & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark \\
-& UDP       & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark \\
-& QUIC      & \yesmark & \yesmark & - & \yesmark & \yesmark & \yesmark & - & \yesmark & \yesmark & \yesmark \\
-& MPTCP     & - & - & \yesmark & - & - & - & - & - & \yesmark & - \\
-
-\midrule
-
-% ================= INTERNET =================
-\multirow{5}{*}{\rotatebox{90}{\textbf{Internet}}}
-& IPv4    & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark \\
-& IPv6    & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark & - & \yesmark & \yesmark & \yesmark \\
-& ICMP    & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark & \yesmark \\
-& ICMPv6  & \yesmark & \yesmark & - & \yesmark & \yesmark & \yesmark & - & \yesmark & \yesmark & - \\
-& IGMP    & \yesmark & - & - & \yesmark & \yesmark & \yesmark & - & \yesmark & \yesmark & - \\
-
-\bottomrule
-\end{tabular}%
-}
-\end{table}
-
-
-
-
-
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\subsubsection{Retrospective Experiments}
-Across the 34,586 experiments reported in \cite{10.1145/3355369.3355577}, we identified $6,315$ update-related traffic flows. 
-106  of these flows were observed in encrypted channels, $2,415$ were observed in cleartext, and the $3,794$ remainder had undetermined encryption status.
-%Encrypted update traffic is rare: in the retrospective dataset we found 106 encrypted update flows comprising
-In the $106$ encrypted flows, $71$ occurrences of the token \texttt{update}, $32$ of \texttt{software}, and $3$ of \texttt{download}, as shown in Figure~\ref{fig:heatmap-encrypted}.
-By contrast, the $2,415$ unencrypted update traffic contained $1,569$ occurrences of \texttt{update}, $735$ of \texttt{firmware}, $89$ of \texttt{software}, and $22$ of \texttt{download}, as shown in Figure~\ref{fig:heatmap-unencrypted}.
-%Figure~\ref{fig:update_related_traffic} shows two heatmaps that summarize keyword occurrences by device and encryption status: subfigure (a) visualizes the 106 encrypted update flows, and subfigure (b) visualizes the 2,415 unencrypted update flows. 
-Matches in the encrypted subset are spread fairly evenly across TV and audio devices (4--11 per device), whereas the unencrypted subset is dominated by \texttt{wemo-plug} (1{,}205) and \texttt{philips-hub} (509), followed by \texttt{samsung-tv} (250); per-device counts are given in Figure~\ref{fig:update_related_traffic}.
-%Some devices generate update-related traffic while idle, indicating background update checks or periodic polling.
-In this setup, negotiated sessions are predominantly TLS 1.2,  with no observed TLS 1.3 negotiation.
-Based on this result, we selected the top ten update-related devices for comparison in our controlled experiments.
-
-
-
-
-\begin{figure}[htbp]
-    \centering
-    \begin{subfigure}[b]{0.48\linewidth}
-        \centering
-        \includegraphics[width=\linewidth]{fig/heatmap_encrypted.png}
-        \caption{Encrypted (106)}
-        \label{fig:heatmap-encrypted}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}[b]{0.48\linewidth}
-        \centering
-        \includegraphics[width=\linewidth]{fig/heatmap_unencrypted.png}
-        \caption{Unencrypted (2,415)}
-        \label{fig:heatmap-unencrypted}
-    \end{subfigure}
-     \caption{
-     Update-related keyword matches per device: (a) 106 in encrypted, (b) 2{,}415 in unencrypted traffic for the retrospective dataset.
-     %Update-related keyword matches across IoT devices in the retrospective dataset, by encryption status. Cells count occurrences of each keyword (\texttt{update}, \texttt{firmware}, \texttt{software}, \texttt{download}) per device; (a) the 106 encrypted flows, (b) the 2{,}415 unencrypted flows. 
-     %Many matches reflect update-status/version-metadata fields rather than firmware transfers.
-     }
-    \Description{Two heatmaps with devices on the horizontal axis and the keywords firmware, update, software, and download on the vertical axis; cell values count keyword matches. In encrypted traffic the counts are small, at most 21 per cell. In unencrypted traffic, wemo-plug (602 firmware and 602 update matches) and philips-hub (509 update matches) dominate, followed by samsung-tv.}
-    \label{fig:update_related_traffic}
+    \includegraphics[width=\linewidth]{fig/traffic_composition.pdf}
+    \caption{\textcolor{blue}{Share of flows and of bytes that are update traffic, per device, in our captures. Percentages give the update share.}}
+    \Description{Two panels of horizontal 100-percent stacked bars, one bar per device. In the share of flows, update traffic is a small part for every device (0 to 20 percent). In the share of bytes, update traffic dominates for apple-tv, homepod, eufy-cam, xiaomi-cam, tapo-c100, and reolink-cam (96 to 100 percent), but not for tapo-c200 (14 percent), fire-tv, sony-tv, and d-link-cam.}
+    \label{fig:composition}
 \end{figure}
 
+\paragraph{\textcolor{blue}{Delivery paths}}
+\textcolor{blue}{Table~\ref{tab:profiles} summarizes how each device received its update, and Figure~\ref{fig:timelines} shows the exchanges of four devices over time.
+Six devices fetched their image from vendor or cloud content delivery networks (Apple's own network; Amazon CloudFront and AWS for TP-Link and Eufy; Microsoft Azure and CDN77 for Xiaomi).
+For five of them we also observed an update check or a metadata exchange with a separate server, and apple-tv additionally contacted Apple's installation-authorization service (\texttt{gs.apple.com}) before the download.
+The update checks and the image transfer need not use the same protection: apple-tv retrieved its catalog and image over TLS~1.3 but most of its metadata and the authorization over TLS~1.2, and tapo-c200 polled TP-Link's device API over TLS for 23~minutes before downloading the image over HTTP.
+reolink-cam contacted no update server: its desktop application pushed the image across the local network over a proprietary UDP protocol.}
+Of the three devices that were up to date, fire-tv and sony-tv each opened a single update-check connection, and d-link-cam produced no update traffic at all.
 
-%%%
-% Shorten:
-\begin{comment}
-    
-% Shorten:
-\rev{
-\textbf{Keyword-filter accuracy:}
-The filter flags HTTP objects whose \emph{content} contains \texttt{update}, \texttt{upgrade}, \texttt{firmware}, \texttt{software}, or
-\texttt{download}. 
-Among 655{,}167 objects, 1{,}731 (0.26\%) matched. 
-We evaluated \emph{Precision} by inspecting and classifying all 1{,}731 matched objects.
-%so the following is a census rather than a sample. 
-Only 71 (4\%) were related to firmware images, and these contained
-download references rather than actual firmware files (e.g., \path{s3.amazonaws.com/amcrest-firmwares/}). 
-The remaining matches were update-status messages (1{,}059, 61\%), version or capability information (426, 25\%), or unrelated content (173, 10\%).
-For Recall,
-ground truth is unavailable for the retrospective dataset. 
-%File signatures identified six
-%firmware payloads, four SquashFS images (\texttt{samsungtv-wired}), an APK
-%(\texttt{fridge}), and a Debian package (\texttt{lgtv-wired}), none of which the keyword filter detected. 
-%The cause is structural: matching is applied to object content only, not to the request URI, and a compressed image contains no readable keyword. 
-The filter can observe documents that \emph{describe} an update, but never the transfer itself.
-Keyword counts are therefore an upper bound on update-\emph{referencing} traffic and a lower bound on update \emph{payloads}. 
-Two devices further dominate the flagged set,
-\texttt{t-wemo-plug} (603 objects, 35\%) and \texttt{t-philips-hub} (509, 29\%), through
-chatty status and description endpoints rather than update downloads. 
-The retrospective analysis is therefore limited to population-level trends, while per-device update conclusions rely on controlled experiments.
-}
-
-\end{comment}
-
-%: 
-%(\texttt{wemo-plug}, 
-%\texttt{philips-hub}, 
-%\texttt{samsung-tv}, 
-%\texttt{roku-tv}, 
-%\texttt{lg-tv}, 
-%\texttt{apple-tv}, 
-%\texttt{amcrest-camera}, 
-%\texttt{d-link}, 
-%\texttt{echo-plus}, and 
-%\texttt{fire-tv}).
-
-
-   %The unknown traffic observed in our experiments is not examined in detail in this paper; instead, we focus on the analysis of encrypted and unencrypted traffic.
-
-   
-%This result is shown in Figure \ref{fig:update_related_traffic_category}.
-%\begin{figure}
- %  \centering
-  %  \includegraphics[width=0.5\linewidth]{fig/pichart.pdf}
-   % \caption{Update-related traffic category.}
-    %\label{fig:update_related_traffic_category}
-%\end{figure}
-
-%\begin{wrapfigure}{r}{0.4\textwidth}
- %   \vspace{-20pt}
-  %      \centering
-        %\includegraphics[width=.75\linewidth]{fig/rf.pdf}
-        %\vspace{-10pt}
-        %\caption{Update-related traffic.}
-%\label{fig:update_related_traffic_category}
-%\end{wrapfigure}
-
-
-
-
-
-
-
-
-
-
-
-\begin{comment}
-    % I have feeling that the payload analysis might not be a tangible analysis for now. This reason why I did this was to find out how the size of the payload increases with arrival of update.
-\subsection{Payload Analysis (RQ1b)}
-
-Instead of counting packet, per packet, we used STREAM, and a stream In network traffic analysis, a stream (often called a flow) refers to a sequence of packets that belong to the same continuous communication between two endpoints.
-All packets that share the same 5-tuple:
-source IP, destination IP, Source port, Destination port, Protocol (TCP/UDP).
-
-This grouping represents one direction or bidirectional exchange between two devices.
-Note that we TCP stream, which  includes ALL protocols (including the ones reported in table Protocols) on top of TCP.
-
-The TCP stream numbers are assigned strictly based on the order in which new TCP connections appear in the capture.
-
-Since we do not have ground truth that an actual firmware or software update occurred for every session, we extracted the payload size of update-related traffic and used it as a primary heuristic to infer likely update transfers. Payload length was computed by extracting the raw hexadecimal payload string from each packet (e.g., \emph{tcp\_tcp\_payload\_raw} or f\emph{rame\_raw} for TCP/UDP, respectively). 
-Because each byte is represented by two hex characters, the payload byte count is obtained by halving the string length; this byte count is recorded as the session payload length in the output data. The per-session payload sizes are plotted in Figure \ref{fig:update_related_traffic_payload}.
-
-
-
-
-\begin{figure}[]
+\begin{figure*}[!t]
     \centering
-    \includegraphics[width=0.99\linewidth]{fig/payload_size.pdf}
-    \caption{Payload size  for encrypted update-related traffic.}
-    \label{fig:update_related_traffic_payload}
-\end{figure}
-
-
-
-
-This figure shows clear variation in payload size both across and within device classes. 
-The overall mean payload size is approximately 575 bytes, while the largest observed single session is 3,260 bytes (fire-tv). 
-Most sessions cluster in the low-hundreds byte range and therefore appear to be short control/metadata exchanges (for example, version checks or artifacts).
-A smaller subset of sessions reaches kilobyte scale; these large transfers are the primary candidates for actual update downloads.
-\end{comment}
-
-
-
-
-
-
-
-
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{comment}
-    
-\noindent\textbf{Authenticity and Confidentiality.}
-Before assessing encryption quality and cryptographic strength, we note that both properties are predicated on authenticity: a device must first verify that it is communicating with a legitimate update server before any form of encryption can offer meaningful protection.
-Firmware confidentiality is equally critical. The firmware binary itself is sensitive data: an adversary who can intercept an unencrypted or weakly encrypted update stream obtains the binary, which can be reverse-engineered to identify unpatched vulnerabilities, extract cryptographic keys or credentials embedded in the image, and reconstruct the exact version history of the device.
-Knowledge of the precise firmware version further enables \emph{downgrade attacks}: by suppressing the delivery of a newer, patched update and replaying an older, vulnerable firmware image, an adversary can persistently maintain a device in an exploitable state.
-Server authentication in TLS relies on X.509 certificate validation (analyzed in \S\ref{subsec:cert}); the entropy and cipher suite analyses that follow characterize how well the channel protects firmware confidentiality once server identity is established.
-\end{comment}
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% shorten:
-
-%\begin{figure}[htbp]
- %   \centering
-  %  \begin{subfigure}[b]{1\linewidth}
-   %     \centering
-    %    \includegraphics[width=1\linewidth]{fig/entropy_heatmap.pdf}
-     %   \caption{Controlled experiments}
-      %  \label{fig:entropy_heatmap}
-    %\end{subfigure}
-    %\hfill
-    %\begin{subfigure}[b]{1\linewidth}
-     %   \centering
-      %  \includegraphics[width=1\linewidth]{fig/entropy_heatmap_re.pdf}
-       % \caption{Retrospective experiments}
-        %\label{fig:entropy_heatmap_re}
-    %\end{subfigure}
-    %\caption{Per-device mean normalized entropy ($\pm$ std) of update-related payloads, for the three metrics (Shannon; Rényi, $\alpha{=}2$; Tsallis, $q{=}1.5$), all on a $[0,1]$ scale. Cell color encodes magnitude; higher values indicate greater byte-level randomness, i.e., likely encryption. Computed per packet/session payload and averaged per device.}
-    %\label{fig:entropy_heatmap_both}
-%\end{figure}
-
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-% shorten:
-
-%\begin{figure}[htbp]
- %   \centering
-  %  \begin{subfigure}[b]{.8\linewidth}
-   %     \centering
-    %    \includegraphics[width=.9\linewidth]{fig/entropy_boxplots_compressed2.pdf}
-     %   \caption{Controlled experiments }
-      %  \label{fig:entropy_boxplot}
-    %\end{subfigure}
-    %\hfill
-    %\begin{subfigure}[b]{.8\linewidth}
-     %   \centering
-      %  \includegraphics[width=.9\linewidth]{fig/entropy_boxplots_re_compressed2.pdf}
-    %\caption{Retrospective experiments}
-    %\label{fig:entropy_boxplot_re}
-    %\end{subfigure}
-    %\caption{Distribution of per-payload normalized entropy ($y$-axis, $[0,1]$) per device ($x$-axis), for Shannon, Rényi ($\alpha{=}2$), and Tsallis ($q{=}1.5$). Box plots show the median and interquartile range (IQR), whiskers span $1.5\times$IQR, and dots are outliers. The 0.80 line is the encryption threshold used in the text.}
-    %\label{fig:entropy_boxplot_both}
-    
-%\end{figure}
-
-
-
-%% Moved to Appendix (space): per-payload entropy distributions, both experiments.
-%% See fig:entropy_boxplot_both in appendix.tex
-
-
-
-
-
-
-
-
-
-\subsection{Entropy Analysis (RQ2a)}
-
-
-
-
-
-
-
-
-
-In our analysis, we computed the \texttt{Shannon, Rényi}, and \texttt{Tsallis} entropy for the update-related traffic. 
-A normalized Shannon entropy value approaching 1.0 indicates maximum randomness, consistent with encrypted or compressed data, while low values indicate structured or plaintext payloads. Following prior work~\cite{10.1145/3355369.3355577}, we use a threshold of $H_{\text{Shannon}} \geq 0.80$ as an indicator of likely encryption; the study in \cite{10.1145/3355369.3355577}  reports $H_{enc} = 0.85$ for encrypted and $H_{uenc} = 0.25$ for plaintext payloads across their full dataset, providing a reference baseline.
-%The encrypted traffic analysis conducted by, it only calculates the entropies (the degree of disorder or uncertainty in a system) of data flows and classifies each flow as either encrypted, text, media, or unknown.
-
-
-
-
-
-
-\subsubsection{Controlled experiments}
-The  mean entropy ($H$) for the ten devices is 0.78 for Shannon,
-0.74, for Rényi, and 0.95 for Tsallis.
-Figure \ref{fig:entropy_heatmap} highlights the mean entropy values (± standard deviation).
-High-entropy devices are apple-tv, %(0.88), 
-homepod,
-%(0.88), 
-xiaomi-cam, %(0.87), 
-and tapo-c100, % (0.85), 
-cluster at the upper end of the entropy scale (>0.85), indicating predominantly encrypted or unpredictable traffic. 
-Moderate-entropy devices (tapo-c200, fire-tv, eufy-cam) fall within the 0.75-0.85 range, suggesting mixed encrypted and plaintext communication patterns. 
-Low-entropy devices, d-link-cam, %(0.68), 
-sony-tv, 
-%(0.64), 
-and reolink-cam,
-%(0.55), 
-exhibit lower entropy values, consistent with weaker encryption or significant plaintext transmission.
-The corresponding per-payload distributions are shown in Figure~\ref{fig:entropy_boxplot}.
-The reason why some of these devices have bursty traffic could be due to the fact that they transmit their actual firmware via the traffic, as we managed (through the traffic) to extract firmware binary for apple-tv, tapo-c100, and tapo-c200.
-Some cameras capture images when motion is detected; however, d-link-cam transmits these images via HTTP traffic. 
-Overall, this analysis exposes a clear encryption gap across devices, with low-entropy devices transmitting significant plaintext and firmware binaries recoverable from the update traffic from certain devices.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-\begin{figure}[tb]
+    \includegraphics[width=\textwidth]{fig/update_timelines.pdf}
+    \caption{\textcolor{blue}{Update exchanges over time for four devices. Each bar is one flow to an update server, from its first to its last packet, colored by how the flow is protected; labels give the size of image transfers. Short flows are widened to stay visible.}}
+    \Description{Four timeline panels: apple-tv fills the left half, and tapo-c200, xiaomi-cam, and reolink-cam are stacked on the right. apple-tv: short TLS 1.2 metadata flows to gdmf.apple.com, TLS 1.3 catalog flows to mesu.apple.com, one authorization flow to gs.apple.com, and long TLS 1.3 image flows to updates.cdn-apple.com totalling 1.95 GB over about 1,000 seconds. tapo-c200: many short TLS 1.2 connections to TP-Link's device API for about 450 seconds, a long API connection, and at the end an 8.5 MB HTTP image download. xiaomi-cam: a 16.4 MB TLS 1.2 image download followed by a TLS 1.2 device-channel flow. reolink-cam: two unencrypted local-network flows from the desktop application, 31 MB in total.}
+    \label{fig:timelines}
+\end{figure*}
+
+\begin{table*}[!t]
     \centering
-    \begin{subfigure}[b]{\linewidth}
-        \centering
-        \includegraphics[width=\linewidth]{fig/entropy_heatmap.pdf}
-        \caption{Controlled experiments}
-        \label{fig:entropy_heatmap}
-    \end{subfigure}
-
-    \begin{subfigure}[b]{\linewidth}
-        \centering
-        \includegraphics[width=\linewidth]{fig/entropy_heatmap_re.pdf}
-        \caption{Retrospective experiments}
-        \label{fig:entropy_heatmap_re}
-    \end{subfigure}
-    \caption{Per-device mean normalized entropy ($\pm$ std) of update-related payloads, for the three metrics (Shannon; Rényi, $\alpha{=}2$; Tsallis, $q{=}1.5$), all on a $[0,1]$ scale. Cell color encodes magnitude; higher values indicate greater byte-level randomness, i.e., likely encryption. Computed per packet/session payload and averaged per device.}
-    \Description{Two heatmaps, each with three rows (Shannon, R\'enyi, Tsallis) and one column per device; every cell gives the mean and standard deviation of the entropy. Tsallis values are the highest for every device. In the controlled panel, apple-tv and homepod have the highest Shannon means (0.889 and 0.890) and riolink-cam the lowest (0.558). In the retrospective panel, fire-tv has the highest Shannon mean (0.859) and amcrest-cam and d-link-mov the lowest (0.558 and 0.577).}
-    \label{fig:entropy_heatmap_both}
-\end{figure}
-
-\begin{figure}[tb]
-    \centering
-    \begin{subfigure}[b]{.9\linewidth}
-        \centering
-        \includegraphics[width=.9\linewidth]{fig/entropy_boxplots_compressed2.pdf}
-        \caption{Controlled experiments }
-        \label{fig:entropy_boxplot}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}[b]{.9\linewidth}
-        \centering
-        \includegraphics[width=.9\linewidth]{fig/entropy_boxplots_re_compressed2.pdf}
-    \caption{Retrospective experiments}
-    \label{fig:entropy_boxplot_re}
-    \end{subfigure}
-    \caption{Distribution of per-payload normalized entropy ($y$-axis, $[0,1]$) per device ($x$-axis), for Shannon, Rényi ($\alpha{=}2$), and Tsallis ($q{=}1.5$). Box plots show the median and interquartile range (IQR), whiskers span $1.5\times$IQR, and dots are outliers. The 0.80 line is the encryption threshold used in the text.}
-    \Description{Two panels, each with three rows of box plots (Shannon, R\'enyi, Tsallis) and one box per device. Tsallis boxes sit close to 1.0 for most devices, whereas Shannon and R\'enyi boxes spread widely; the widest and lowest boxes belong to reolink-cam, d-link-cam, and sony-tv in the controlled panel and to amcrest-cam and d-link-mov in the retrospective panel.}
-    \label{fig:entropy_boxplot_both}
-\end{figure}
-
-% [SAC 2027 page limit] Per-device entropy histograms: they show the same
-% distributions as the box plots (Fig.~\ref{fig:entropy_boxplot_both}) and do not fit
-% in the 10-page maximum. Delete this comment/endcomment pair to restore them.
-\begin{comment}
-\begin{figure}[!htbp]
-    \centering
-    \begin{subfigure}[b]{\linewidth}
-        \centering
-        \includegraphics[width=\linewidth]{fig/entropy_distributions.pdf}
-        \caption{Controlled experiments}
-        \label{fig:entropy_distributions}
-    \end{subfigure}
-
-    \begin{subfigure}[b]{\linewidth}
-        \centering
-        \includegraphics[width=\linewidth]{fig/entropy_distributions_re.pdf}
-        \caption{Retrospective experiments}
-        \label{fig:entropy_distributions_re}
-    \end{subfigure}
-    \caption{Frequency entropy distributions.}
-    \Description{Two grids of small histograms, one histogram per device and entropy metric (Shannon, R\'enyi, Tsallis), plotting frequency against entropy value. Most devices show a single tall spike near the top of the range; d-link-cam, sony-tv, reolink-cam, amcrest-cam, and d-link-mov show broader, multi-peaked distributions.}
-    \label{fig:entropy_distributions_both}
-\end{figure}
-\end{comment}
-
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-\begin{comment}
-    
-\begin{figure}
-    \centering
-    \includegraphics[width=0.9\linewidth]{fig/entropy_distributions_part1.pdf}
-    \caption{Frequency entropy distributions part1}
-    \label{fig:entropy_distributions_part1}
-\end{figure}
-
-
-
-
-
-\begin{figure}
-    \centering
-    \includegraphics[width=0.9\linewidth]{fig/entropy_distributions_part2.pdf}
-    \caption{Frequency entropy distributions part2}
-    \label{fig:entropy_distributions_part2}
-\end{figure}
-
-\end{comment}
-
-
-
-
-
-
-
-
-\begin{comment}
-    
-\begin{figure}
-    \centering
-    \includegraphics[width=0.8\linewidth]{fig/entropy_heatmap.pdf}
-    \caption{Controlled experiments'  mean entropy for ($\pm$ std). Colors indicate relative magnitude; higher values correspond to greater randomness/encryption.}
-    \label{fig:entropy_heatmap}
-\end{figure}
-%%%%
-\begin{figure}
-    \centering
-    \includegraphics[width=0.8\linewidth]{fig/entropy_heatmap_re.pdf}
-    \caption{Retrospective experiments' mean entropy for  ($\pm$ std). Colors indicate relative magnitude; higher values correspond to greater randomness/encryption.}
-    \label{fig:entropy_heatmap_re}
-\end{figure}
-%% 
-
-\end{comment}
-
-
-
-
-
-
-
-
-
-
-\subsubsection{Retrospective experiments}
-An entropy ($H$) analysis was conducted in \cite{10.1145/3355369.3355577}, reporting an average of $H_{enc}=0.85$ for encrypted traffic payloads and $H_{uenc}=0.25$ for unencrypted traffic payloads. 
-However, their analysis was not focused on update-related traffic; instead, it covered the overall experiments. Moreover, the authors did not specify which entropy metric was applied. 
-Upon reviewing their methodology, we inferred that only Shannon entropy was used in their analysis.
-The  mean entropy ($H$) in our analysis for the ten devices is 0.71 for Shannon,
-0.65, for Rényi, and 0.93 for Tsallis.
-Figure~\ref{fig:entropy_heatmap_re} highlights the mean entropy values (± standard deviation).
-Similar to the controlled experiments, apple-tv is among the highest-entropy devices, second only to fire-tv (Shannon 0.82 vs.\ 0.86).
-Figure~\ref{fig:entropy_boxplot_re} presents the per-device distribution.
-%% Frequency of entropy
-%%%%%%%%%%
-%%%%%
-Entropy here serves as a \emph{detector} of whether a payload is encrypted or readable, 
-%not as a measure of cryptographic strength, 
-so we read it against the baseline reported in \cite{10.1145/3355369.3355577}.
-Across the $6{,}113$ update-related captures with a computable payload (of $6{,}315$), the mean per-capture Shannon entropy is 0.71;
-%shorten
-%, and roughly 95\% fall below the 0.80 encryption threshold; 
-on the plaintext-to-encrypted scale anchored at $H_{uenc}=0.25$ and $H_{enc}=0.85$, update payloads sit about three-quarters (77\%) of the way toward fully encrypted.
-This is the signature of a \emph{mixture} of encrypted and plaintext (or weakly structured) update content rather than uniformly strong encryption.
-% Shorten
-%The shortfall is not an estimator artifact: payloads are long enough (median 546\,B) that uniformly random bytes would still score $\approx$0.96 at these lengths.}
-%We note that Tsallis entropy saturates near the top of its range (mean 0.93--0.96) across our payloads, so it does not discriminate at these thresholds; we therefore base the encryption inference on Shannon (and corroborating Rényi) entropy.
-We conclude that update-related traffic is less encrypted than the overall IoT traffic reported in \cite{10.1145/3355369.3355577}: the retrospective mean (0.71) remains below the 0.80 threshold, and in the controlled setting, only half the devices meet it.
-
-
-
-
-
-
-
-
-
-
-
-
-\begin{comment}
-    
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.7\linewidth]{fig/entropy_boxplots_compressed.pdf}
-    \caption{Controlled experiments' entropy metric. Box plots show median, interquartile range (IQR), and whiskers (1.5×IQR); dots indicate outliers. }
-    \label{fig:entropy_boxplot}
-\end{figure}
-%%
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.7\linewidth]{fig/entropy_boxplots_re_compressed.pdf}
-    \caption{Retrospective experiments' entropy metric. Box plots show median, interquartile range (IQR), and whiskers (1.5×IQR); dots indicate outliers.}
-    \label{fig:entropy_boxplot_re}
-\end{figure}
-
-\end{comment}
-
-
-
-
-
-
-
-
-
-
-
-%%%%%%%%5
-%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%\\
-%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Cipher-suite Evaluation (RQ2b)}
-
-
-
-
-We extracted the cipher suites \cite{IANA_parameters} from our experiments and assigned each to one of four security categories,
-%\footnote{https://ciphersuite.info/}, %insecure, weak, secure, and recommended. 
-using the explicit criteria and adversarial-capability mapping in Table~\ref{tab:cipher_classification} (\S\ref{subsec:cipher_method}).
-Figures~\ref{fig:update-ciphersuite_controlled} and~\ref{fig:update-ciphersuite_retrsopective} illustrate cipher suite unique occurrences per device for the controlled and retrospective experiments, respectively.
-%, ordered from most to least prevalent category.
-
-
-
-
-\begin{figure}[htbp]
-    \centering
-    \begin{subfigure}[b]{0.49\linewidth}
-        \centering
-        \includegraphics[width=1\linewidth]{fig/heatmap_ciphersuite_controlled.png}
-    \caption{Controlled experiment}
-    \label{fig:update-ciphersuite_controlled}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}[b]{0.49\linewidth}
-        \centering
-        \includegraphics[width=1\linewidth]{fig/heatmap_ciphersuite.png}
-    \caption{Retrospective experiment}
-    \label{fig:update-ciphersuite_retrsopective}
-    \end{subfigure}
-    \caption{TLS cipher suite usage per device, counting suites \emph{advertised} in \texttt{ClientHello} messages by security category. These are offered capabilities; negotiated (\texttt{ServerHello}) outcomes are summarized in Table~\ref{tab:offered_vs_negotiated}.}
-    \Description{Two heatmaps with devices on the horizontal axis and the categories secure, recommended, weak, and insecure on the vertical axis; cells count distinct cipher suites. Weak suites have the largest counts, up to 67 for eufy-cam and xiaomi-cam in the controlled experiment and for echo-plus and lg-tv in the retrospective experiment. Recommended suites stay at about six per device, and insecure suites range from zero to twelve.}
-    \label{fig:update-ciphersuite}
-\end{figure}
-
-
-\textbf{Weak} cipher suites are the most prevalent category in both experiments.
-In the controlled experiment, eufy-cam and xiaomi-cam each exhibit the highest weak counts (67), followed by tapo-c200 (54) and sony-tv (46).
-In the retrospective experiment, echo-plus, lg-tv, roku-tv, philips-hub, and samsung-tv show the highest weak counts.
-\textbf{Insecure} cipher suites are present across most devices, though at lower counts.
-Apple-tv, homepod, and tapo-c100 report zero insecure occurrences; the remaining devices advertise one or more insecure suites (e.g., null ciphers or deprecated legacy suites), indicating residual support for broken configurations.
-\textbf{Recommended} cipher suites appear at a small but constant count (approximately 6 occurrences in most device columns) across both experiments, suggesting a consistent yet marginal presence that does not offset the dominance of weak suites.
-\textbf{Secure} cipher suites constitute the second-highest category overall.
-In the controlled experiment, fire-tv (13) records the most secure occurrences, followed by eufy-cam, tapo-c200, and xiaomi-cam.
-In the retrospective experiment, philips-hub (10), apple-tv (9), and samsung-tv (8) lead.
-The \textbf{Unknown} cipher suites found are GREASE values \cite{ietf-tls-grease-01} (not reported in this paper), reserved invalid codes used to keep TLS implementations interoperable.
-
-
-These counts reflect cipher suites advertised in \texttt{ClientHello} messages, i.e., what each device is \emph{willing} to negotiate, not what is ultimately selected.
-Table~\ref{tab:offered_vs_negotiated} shows the two.
-Both experiments have more insecure and weak suites in what devices \emph{offer}, but differ in what is actually \emph{used}: a weak suite is chosen for 29.0\% of controlled sessions, against 3.0\% retrospectively.
-%All 266 weak negotiations come from the two Tapo cameras (tapo-c200: 259 of 262 sessions; tapo-c100: 7 of 7), which settle on static-RSA AES-GCM (\texttt{0x009c}, \texttt{0x009d}), AEAD, but no forward secrecy.
-TLS~1.3 accounts for 46.5\% of controlled sessions (426 of 917) but none of the retrospective ones (141{,}330 TLS~1.2, 1{,}789 legacy TLS~1.0), and no TLS~1.3 session carries a weak suite: modern TLS and weak suites coexist across \emph{different devices}, not within the same session.
-Retrospectively, the risk is instead  downgrade \emph{exposure}; legacy suites stay advertised, so a misconfigured or interfering server could steer a session onto one, with \texttt{t-wemo-plug}, \texttt{blink-camera}, and \texttt{insteon-hub} as the exceptions that negotiate weak suites outright.
-Read as a then-versus-now comparison, the weakness has \emph{moved} rather than disappeared: every device common to both datasets improved (apple-tv and fire-tv negotiated no TLS~1.3 and some weak suites in year 2019, and now negotiate TLS~1.3 with none), yet contemporary low-cost cameras still negotiate suites without forward secrecy. 
-% Shorten
-%Update channels that lack forward secrecy remain exploitable retrospectively once a long-term key leaks, so the weakness is systemic rather than transient.
-
-
-
-
-
-%% Offered (ClientHello) vs negotiated (ServerHello) cipher categories, both experiments
-\begin{table}[!htbp]
-    \centering
-    \caption{Cipher suites offered (\texttt{ClientHello}) versus the one each server picks (\texttt{ServerHello}), for both experiments; cells are count (\% of column). 
-    %Column bases: controlled $23{,}307$ offers / $917$ sessions, retrospective $7{,}671{,}461$ / $143{,}119$. 
-    GREASE and unknown codes are omitted ($\approx$2.5\% and $\approx$0.7\% of offers, plus one controlled session), so columns fall short of 100\%.}
-    \label{tab:offered_vs_negotiated}
-    \setlength{\tabcolsep}{4pt}
-    \resizebox{\linewidth}{!}{%
-    \begin{tabular}{@{} l | r r | r r @{}}
-    \toprule
-     & \multicolumn{2}{c|}{\textbf{Controlled}} & \multicolumn{2}{c}{\textbf{Retrospective}} \\
-    \cmidrule(lr){2-3}\cmidrule(lr){4-5}
-    \textbf{Category} & \textbf{Offered} & \textbf{Negotiated} & \textbf{Offered} & \textbf{Negotiated} \\
-    \midrule
-    Secure      & 6{,}463 (27.7)  & 647 (70.6) & 849{,}763 (11.1)     & 134{,}842 (94.2) \\
-    Recommended & 2{,}965 (12.7)  & 3 (0.3)    & 768{,}550 (10.0)     & 4{,}043 (2.8) \\
-    Weak        & 12{,}076 (51.8) & 266 (29.0) & 5{,}208{,}682 (67.9) & 3{,}584 (2.5) \\
-    Insecure    & 1{,}222 (5.2)   & 0 (0.0)    & 790{,}793 (10.3)     & 650 (0.5) \\
-    \midrule
-    \textbf{Insecure+Weak} & \textbf{13{,}298 (57.1)} & \textbf{266 (29.0)} & \textbf{5{,}999{,}475 (78.2)} & \textbf{4{,}234 (3.0)} \\
-    \bottomrule
-    \end{tabular}%
-    }
-\end{table}
-
-
-
-\begin{comment}
-    
-%% Offered (ClientHello) vs negotiated (ServerHello) cipher categories in the controlled dataset
-
-\begin{table}[!htbp]
-    \centering
-    \caption{\rev{Cipher suites that clients offer (\texttt{ClientHello}) compared with the one each server picks (\texttt{ServerHello}), controlled experiments. Percentages are of $23{,}307$ offers and $917$ negotiated sessions; the offered column leaves out $\approx$2.5\% GREASE placeholders and unknown codes, so it does not add up to 100\%.}}
-    \label{tab:offered_vs_negotiated_controlled}
-    \setlength{\tabcolsep}{4pt}
-    \resizebox{\linewidth}{!}{%
-    \begin{tabular}{@{} l | r r | r r @{}}
-    \toprule
-     & \multicolumn{2}{c|}{\textbf{Offered (ClientHello)}} & \multicolumn{2}{c}{\textbf{Negotiated (ServerHello)}} \\
-    \textbf{Category} & \textbf{Count} & \textbf{\%} & \textbf{Count} & \textbf{\%} \\ \midrule
-    Secure       & 6{,}463  & 27.7 & 647 & 70.6 \\
-    Recommended  & 2{,}965  & 12.7 & 3   & 0.3  \\
-    Weak         & 12{,}076 & 51.8 & 266 & 29.0 \\
-    Insecure     & 1{,}222  & 5.2  & 0   & 0.0  \\
-    \textbf{Insecure+Weak} & \textbf{13{,}298} & \textbf{57.1} & \textbf{266} & \textbf{29.0} \\
-    \bottomrule
-    \end{tabular}%
-    }
-\end{table}
-
-
-
-
-%% Offered (ClientHello) vs negotiated (ServerHello) cipher categories in the retrospective dataset
-
-\begin{table}[!htbp]
-    \centering
-    \caption{\rev{Cipher suites that clients offer (\texttt{ClientHello}) compared with the one each server picks (\texttt{ServerHello}). Percentages are of $7{,}671{,}461$ offers and $143{,}119$ negotiated sessions; the offered column leaves out $\approx$0.7\% GREASE placeholders and unknown codes, so it does not add up to 100\%.}}
-    
-    \resizebox{\linewidth}{!}{%
-    \label{tab:offered_vs_negotiated}
-    \begin{tabular}{l|r|r|r|r}
-    \toprule\hline
-     & \multicolumn{2}{c|}{\textbf{Offered (ClientHello)}} & \multicolumn{2}{c}{\textbf{Negotiated (ServerHello)}} \\
-    \textbf{Category} & \textbf{Count} & \textbf{\%} & \textbf{Count} & \textbf{\%} \\ \toprule
-    Secure       & 849{,}763   & 11.1 & 134{,}842 & 94.2 \\ \hline
-    Recommended  & 768{,}550   & 10.0 & 4{,}043   & 2.8  \\ \hline
-    Weak         & 5{,}208{,}682 & 67.9 & 3{,}584 & 2.5  \\ \hline
-    Insecure     & 790{,}793   & 10.3 & 650     & 0.5  \\ \hline
-    \textbf{Weak+Insecure} & \textbf{5{,}999{,}475} & \textbf{78.2} & \textbf{4{,}234} & \textbf{3.0} \\
-    \bottomrule
-    \end{tabular}%
-    }
-\end{table}
-%% %% 
-\end{comment}
-
-%Apart from the four categories above, we also found Unknown cipher suites, which are Generate Random Extensions And Sustain Extensibility (GREASE) values \cite{ietf-tls-grease-01}, intentionally reserved invalid codes that keep TLS implementations
-%flexible by preventing them from hardcoding assumptions about which values are valid.
-
-
-
-%In terms of device heterogeneity, different devices exhibit different profiles.  Some devices (roku-tv, and hub) show large numbers of weak-suite occurrences, while others (some plugs and speakers) show far fewer.  This heterogeneity highlights inconsistent security posture among vendors and product categories.
-%Whereas 
-
-%Interpreting what the counts mean
-%The heatmap reflects observed occurrences of cipher suite identifiers in the TLS handshakes we extracted from update-related sessions. A high count for a category on a device means that many observed TLS handshakes from that device contained cipher suites that classify as weak according to our mapping.
-
-%These counts can indicate either (a) the cipher suites the device advertises (client hello) and/or (b) the suites that the server selected; the dataset and extraction method should be referenced in your methods section when interpreting whether counts reflect client support, server selection, or both.
-
-
-
-
-
-
-
-
-
-
-\begin{comment}
-    
-\begin{figure}%[htbp]
-    \centering
-    \includegraphics[width=0.6\linewidth]{fig/heatmap_ciphersuite_controlled.png}
-    \caption{Controlled experiment TLS cipher suites usage.}
-    \label{fig:update-ciphersuite_controlled}
-\end{figure}
-
-
-
-\begin{figure}%[htbp]
-    \centering
-    \includegraphics[width=0.6\linewidth]{fig/heatmap_ciphersuite.png}
-    \caption{Retrospective experiment TLS cipher suites usage.}
-    \label{fig:update-ciphersuite}
-\end{figure}
-
-\end{comment}
-
-
-
-%\input{fig/entropy_fig}
-
-
-
-
-
-
-
-
-
-\subsection{Certificate Security Analysis (RQ2c)}
-\label{subsec:cert}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-%%\textbf{Certificate Analysis:}
-To complement the cipher suite evaluation, we analyzed the X.509 certificates exchanged during TLS handshakes in the controlled experiments. 
-While cipher suites govern the session-level encryption, certificates underpin the trust model: a weak certificate key can, in principle, be factored to impersonate an update server regardless of cipher suite strength, a present-day concern for the small $\leq$80-bit fraction we observe, whereas the 112-bit majority is exposed instead by the looming 2031 transition rather than by current factoring.
-Across the ten devices, we extracted 94 unique certificates from seven IoT devices.
-%(d-link-cam, homepod, and reolink had no extractable certificate data from their update traffic).
-% shorten
-%Table~\ref{tab:cert_verified_by_controlled} summarizes the certificate issuers (\texttt{Verified by}) observed across the ten devices.
-The certificate ecosystem is highly fragmented: Apple devices exclusively use Apple-issued certificates, Amazon devices rely on Amazon and DigiCert CAs, while other devices use a mix of self-signed (SS)  CAs and public CAs (DigiCert, GeoTrust).
-Notably, some devices, such as fire-tv contact a wide range of certificate authorities (15 unique issuers), reflecting the diversity of backend services contacted during updates, including Netflix, Spotify, and Google endpoints.
-Table~\ref{tab:certificate_device_summary} presents the certificate security summary, where \textbf{Total} is the number of certificate occurrences in the traffic. \textbf{Unique} is the number of distinct certificates (by fingerprint), \textbf{$\leq$80}/\textbf{112}/\textbf{$\geq$128} are the counts of unique certificates at each NIST SP~800-57 security-strength level (in bits), \textbf{notAfter$_{\min}$}/\textbf{notAfter$_{\max}$} are the earliest and latest expiry dates, \textbf{SS} is the number of self-signed certificates, \textbf{Avg$_{\text{s}}$} is the average security strength (bits), and \textbf{Avg$_{\text{v}}$} is the average validity period.
-%(years).
-
-%per device.
-
-
-\paragraph{Key strength}
-RSA dominates with 87.2\% of certificates, while 12.8\% use Elliptic Curve Cryptography (ECC), despite its superior security-per-bit ratio and suitability for resource-constrained IoT devices.
-The RSA-2048 (77.7\%), placing the majority of certificates at the 112-bit security-strength level.
-A further 3.2\% (tapo-c100 and tapo-c200) remain at $\leq 80$ bits, and only 19.1\% reach $\geq 128$ bits (e.g., RSA-4096 or EC-P256).
-The average estimated security strength across all devices is 115.4 bits, below the NIST 2031+ 128-bit minimum for applying protection.
-At the device level, tapo-c200 has the lowest average (108.0 bits), while eufy-cam and xiaomi-cam each reach 112 bits; Figure~\ref{fig:security_bits_boxplot_all} shows the per-device distribution against the NIST levels.
-
-%\textbf{Key strength:}
-%RSA-2048 is the dominant key type (77.7\% of certificates), indicating that most certificates are at the 112-bit security-strength level. 
-%Additionally, 3.2\% of certificates (tapo-c100 and tapo-c200) are at the $\leq 80$-bit level, while only 6.4\% reach $\geq 128$ bits (e.g., RSA-4096 or EC-P256). 
-%The average estimated security strength across all devices is 97.7 bits, below the NIST 2031+ 128-bit minimum for applying protection. 
-%At the device level, tapo-c100 has the lowest average estimated security strength (69.3 bits), while eufy-cam and xiaomi-cam each reach 112 bits.
-
-%\textbf{Algorithm distribution:}
-% shorten
-%Figure~\ref{fig:algorithm_distribution_all_devices} shows the algorithm distribution across all devices. 
-%RSA dominates with 94.1\% of certificates, while only 5.9\% use Elliptic Curve Cryptography (ECC). 
-%The limited adoption of ECC is concerning, given its superior security-per-bit ratio and suitability for resource-constrained IoT devices.
-
-
-% shorten,
-% can be replaced with nist secuity strength
-%\textbf{Key size comparison:}
-%Figure~\ref{fig:device_comparison_key_size} provides a per-device comparison of certificate key sizes.  
-%Fire-tv exhibits the widest variety of key sizes due to its diverse set of backend services.
-%Apple-tv certificates include a mix of 2048-bit and ECC keys, while the TP-Link devices (tapo-c100, tapo-c200) are the only ones deploying 1024-bit RSA certificates.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-\noindent
-%The average 
-\textbf{Validity period} across all certificates is 8.74 years, with 46.8\% of certificates having validity windows exceeding five years. 
-Long validity periods compound the cryptographic risks above: 
-%since IoT devices rarely implement OCSP stapling or consult CRLs~\cite{10710264}, 
-a certificate with weak cryptographic parameters remains accepted by the device for its full lifetime, even after the underlying vulnerability is publicly disclosed.
-Moreover, it is known from the literature~\cite{10.1145/2815675.2815685} that clients often accept revoked certificates, since they fail to query the Certificate Revocation List (CRL) or soft-fail when revocation information is unavailable.
-
-%Figure~\ref{fig:expired_by_device} shows the breakdown of expired versus active certificates per device. 
-%A total of 9 certificates (9.6\%) were found to be expired at the time of analysis, though they were valid during the original traffic capture.
-\noindent
-The \textbf{SS} certificates observed in apple-tv (3), eufy-cam (1),  fire-tv (1), tapo-c100 (1), and tapo-c200 (4) further indicate that some vendors bypass the public CA trust chain for device-level authentication \cite{10.1145/3618257.3624815}.
-
-
-
-
-
-
-
-
-
-
-
-\begin{table}[!t]
-\centering
-\caption{Certificates grouped by NIST SP~800-57 estimated security strength. Avg$_{\text{s}}$: average security strength (bits); Avg$_{\text{v}}$: average validity period (years).
-}
-\label{tab:certificate_device_summary}
-\setlength{\tabcolsep}{2.5pt}
-\resizebox{\linewidth}{!}{%
-\begin{tabular}{l|c|c|c|c|c|c|c|c|c|c}
-\hline
-\textbf{Device} & \textbf{Total} & \textbf{Unique} & \textbf{$\leq$80} & \textbf{112} & \textbf{$\geq$128} & \textbf{notAfter$_{\min}$} & \textbf{notAfter$_{\max}$} & \textbf{SS} & \textbf{Avg$_{\text{s}}$} & \textbf{Avg$_{\text{v}}$}\\
-\hline
-apple-tv  & 123 & 16 & 0 & 10 & 6 & 2026-01-18 & 2039-04-30 & 3 & 126.0 & 9.97  \\
-%dlink     & 0   & 0  & 0 & 0  & 0 & --         & --         & 0 & --    & --    \\
-eufy      & 301 & 3  & 0 & 3  & 0 & 2026-10-30 & 2037-12-31 & 1 & 112.0 & 16.47 \\
-fire-tv   & 344 & 45 & 0 & 38 & 7 & 2026-03-13 & 2047-10-01 & 1 & 114.5 & 4.85  \\
-%homepod   & 0   & 0  & 0 & 0  & 0 & --         & --         & 0 & --    & --    \\
-%reolink   & 0   & 0  & 0 & 0  & 0 & --         & --         & 0 & --    & --    \\
-sony-tv   & 7   & 7  & 0 & 5  & 2 & 2025-12-24 & 2037-12-31 & 0 & 116.6 & 9.93  \\
-tapo-c100 & 29  & 6  & 1 & 3  & 2 & 2026-03-06 & 2073-11-24 & 1 & 112.0 & 14.51 \\
-tapo-c200 & 673 & 12 & 2 & 9  & 1 & 2025-11-15 & 2068-01-19 & 4 & 108.0 & 16.43 \\
-xiaomi    & 60  & 5  & 0 & 5  & 0 & 2026-01-27 & 2031-05-30 & 0 & 112.0 & 8.12  \\
-\hline
-\end{tabular}%
-}
-\end{table}
-
-\begin{figure}[tb]
-    \centering
-    \includegraphics[width=\linewidth]{fig/security_bits_boxplot_all_devices.pdf}
-    \caption{Distribution of certificate security bits per device (unique certificates; dots are individual certificates). Dashed lines indicate NIST thresholds: 80~bits (disallowed), 112~bits (weak/transitional), and 128~bits (acceptable).}
-    \Description{Box plots of certificate security strength in bits for apple-tv, eufy, fire-tv, sony-tv, tapo-c100, tapo-c200, and xiaomi, with dashed horizontal lines at 80, 112, and 128 bits. Most certificates sit at 112 bits. apple-tv, fire-tv, sony-tv, tapo-c100, and tapo-c200 also have certificates at 128 bits, apple-tv has two at 192 bits, and tapo-c100 and tapo-c200 have certificates at 80 bits; eufy and xiaomi have only 112-bit certificates.}
-    \label{fig:security_bits_boxplot_all}
-\end{figure}
-
-
-
-
-
-
-
-
-
-
-
-
-
-\begin{comment}
-    
-
-
-\begin{figure}
-    \centering
-    \includegraphics[width=0.9\linewidth]{fig/algorithm_distribution_all_devices.pdf}
-    \caption{Algorithm distribution of all devices.}
-    \label{fig:algorithm_distribution_all_devices}
-\end{figure}
-
-
-    
-\begin{figure}
-    \centering
-    \includegraphics[width=0.9\linewidth]{fig/expired_by_device.pdf}
-    \caption{Expired by device: Note that the expired were valid during the traffic capturing.}
-    \label{fig:expired_by_device}
-\end{figure}
-
-\end{comment}
-
-
-
-
-
-
-
-
-%\textbf{Strength distribution:}
-%Figure~\ref{fig:device_comparison_strength} shows the per-device strength classification.
-%Fire-tv and apple-tv have the highest absolute number of weak certificates (38 and 10, respectively), while tapo-c100 and tapo-c200 are the only devices with broken (RSA-1024) certificates. 
-%No device achieves a majority of strong certificates, indicating that the migration to post-quantum-ready key sizes has not begun for any vendor in our sample.
-
-
-
-
-
-
-
-%%%%%%%%%%%%%%%%%%
-
-%%%%%%%%%%%%%%5%%%
-%%%%%%%%%%%%%%%%%%
-\subsection{Vulnerability Implications (RQ3)}
-%of Insecure \&  Weak 
-
-To investigate the vulnerability implications of update-related traffic, we queried the CVE-List \cite{CVE_Program} using our results from insecure and weak cryptographic algorithm implementations. 
-%CVEs are mapped from cipher suite names found in a database, not from the actual devices tested. 
-These are potential vulnerabilities associated with the observed cipher configurations, not confirmed exploits on our devices.
-% shorten, seems repeated from the methodology
-%Specifically, our keywords are combinations of  \texttt{insecure, weak, cipher suites}. This allows us to assess the severity of vulnerabilities, identify associated weaknesses, and detail the adversarial capabilities enabled by these flaws.
-%\vspace{2mm}
-%\noindent
-%\textbf{Common Vulnerabilities and Exposures (CVE):}
-Our results show a total of 92 vulnerabilities (CVEs) associated with insecure and weak cipher suites.
-% shorten
-%Figure \ref{fig:update_traffic_impact} illustrates their impact on confidentiality, integrity, and availability, along with the corresponding attack vectors, attack complexity, and base severity levels. 
-%From the figure, it is evident that confidentiality is the most highly affected property, and that most attack vectors are carried out over the network.
-%\input{fig/vulnerability}
-%\vspace{2mm}
-%\noindent
-%\textbf{Common Vulnerability Scoring System (CVSS):}
-We further extracted the Common Vulnerability Scoring System (CVSS) base scores for the corresponding vulnerabilities.
-%associated with insecure and weak cipher suites.
-%, as shown in Figure  \ref{fig:update-traffic_base}. 
-The overall average base score is 6.1/10, with values ranging from a minimum of 2.6/10 to a maximum of 9.8/10. 
-Notably, the results reveal an upward trend in severity over the past five years, indicating that the weakness classes these configurations belong to are attracting increasingly severe CVEs over time; whether this translates into risk on any specific device remains conditional on deployment and exploitability.
-
-
-
-
-
-
-
-
-
-%\vspace{1mm}
-\paragraph{Common Weakness Enumeration (CWE)}
-Additionally, we extracted the top weaknesses associated with the insecure and weak cipher suite implementations as shown in 
-Table~\ref{tab:cwe}.
-% shorten
-%shows the top five CWEs for insecure and weak cipher suites for update-related traffic,  along with their description and example. 
-%In these update-related CVEs, 
-These weakness classes have been associated with a range of impacts: manipulating or intercepting encrypted communications (CVE-2025-3200), arbitrary code execution (CVE-2014-8531), information disclosure (CVE-2024-42177), man-in-the-middle attacks (CVE-2021-32496), and brute-force key recovery (CVE-2013-6169). 
-
-\begin{table}[htbp]
-    \centering
-    \caption{Top five CWE for insecure and weak cipher suites for update traffic.}
-    \label{tab:cwe}
-    % Column widths set to fit one ACM column at \footnotesize (instead of
-    % scaling the LNCS-width table down to ~50%).
+    \color{blue}
+    \caption{How the controlled devices received their updates. 1.2/1.3: TLS version; ECDHE-RSA-GCM: ECDHE key exchange, RSA authentication, AES-GCM (ciphersuite.info: \emph{secure}); TLS~1.3 suites are \emph{recommended}; static-RSA, PSK, and CBC suites are \emph{weak} (Table~\ref{tab:cipher_classes}). n/o: not observed. \textsuperscript{l}Likely update server (multi-purpose device API or unconfirmed check server). \textsuperscript{v}Vendor-published image of the installed firmware line. \textsuperscript{d}Per vendor documentation~\cite{apple-platform-security}.}
+    \label{tab:profiles}
+    \setlength{\tabcolsep}{2.4pt}
     \footnotesize
-    \setlength{\tabcolsep}{3pt}
-    {%
-    \begin{tabular}{@{} m{1.1cm} | >{\raggedright\arraybackslash}m{3.0cm}| >{\raggedright\arraybackslash}m{3.85cm} @{}} 
+    \begin{tabular}{@{} l l l l l l >{\raggedright\arraybackslash}p{2.35cm} @{}}
+        \toprule
+        \textbf{Device} & \textbf{Firmware} & \textbf{Served from} & \textbf{Check / metadata} & \textbf{Image transfer} & \textbf{Server leaf certificate} & \textbf{Image protection} \\
+        \midrule
+        apple-tv    & 18.6 $\to$ 26.2       & Apple        & 1.3; 1.2 ECDHE-RSA-GCM                   & 1.3, 1.95\,GB & Apple CA, RSA-2048, 392\,d\textsuperscript{*} & signed, authorized per device\textsuperscript{d} \\
+        homepod     & 18.6 $\to$ 26.2       & Apple        & 1.3                                      & 1.3, 1.1\,GB                & hidden by TLS~1.3                  & signed, authorized per device\textsuperscript{d} \\
+        eufy-cam    & 2.1.0.2 $\to$ 2.3.1.6 & AWS          & 1.2 ECDHE-RSA-GCM\textsuperscript{l}     & 1.2 ECDHE-RSA-GCM, 19.7\,MB & public CA, RSA-2048, 397\,d        & unknown \\
+        xiaomi-cam  & 3.5.1 $\to$ 4.0.9     & Azure, CDN77  & 1.2 PSK-CBC, no cert.\textsuperscript{l} & 1.2 ECDHE-RSA-GCM, 16.4\,MB & public CA, RSA-2048, 385\,d        & unknown \\
+        tapo-c100   & 1.0.11 $\to$ 1.4.3    & CloudFront   & n/o                                      & HTTP, 6.7\,MB               & --                                 & signed \\
+        tapo-c200   & 1.0.10 $\to$ 1.3.16   & AWS          & 1.2 static RSA-GCM\textsuperscript{l}    & HTTP, 8.5\,MB               & vendor CA, RSA-2048, 15\,y         & signed \\
+        reolink-cam & 3.0.0 $\to$ 3.1.0     & desktop app (local) & n/o                                      & proprietary UDP, 31\,MB     & --                                 & no signature found \\
+        fire-tv     & up to date            & AWS          & 1.2 ECDHE-RSA-GCM                        & --                          & public CA, RSA-2048, 340\,d        & signed\textsuperscript{v} \\
+        sony-tv     & up to date            & AWS          & 1.2 ECDHE-RSA-CBC\textsuperscript{l}     & --                          & public CA, RSA-2048, 393\,d        & unknown \\
+        d-link-cam  & up to date            & none observed & --                                       & --                          & --                                 & checksum only (CRC32)\textsuperscript{v} \\
+        \bottomrule
+        \multicolumn{7}{@{}l}{\textsuperscript{*}TLS~1.2 metadata servers; the TLS~1.3 connections hide the certificate.}
+    \end{tabular}
+\end{table*}
 
-    \toprule \hline
-        \textbf{CWE-ID} & \textbf{Description} & \textbf{Example}   \\ \hline
-    CWE-327 & Use of a Broken or Risky Cryptographic Algorithm & CVE-2025-3200, CVE-2020-36363, CVE-2024-10405, CVE-2022-34757 \\ \hline
-    CWE-310 & Cryptographic Issues & CVE-2022-45453, CVE-2014-8531, CVE-2013-6169, CVE-2021-32496 \\ \hline
-    CWE-326 & Inadequate Encryption Strength & CVE-2024-42177, CVE-2024-41681, CVE-2023-28021, CVE-2022-48193 \\ \hline
-    CWE-295 & Improper Certificate Validation & CVE-2023-31486, CVE-2019-1590, CVE-2025-33142 \\ \hline
-    CWE-757 & Selection of Less-Secure Algorithm During Negotiation & CVE-2024-23656, CVE-2017-9267, CVE-2023-2974, CVE-2019-14887 \\
-    \bottomrule
-    \end{tabular}%
-    }
-\end{table}
-% shorten
-%with a smaller number of records.
-%Additionally describing lateral movement to other components (CVE-2019-1590).
+\paragraph{\textcolor{blue}{2019 baseline}}
+\textcolor{blue}{In the retrospective traces, 15 device labels (13 models) contacted 12 confirmed update servers, as shown in Table~\ref{tab:retro}.
+Although 97\% of the 2,497 update flows used TLS, four of the 15 labels sent some update traffic over HTTP: Apple~TV fetched signed assets and, once, its update catalog; the Samsung TV fetched firmware headers; the LG TV sent its update check; and the D-Link motion sensor queried its firmware server with its model, firmware version, and MAC address in the URL.}
 
-
-
-
-
-\begin{comment}
-    
-\begin{figure}[htbp]
+\begin{table*}[!t]
     \centering
-    \includegraphics[width=1\linewidth]{fig/base_violin_plot.pdf}
-    \caption{Update-related  CVSS for insecure and weak cipher suites.}
-    \label{fig:update-traffic_base}
-\end{figure}
-
-\end{comment}
-
-
-\begin{comment}
-
-\begin{table}[htbp]
-    \centering
-    \caption{Top five CWE for insecure and weak ciphersuites for update traffic.}
-    \label{tab:cwe}
-    \resizebox{0.93\linewidth}{!}{
-    \begin{tabular}{m{1.5cm} | m{8cm}| m{5.3cm} } 
-
-    \toprule \hline
-        \textbf{CWE-ID} & \textbf{Description} & \textbf{Example}   \\ \hline
-        
-        CWE-327&Use of a Broken or Risky Cryptographic Algorithm &CVE-2025-3200, CVE-2020-36363, CVE-2024-10405, CVE-2022-34757   \\ \hline
-        
-        CWE-310&Cryptographic Issues & CVE-2022-45453, CVE-2014-8531, CVE-2013-6169, CVE-2021-32496   \\ \hline
-        
-        CWE-326&Inadequate Encryption Strength & CVE-2024-42177, CVE-2024-41681, CVE-2023-28021, CVE-2022-48193   \\ \hline
-        
-        CWE-295&Improper Certificate Validation & CVE-2023-31486, CVE-2019-1590, CVE-2025-33142   \\ \hline
-        
-        CWE-757&Selection of Less-Secure Algorithm During Negotiation  & CVE-2024-23656, CVE-2017-9267, CVE-2023-2974, CVE-2019-14887   \\ \hline
-
+    \color{blue}
+    \caption{Confirmed update servers in the 2019 Mon(IoT)r traces. All TLS connections negotiated TLS~1.2; suite abbreviations as in Table~\ref{tab:profiles}. \textsuperscript{a}echodot, t-echodot, echoplus, echospot, firetv, cloudcam. \textsuperscript{b}The thermostat also authenticates with a client certificate valid until 9999.}
+    \label{tab:retro}
+    \setlength{\tabcolsep}{4pt}
+    \footnotesize
+    \begin{tabular}{@{} l l l l l @{}}
+        \toprule
+        \textbf{Update server} & \textbf{Device labels} & \textbf{Protocol} & \textbf{Negotiated suite} & \textbf{Server leaf certificate} \\
+        \midrule
+        \texttt{softwareupdates.amazon.com} & six Amazon devices\textsuperscript{a} & TLS & ECDHE-RSA-GCM & DigiCert, RSA-2048, 336\,d \\
+        \texttt{mesu.apple.com}             & appletv                     & TLS; once HTTP & ECDHE-ECDSA-GCM & Apple, EC P-256, 760\,d \\
+        \texttt{gdmf.apple.com}             & appletv                     & TLS            & ECDHE-RSA-GCM   & Apple, RSA-2048, 760\,d \\
+        \texttt{updates-http.cdn-apple.com} & appletv                     & HTTP (signed assets) & --        & -- \\
+        \texttt{fw-update2.smartthings.com} & smartthings-hub, t-smartthings-hub & TLS     & ECDHE-RSA-GCM   & vendor CA, RSA-1024, 10\,y \\
+        \texttt{awsota.linkplay.com}        & allure-speaker              & TLS            & ECDHE-RSA-GCM   & Amazon, RSA-2048, 396\,d \\
+        \texttt{hub-updates.winkapp.com}    & wink-hub2                   & TLS            & ECDHE-RSA-GCM   & Comodo, RSA-2048, 730\,d \\
+        \texttt{fwuprod.clouddevice.io}     & honeywell-thermostat        & TLS (mutual)   & ECDHE-ECDSA-GCM & vendor CA, EC P-256, 731\,d\textsuperscript{b} \\
+        \texttt{otn.samsungcloudcdn.com}    & samsungtv-wired             & HTTP           & --              & -- \\
+        \texttt{wrpd.dlink.com}, \texttt{api.dch.dlink.com} & dlink-mov    & HTTP           & --              & -- \\
+        \texttt{snu.lge.com}                & lgtv-wired                  & HTTP           & --              & -- \\
         \bottomrule
     \end{tabular}
-    }
-    
+\end{table*}
 
+\subsection{Channel Protection (RQ2)}
+\label{subsec:channel}
+Of the seven devices that downloaded an update, four received the image over TLS (apple-tv and homepod over TLS~1.3, eufy-cam and xiaomi-cam over TLS~1.2) and three without encryption.
+tapo-c100 and tapo-c200 downloaded their images over HTTP from \texttt{tplinkcloud.com}; the request URLs encode model, hardware revision, and target version, and the images (6.7 and 8.5\,MB) can be recovered byte for byte.
+reolink-cam's local push is the only update flow that protocol inspection leaves unclassified.
+Its payload has a normalized Shannon entropy of 0.978, 
+\textcolor{blue}{which Ren et al.'s ranges would label as likely encrypted, yet it contains UBI, uImage, and SquashFS signatures, and 96\% of sampled 64-byte chunks of the published v3.1 image occur verbatim in the stream: the image travels unencrypted and is merely compressed.
+Entropy would thus have misclassified the one flow for which it was needed, so we base encryption status on protocol and content.}
+
+\textcolor{blue}{Figure~\ref{fig:entropy} shows that this is not a corner case.
+Per update flow, every TLS connection has a normalized entropy above 0.8, but so do all 14 unencrypted HTTP flows that carry images or signed assets (median 0.99) and the main local push (0.95): a compressed image is as incompressible as ciphertext.
+Unencrypted update checks and metadata spread from 0.64 to 0.99 (median 0.73), because some carry binary or encoded content.
+An entropy threshold would thus have labelled every unencrypted image transfer in both datasets as encrypted, which is why per-device entropy averages cannot show whether update channels are encrypted.}
+
+\begin{figure}[!t]
+    \centering
+    \includegraphics[width=\linewidth]{fig/entropy_by_channel.pdf}
+    \caption{\textcolor{blue}{Normalized Shannon entropy of the payload of each update flow (server to device, first 2\,MB), grouped by how protocol inspection classifies the flow; dashed lines are the 0.4 and 0.8 ranges of Ren et al.~\cite{10.1145/3355369.3355577}. Unencrypted image transfers fall in the same range as TLS.}}
+    \Description{Strip plot with five rows. TLS 1.3 flows (74, our lab) and TLS 1.2 flows (171 from our lab, 2,423 from 2019) all lie between 0.89 and 1.0. Unencrypted HTTP flows that carry images or assets (3 from our lab, 11 from 2019) lie between 0.85 and 1.0, in the same range. The main local-push flow lies at 0.95 and a small one at 0.37. Unencrypted HTTP update checks and metadata from 2019 (63 flows) lie between 0.64 and 0.99.}
+    \label{fig:entropy}
+\end{figure}
+
+\paragraph{\textcolor{blue}{What unencrypted requests reveal}}
+\textcolor{blue}{Table~\ref{tab:exposure} lists what the unencrypted update requests disclose to a passive observer.
+The Tapo image URLs name the camera model, hardware version, region, and the firmware version about to be installed.
+In 2019, the LG TV's update check (Base64-encoded, not encrypted) and the D-Link motion sensor's firmware query carried the installed firmware version together with the device's MAC address, a persistent identifier. The Apple~TV named its model, OS version, and build in the User-Agent of its HTTP asset downloads.
+This suffices to single out devices that run a vulnerable version.
+D-Link's newer upgrade interface, in contrast, encrypts its parameters at the application layer.
+TLS hides such fields, but not which update server a device contacts, when, and how much it downloads: we identified every update flow from names sent in cleartext (\S\ref{subsec:attribution}), and a passive observer can do the same.
+Nor does an encrypted update channel keep the version secret if other traffic reveals it: apple-tv, whose update traffic is all TLS, sent its model and OS build in the User-Agent of cleartext requests to an Apple identity service.}
+
+\begin{table}[!t]
+    \centering
+    \color{blue}
+    \caption{What unencrypted update requests reveal to a passive observer (values as observed; MAC addresses withheld).}
+    \label{tab:exposure}
+    \setlength{\tabcolsep}{3pt}
+    \footnotesize
+    \begin{tabular}{@{} l >{\raggedright\arraybackslash}p{1.55cm} >{\raggedright\arraybackslash}p{4.45cm} @{}}
+        \toprule
+        \textbf{Device} & \textbf{Request} & \textbf{Revealed} \\
+        \midrule
+        tapo-c100/c200 & image URL & model and hardware version (C100 v5, C200 v1), region, target version and build \\
+        \addlinespace
+        \multicolumn{3}{@{}l}{\emph{2019 traces}} \\
+        appletv & User-Agent of asset downloads & model (AppleTV5,3), chip, installed OS version and build \\
+        lgtv-wired & update check (Base64 XML) & platform, model code, installed firmware version, country, MAC address \\
+        dlink-mov & firmware query URL & model (DCH-S150), hardware revision, installed firmware version, MAC address \\
+        samsungtv-wired & firmware header URL & firmware line (platform and region), offered version \\
+        \bottomrule
+    \end{tabular}
 \end{table}
 
+\subsection{TLS Settings and Certificates (RQ2)}
 
+\paragraph{Negotiated suites}
+\textcolor{blue}{All 2,423 update connections in 2019 negotiated TLS~1.2 with ECDHE and AES-GCM (secure or recommended); no update server selected a weak or insecure suite.
+The absence of TLS~1.3 reflects its early adoption after RFC~8446~\cite{rfc8446,holz2020tls13} rather than device limitations.
+%: Apple~TV already offered TLS~1.3 suites in 2019, as shown in Figure~\ref{fig:offered}.
+In our captures, the Apple devices use TLS~1.3 for catalog and image, and eufy-cam, xiaomi-cam's image server, and fire-tv's update check use ECDHE with AES-GCM.
+Three channels negotiate weak suites: tapo-c200's device API selects static RSA (no forward secrecy) in all 144 connections, although the client also offers DHE suites; sony-tv's update check uses an ECDHE-RSA suite in CBC mode; and xiaomi-cam's device channel uses a pre-shared-key CBC suite without any certificate.}
 
+\begin{figure}[!t]
+    \centering
+    \includegraphics[width=\linewidth]{fig/offered_negotiated.pdf}
+    \caption{\textcolor{blue}{Cipher suites offered per client configuration on update channels, by ciphersuite.info category, and the suite negotiated most often (diamond).}}
+    \Description{Horizontal stacked bars, one per client configuration, showing how many offered suites fall into each category; most lists are dominated by weak suites, from about 10 to 80 suites long. A column on the right shows the negotiated suite with a colored diamond: TLS 1.3 recommended for Apple, secure or recommended TLS 1.2 suites for most other configurations, and weak suites for sony-tv, tapo-c200, and xiaomi-cam's device channel. tapo-c200, the 2019 Amazon devices, and the 2019 SmartThings hub also offer insecure suites.}
+    \label{fig:offered}
+\end{figure}
 
+\paragraph{Offered suites}
+\textcolor{blue}{Every client configuration offers weak suites, between 55\% (Apple, 11 of 20) and 95\% (eufy-cam and xiaomi-cam, 75 of 79) of its list, which mirrors library defaults rather than negotiated behavior (Figure~\ref{fig:offered}).
+Insecure suites are rarer: tapo-c200's device-API client offers RC4 and single-DES suites (7 of 47) and no ECDHE suite at all, and in 2019 the Amazon devices and the SmartThings hub offered RC4.
+None of these was ever negotiated, and because the Finished messages protect the offered list (\S\ref{sec:threat}), their presence is a hygiene issue rather than a downgrade path.}
 
+\paragraph{Server certificates}
+\textcolor{blue}{Figure~\ref{fig:lifetimes} shows the validity of the leaf certificates that update servers presented.
+Leaves from public CAs and from Apple's CA are valid for 340-397 days in our captures and 336-760 days in 2019, within the CA/Browser Forum limits of the time~\cite{cabf-br}, and all use RSA-2048 or EC P-256 (112 or 128~bits).
+The exceptions are CAs run by the vendors themselves, which these limits do not bind: TP-Link's device API presents a leaf valid for 15~years, and in 2019 SmartThings' firmware server presented an RSA-1024 leaf (80~bits) valid for ten years, while Honeywell's update server authenticated thermostats by client certificates valid until the year 9999.}
 
-\end{comment}
+\begin{figure}[!t]
+    \centering
+    \includegraphics[width=\linewidth]{fig/leaf_lifetimes.pdf}
+    \caption{\textcolor{blue}{Validity periods of the leaf certificates presented by update servers (log scale). Dashed lines: CA/Browser Forum limits for publicly trusted certificates (825 days until 2020, 398 days since).}}
+    \Description{Dot plot with one row per update server, split into our captures and 2019 traces. Public and Apple certificates cluster between 336 and 760 days, at or below the limits. Two certificates from vendors' own authorities stand out: TP-Link's device API at 15 years, and SmartThings' firmware server in 2019 at 10 years with a 1024-bit RSA key.}
+    \label{fig:lifetimes}
+\end{figure}
 
+\paragraph{\textcolor{blue}{Revocation}}
+\textcolor{blue}{A long-lived certificate is a lasting risk mainly if it cannot be withdrawn after its key is compromised.
+Table~\ref{tab:revocation} shows which revocation sources each leaf names, whether the client asks for a stapled OCSP response (visible in TLS~1.3 as well), and whether the device contacted any OCSP or CRL server during the capture.
+The Apple devices, fire-tv, and in 2019 the Honeywell thermostat request stapling on every update connection, and where TLS~1.2 makes stapling visible, the server staples a response in 132 of 148 connections.
+eufy-cam, xiaomi-cam, sony-tv, and the 2019 Amazon, LinkPlay, and Wink clients neither request stapling nor contact the responder that their public-CA leaf names.
+The vendor-CA leaves are the extreme: TP-Link's 15-year leaf names only a revocation list, which tapo-c200 never fetched, and SmartThings' ten-year RSA-1024 leaf names no revocation source at all; the hubs contacted no OCSP or CRL server in 212 captures.}
 
+\begin{table}[!t]
+    \centering
+    \color{blue}
+    \caption{Revocation checking for update-server leaf certificates. \emph{Staple}: the client requests a stapled OCSP response. \emph{Lookup}: the device contacts an OCSP or CRL server during the capture. \textsuperscript{a}From Amazon's own CRL service (18 of 27 captures), not from the issuer of the leaf.}
+    \label{tab:revocation}
+    \setlength{\tabcolsep}{3pt}
+    \footnotesize
+    \begin{tabular}{@{} >{\raggedright\arraybackslash}p{2.45cm} l l l l @{}}
+        \toprule
+        \textbf{Server (clients)} & \textbf{CA, validity} & \textbf{In leaf} & \textbf{Staple} & \textbf{Lookup} \\
+        \midrule
+        Apple (apple-tv, homepod) & Apple, 390--392\,d & OCSP, CRL & all & apple-tv \\
+        Amazon (fire-tv)          & public, 340\,d     & OCSP, CRL & all & no \\
+        Eufy, Xiaomi, Sony        & public, 385--397\,d & OCSP, CRL & no & no \\
+        TP-Link API (tapo-c200)   & vendor, 15\,y      & CRL       & no  & no \\
+        \addlinespace
+        \multicolumn{5}{@{}l}{\emph{2019 traces}} \\
+        Apple (appletv)           & Apple, 760\,d      & OCSP, CRL & all & 7 of 28 \\
+        Honeywell (thermostat)    & vendor, 731\,d     & OCSP, CRL & all & no \\
+        Amazon (six devices)      & public, 336\,d     & OCSP, CRL & no  & other\textsuperscript{a} \\
+        LinkPlay, Wink            & public, 396/730\,d & OCSP, CRL & no  & no \\
+        SmartThings (hub)         & vendor, 10\,y      & none      & no  & no \\
+        \bottomrule
+    \end{tabular}
+\end{table}
 
-\color{black}
+\textcolor{blue}{What does this mean for the NIST transition that disallows 112-bit strength for applying protection after 2030~\cite{NIST2020-SP800-57}?
+A server's leaf certificate can be replaced on the server at any time, and public-CA leaves are replaced about yearly, so their RSA-2048 keys are not a lasting problem.
+A leaf becomes one when it outlives the transition, as TP-Link's does (valid until 2036), or when the device can only trust its vendor's CA: then the trust anchor ships in the firmware, and changing it, or without revocation even withdrawing a compromised key, requires a firmware update, which devices that stop receiving updates before 2031 will not get.}
+
+\subsection{\texorpdfstring{\textcolor{blue}{Image Protection (RQ2)}}{Image Protection (RQ2)}}
+\label{subsec:image}
+\textcolor{blue}{Figure~\ref{fig:channelimage} combines how each image reached the device with the protection inside it.
+The Tapo images, delivered over HTTP, carry a signature block that requires TP-Link's private key, so an on-path adversary can read but not undetectably modify them, provided the device checks the signature.
+Apple images are signed and authorized per device at installation time~\cite{apple-platform-security}, and Fire~TV update packages are signed.
+The pushed reolink-cam image contains no signature that we could locate, and we could not reproduce its checksum, so this local push is the weakest combination we observed: an unencrypted transfer of an image without evident protection.
+The published image of d-link-cam's installed firmware (DCS-5000L v1.05.02) is a uImage protected only by CRC32 header and data checksums; recomputing both after a modification yields an image that passes the format check, so its integrity would rest entirely on the channel.}
+
+\begin{figure}[!t]
+    \centering
+    \includegraphics[width=\linewidth]{fig/channel_image.pdf}
+    \caption{\textcolor{blue}{How each device's image reached it (columns) versus the protection inside the image (rows). In the shaded cells, an on-path attacker could alter the image without breaking any cryptography, provided the device installs it.}}
+    \Description{A grid with five columns (local push unencrypted, HTTP unencrypted, TLS 1.2, TLS 1.3, no image seen) and five rows (checksum only, no signature found, unknown, signed, signed and authorized per device). reolink-cam sits in the shaded cell for a local unencrypted push without a signature; tapo-c100 and tapo-c200 are in HTTP and signed; eufy-cam and xiaomi-cam in TLS 1.2 and unknown; apple-tv and homepod in TLS 1.3 and signed with per-device authorization; d-link-cam, fire-tv, and sony-tv are in the no-image column.}
+    \label{fig:channelimage}
+\end{figure}
+
+\subsection{\texorpdfstring{\textcolor{blue}{Attack Preconditions (RQ3)}}{Attack Preconditions (RQ3)}}
+\label{subsec:preconditions}
+\textcolor{blue}{Table~\ref{tab:preconditions} maps each weakness to the attack class it enables.
+Only reconnaissance succeeds for a passive adversary without further requirements.
+Every tampering path additionally requires that the device installs an image it cannot authenticate, which our data establish at the image level (reolink-cam, d-link-cam) or rule out at that level (Tapo, Apple, Fire~TV), but never at the level of device-side checking.
+These are exposure statements: we neither attempted nor observed exploitation on the devices; the only manipulation we performed is the offline D-Link image modification above.}
+
+\begin{table}[!t]
+    \centering
+    \color{blue}
+    \caption{Observed weaknesses, the attacks they enable (CWE~\cite{mitre-cwe}; representative CVE~\cite{CVE_Program}), what the attacks require, and whether our data show the requirement to be met.}
+    \label{tab:preconditions}
+    \setlength{\tabcolsep}{2pt}
+    \footnotesize
+    \begin{tabular}{@{} >{\raggedright\arraybackslash}p{2.1cm} >{\raggedright\arraybackslash}p{2.05cm} >{\raggedright\arraybackslash}p{1.8cm} >{\raggedright\arraybackslash}p{2.05cm} @{}}
+        \toprule
+        \textbf{Weakness (where)} & \textbf{Enables} & \textbf{Requires} & \textbf{Met?} \\
+        \midrule
+        Unencrypted update check or download (Tapo; 2019: Apple~TV, D-Link, LG, Samsung) & reconnaissance of model and version; tracking by MAC address (CWE-319) & passive on-path $\mathcal{A}$ & yes (Table~\ref{tab:exposure}) \\
+        \addlinespace
+        Image over HTTP (tapo-c100, tapo-c200) & image substitution (CWE-494) & active $\mathcal{A}$; signature not checked & image signed; checking not observable \\
+        \addlinespace
+        Unencrypted local push (reolink-cam) & image substitution on the local network (CWE-494) & local access; no image protection & no signature found \\
+        \addlinespace
+        Checksum-only image (d-link-cam image) & forged image passes check (CWE-345) & unauthenticated delivery channel & no update observed \\
+        \addlinespace
+        Static RSA key exchange (tapo-c200 API) & decryption of recorded sessions; Bleichenbacher oracle (CWE-327; CVE-2017-13099) & server key compromise or vulnerable server & not observable; leaf valid 15~y \\
+        \addlinespace
+        CBC suites negotiated (sony-tv, xiaomi-cam) & padding oracle (CWE-327; CVE-2013-0169) & vulnerable implementation; active $\mathcal{A}$ & not observable \\
+        \addlinespace
+        RC4/DES offered (tapo-c200; 2019: Amazon, SmartThings) & RC4 biases, DES key search (CWE-327; CVE-2013-2566) & server selects them & no; never negotiated \\
+        \addlinespace
+        RSA-1024 server leaf (2019: SmartThings) & server impersonation (CWE-326) & factoring a 1024-bit key & below NIST minimum \\
+        \addlinespace
+        Long-lived leaf, revocation never checked (tapo-c200; 2019: SmartThings) & use of a stolen server key until the leaf expires (CWE-299) & key compromise; active $\mathcal{A}$ & not observable; valid 15 and 10~y \\
+        \bottomrule
+    \end{tabular}
+\end{table}

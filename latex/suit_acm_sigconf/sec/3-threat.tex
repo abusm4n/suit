@@ -1,0 +1,35 @@
+\section{Threat Model and Scope}
+\label{sec:threat}
+
+We consider a smart home deployment in which IoT devices \textcolor{blue}{obtain software or firmware updates from vendor servers, either directly or through a companion app or desktop application.
+An update involves up to three exchanges: an \emph{update check} that returns metadata (the available version and where to get it), an optional \emph{authorization} step in which a vendor service approves installation on this particular device, and the \emph{image transfer}.
+Each exchange may use a different server and protocol, and the image may reach the device over the Internet or across the home network from an application that downloaded it.}
+
+\paragraph{\textcolor{blue}{Protection layers}}
+\textcolor{blue}{Update security rests on three layers:
+(i)~the \emph{channel}, i.e., encryption and server authentication of each exchange;
+(ii)~the \emph{image}, i.e., the integrity mechanism inside the update file or its manifest, ranging from checksums such as CRC32 or MD5, which anyone can recompute, to vendor signatures; and
+(iii)~\emph{device-side checking}, i.e., whether the device verifies (ii) before it installs the image.
+We measure the channel for all devices and characterize the image protection for the images we can obtain; device-side checking cannot be observed from the network and is the subject of firmware analyses such as~\cite{294541}.}
+
+\paragraph{Adversary profile}
+We assume a network-level adversary ($\mathcal{A}$) who can observe traffic on any segment of the update path.
+Specifically, $\mathcal{A}$ may be (i)~an on-path Wi-Fi eavesdropper within range of the home access point, (ii)~a compromised or backdoored home gateway or router, or (iii)~a transit-level observer (e.g., a compromised ISP node or a state-level actor).
+A \emph{passive} $\mathcal{A}$ reads packet metadata (servers, sizes, timing) and any unencrypted content; an \emph{active} $\mathcal{A}$ can also drop, modify, and inject packets.
+
+\paragraph{Adversary goals and what they require}
+\emph{Reconnaissance}: learn a device's model, firmware version, and update timing, to find unpatched targets; unencrypted update checks or downloads suffice.
+\emph{Tampering}: substitute or modify an image or its metadata in transit; this succeeds only if the channel does not authenticate the server \emph{and} the image is unsigned, or the device does not check its signature.
+\emph{Server impersonation}: present a certificate that the device accepts, e.g., by factoring a weak key or by compromising a long-lived vendor certificate authority; it helps $\mathcal{A}$ only for the same unprotected images.
+\emph{Rollback and freeze}: replay older images or withhold updates; signed and fresh metadata prevents this, TLS alone does not~\cite{samuel2010tuf}.
+Keeping the image secret is not a goal: vendors typically publish their images, so $\mathcal{A}$ can simply download them.
+
+\paragraph{\textcolor{blue}{What the network can and cannot show}}
+\textcolor{blue}{In TLS~1.2 the Finished messages authenticate the whole handshake, so an on-path adversary cannot remove strong cipher suites from the list that a client offers; weak \emph{offers} become exploitable only if a server selects them, through export-grade and anonymous suites~\cite{beurdouche2015freak,adrian2015logjam}, or through insecure version fallback~\cite{rfc7507}.
+We therefore treat the \emph{negotiated} settings as the actual exposure and the offered suites as legacy support.
+TLS~1.3 encrypts the server certificate~\cite{rfc8446}, so for TLS~1.3 connections we see the server name and the negotiated settings but not the certificate.
+We can see neither manifests carried inside TLS nor whether a device checks signatures or validates certificates.}
+
+\paragraph{Trust assumptions}
+We assume that the vendor's update server itself is not compromised.
+We further assume that the IoT device firmware, at the time of deployment, is authentic. The security of the update \emph{delivery channel} between the server and the device is \emph{not} assumed and is the subject of our analysis.

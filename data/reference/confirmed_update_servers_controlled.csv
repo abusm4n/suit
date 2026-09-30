@@ -1,0 +1,22 @@
+device,endpoint,role,confidence,evidence
+apple-tv,mesu.apple.com,update catalog,confirmed,Apple software-update catalog (MESU)
+apple-tv,gdmf.apple.com,update metadata,confirmed,Apple software-update metadata service
+apple-tv,gdmf-ados.apple.com,update metadata,confirmed,Apple software-update metadata service
+apple-tv,gs.apple.com,personalization,confirmed,Apple installation-authorization (signing) service
+apple-tv,updates.cdn-apple.com,image,confirmed,1.95 GB over TLS 1.3 during the update
+apple-tv,updates-http.cdn-apple.com,asset,confirmed,MobileAsset archive over HTTP (signed asset)
+homepod,gdmf.apple.com,update metadata,confirmed,Apple software-update metadata service
+homepod,updates.cdn-apple.com,image,confirmed,1.1 GB over TLS 1.3 during the update
+fire-tv,softwareupdates.amazon.com,update check,confirmed,Amazon software-update service; device up to date
+sony-tv,ssm1.internet.sony.tv,update check,likely,only vendor endpoint contacted when the update check was triggered
+eufy,security-app-eu.eufylife.com,update metadata,likely,Eufy device/app API contacted before the image download
+eufy,cdn-eu-public.eufylife.com,image,confirmed,19.7 MB over TLS 1.2 during the update
+xiaomi,de.ots.io.mi.com,device channel,likely,Xiaomi device cloud channel (TLS-PSK) that carries OTA commands
+xiaomi,fk-res-abroad-cdn.home.mi.com,image,confirmed,16.4 MB over TLS 1.2 during the update
+tapo-c100,ota-download.tplinkcloud.com,image,confirmed,HTTP GET /firmware/Tapo_C100v5_en_1.4.3_..._up_boot-signed_*.bin (6.7 MB)
+tapo-c200,download.tplinkcloud.com,image,confirmed,HTTP GET /firmware/Tapo_C200v1_en_1.3.16_..._up_boot-signed_*.bin (8.5 MB)
+tapo-c200,n-device-api.tplinkcloud.com,device API,likely,TP-Link device cloud API (multi-purpose; static RSA)
+tapo-c200,n-euw1-device-api.tplinkcloud.com,device API,likely,regional alias of the TP-Link device API
+tapo-c200,n-euw1-devs-dcipc.tplinkcloud.com,device API,likely,TP-Link device cloud API
+tapo-c200,n-deventry-dcipc.tplinkcloud.com,device API,likely,TP-Link device cloud API
+riolink,LAN:192.168.0.11,image (LAN push),confirmed,desktop client pushed the .pak over UDP; image chunks verbatim in stream

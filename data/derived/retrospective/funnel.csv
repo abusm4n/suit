@@ -1,0 +1,12 @@
+metric,value
+captures,38355
+captures_iot_data,37744
+captures_iot_idle,611
+distinct_hostnames,904
+captures_with_update_traffic,308
+update_flows,2497
+update_flows_tls,2423
+update_flows_http,74
+confirmed_update_servers,12
+device_labels,15
+device_models,13

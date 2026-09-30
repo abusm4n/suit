@@ -1,0 +1,9 @@
+device,connections,suites,recommended,secure,weak,insecure,signal,insecure_names,offers_tls13
+apple-tv,82,20,6,3,11,0,0,,True
+eufy-cam,7,79,2,2,75,0,1,,False
+fire-tv,1,14,3,3,8,0,0,,False
+homepod,8,20,6,3,11,0,0,,True
+sony-tv,1,52,2,2,48,0,1,,False
+tapo-c200,144,47,0,0,40,7,1,TLS_RSA_WITH_RC4_128_SHA;TLS_RSA_WITH_RC4_128_MD5;TLS_DHE_RSA_WITH_DES_CBC_SHA;TLS_DHE_DSS_WITH_DES_CBC_SHA;TLS_DH_RSA_WITH_DES_CBC_SHA;TLS_DH_DSS_WITH_DES_CBC_SHA;TLS_RSA_WITH_DES_CBC_SHA,False
+xiaomi-cam,1,79,2,2,75,0,1,,False
+xiaomi-cam,1,6,2,0,4,0,1,,False

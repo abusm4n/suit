@@ -1,4 +1,4 @@
-# Earlier versions (not used by the current paper)
+# Earlier versions 
 
 This folder keeps the code, figures and intermediate data of earlier versions of this
 study, for reference. The current paper does not use any of it; its pipeline is in

@@ -24,32 +24,10 @@
 /SUIT_presentation.pptx
 
 # ---------------------------------------------------------------------------
-# Paper: track the sources of latex/suit_acm_sigconf and the figures it
-# includes; other venues, backups and build output under latex/ stay local.
-# ('latex/**' plus '!.../**/' is needed: git does not descend into an excluded
-# directory, so file-level negations alone would never match.)
+# Paper sources and legacy scripts stay local only.
 # ---------------------------------------------------------------------------
-latex/**
-latex/suit_acm_sigconf/
-!latex/suit_acm_sigconf/**/
-!latex/suit_acm_sigconf/**/*.tex
-!latex/suit_acm_sigconf/**/*.bib
-!latex/suit_acm_sigconf/*.cls
-!latex/suit_acm_sigconf/*.bst
-!latex/suit_acm_sigconf/*.bbx
-!latex/suit_acm_sigconf/*.cbx
-!latex/suit_acm_sigconf/*.dbx
-!latex/suit_acm_sigconf/fig/system_setup.pdf
-!latex/suit_acm_sigconf/fig/devices_labels_fixed.jpeg
-!latex/suit_acm_sigconf/fig/keyword_baseline.pdf
-!latex/suit_acm_sigconf/fig/traffic_composition.pdf
-!latex/suit_acm_sigconf/fig/update_timelines.pdf
-!latex/suit_acm_sigconf/fig/entropy_by_channel.pdf
-!latex/suit_acm_sigconf/fig/offered_negotiated.pdf
-!latex/suit_acm_sigconf/fig/leaf_lifetimes.pdf
-!latex/suit_acm_sigconf/fig/channel_image.pdf
-# figure sources of other projects that are not part of this paper
-latex/suit_acm_sigconf/fig/tikz/
+/latex/
+/legacy/
 
 # ---------------------------------------------------------------------------
 # Python, logs, editors

@@ -4,16 +4,16 @@
 PY    ?= python3
 JOBS  ?= 12
 SRC   := src/update_attribution
-PAPER := latex/suit_acm_sigconf
+PAPER := latex/SUIT_SEC@SAC
 
 .PHONY: help check numbers figures paper controlled retrospective keyword keyword-sample \
-        entropy exposure revocation lanpush images snapshot derived all clean-cache
+        names entropy exposure revocation lanpush chains images snapshot derived all clean-cache
 
 help:  ## list the targets
 	@echo "From the data in this repository (no raw captures needed):"
 	@grep -E '^(check|numbers|figures|paper):.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  make %-15s %s\n", $$1, $$2}'
 	@echo "From the raw captures (see README.md, Data):"
-	@grep -E '^(controlled|retrospective|keyword|keyword-sample|entropy|exposure|revocation|lanpush|images|snapshot|derived|all|clean-cache):.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  make %-15s %s\n", $$1, $$2}'
+	@grep -E '^(controlled|retrospective|keyword|keyword-sample|names|entropy|exposure|revocation|lanpush|chains|images|snapshot|derived|all|clean-cache):.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  make %-15s %s\n", $$1, $$2}'
 
 # --- from the versioned data in data/ --------------------------------------------------
 check:  ## report which tools and raw data are available
@@ -30,7 +30,7 @@ check:  ## report which tools and raw data are available
 numbers:  ## print the numbers behind the paper's tables and key statements
 	$(PY) $(SRC)/paper_numbers.py
 
-figures:  ## regenerate the paper's data figures (Figures 4-10) in latex/.../fig/
+figures:  ## regenerate the paper's data figures (Figures 4-8) in latex/.../fig/
 	$(PY) $(SRC)/figures.py
 
 paper: figures  ## build the paper PDF (needs latexmk and biber)
@@ -46,10 +46,13 @@ retrospective:  ## 2019 traces: candidates, update flows, TLS, certificates (Tab
 keyword: retrospective  ## keyword-filter baseline over all 2019 captures (Section 4.3, Figure 4)
 	$(PY) $(SRC)/keyword_baseline.py --jobs $(JOBS)
 
+names: retrospective  ## name-level baseline, update captures by experiment, fallback SCSV (Section 4.3)
+	$(PY) $(SRC)/name_baseline.py
+
 keyword-sample:  ## 300-capture check of the original keyword selection (optional input)
 	$(PY) $(SRC)/keyword_baseline_sample.py
 
-entropy: controlled retrospective  ## per-flow payload entropy (Section 5.2, Figure 7)
+entropy: controlled retrospective  ## per-flow payload entropy (Section 5.2; figure not in the paper)
 	$(PY) $(SRC)/entropy_by_channel.py
 
 exposure: controlled retrospective  ## what unencrypted update requests reveal (Table 5)
@@ -58,19 +61,22 @@ exposure: controlled retrospective  ## what unencrypted update requests reveal (
 revocation: controlled retrospective  ## revocation sources, OCSP stapling, lookups (Table 6)
 	$(PY) $(SRC)/revocation.py --jobs $(JOBS)
 
-lanpush:  ## is reolink-cam's local push encrypted? (Section 5.2, printed)
+lanpush:  ## reolink-cam's local push: encryption, login, image reassembly (Section 5.2; lan_push.csv)
 	$(PY) $(SRC)/lan_push_check.py
 
-images:  ## image protection of the controlled devices' images (Section 5.4, Figure 10)
+chains: controlled  ## full certificate chains of TLS 1.2 update servers (Section 5.3)
+	$(PY) $(SRC)/chains.py
+
+images:  ## image protection of the controlled devices' images (Section 5.4, Figure 8)
 	$(PY) src/image_protection/integrity_bitflip.py
 
 snapshot:  ## rebuild the cipher-suite table from the dated ciphersuite.info response
 	$(PY) $(SRC)/ciphersuite_snapshot.py
 
-derived: controlled retrospective keyword entropy exposure revocation images  ## rebuild all of data/derived
+derived: controlled retrospective keyword names entropy exposure revocation lanpush chains images  ## rebuild all of data/derived
 	@echo "data/derived rebuilt; run 'make numbers figures' to use it"
 
-all: derived lanpush figures numbers paper  ## everything, from raw captures to the PDF
+all: derived figures numbers paper  ## everything, from raw captures to the PDF
 
 clean-cache:  ## delete the tshark extraction caches (the next raw-capture run starts over)
 	rm -rf cache/

@@ -1,0 +1,3 @@
+image,stream_bytes,stream_entropy,chunks_sampled,chunks_in_stream,share,sig_UBI,sig_uImage,sig_SquashFS,sig_gzip,sig_xz,sig_ZIP,login,blocks,header_bytes,distinct_headers,unmatched_data_datagrams,control_datagrams,image_covered
+IPC_NT1NA45MP.4417_2412122130.E1-Pro.5MP.WIFI18.PT.REOLINK.pak,28306304,0.978,201,193,0.960,193,4,2,1,3238,0,True,721,130,1,0,85,0.9676
+IPC_NT1NA45MP.4066_2409201742.E1-Pro.5MP.WIFI18.PT.REOLINK.pak,28306304,0.978,200,115,0.575,193,4,2,1,3238,0,True,413,130,1,8584,386,0.5597

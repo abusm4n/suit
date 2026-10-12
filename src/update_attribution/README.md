@@ -13,12 +13,14 @@ from `controlled/` and `retrospective/` (not in the repository), write their res
 | `retrospective_attribution.py` | The same for the 38,355 Mon(IoT)r captures, plus the list of candidate update servers for manual confirmation | yes | `retrospective/funnel.csv`, `candidates.csv`, `update_flows.csv`, `offered_configs.csv`, `leaf_certs.csv` |
 | `keyword_baseline.py` | Applies a keyword filter (update, firmware, software, download anywhere in the dissection) to every 2019 capture and records where the keywords occur | yes | `retrospective/keyword_baseline.csv` |
 | `keyword_baseline_sample.py` | Checks a 300-capture sample of the captures selected by the original keyword filter | the old selection | printed |
+| `name_baseline.py` | Name-level baseline (update patterns in server names and URIs) against the confirmed update traffic; experiment types of the update captures; TLS_FALLBACK_SCSV in update ClientHellos | cache of `retrospective_attribution.py` | `retrospective/name_baseline.csv` |
 | `entropy_by_channel.py` | Normalized Shannon entropy of the payload of every update flow, grouped by protection | yes | `controlled/entropy_by_channel.csv` |
 | `exposure.py` | Device attributes disclosed by unencrypted update requests | yes | `*/exposure.csv` |
 | `revocation.py` | Revocation sources in leaf certificates, OCSP stapling, revocation lookups by devices | yes | `*/revocation.csv` |
-| `lan_push_check.py` | Entropy, file signatures and image-chunk matches of reolink-cam's local push | yes | printed |
+| `lan_push_check.py` | Entropy, file signatures, image-chunk matches, login, and byte-level reassembly of reolink-cam's local push | yes | `controlled/lan_push.csv` |
+| `chains.py` | All certificates sent by TLS 1.2 update servers (leaf, intermediates, roots) | yes | `controlled/chains.csv` |
 | `ciphersuite_snapshot.py` | Builds the cipher-suite table from the dated ciphersuite.info response (`--fetch` downloads a new one) | no | `data/reference/ciphersuite_info_*.csv` |
-| `figures.py` | Figures 4-10 | no | `latex/suit_acm_sigconf/fig/*.pdf` |
+| `figures.py` | Figures 4-8 (traffic composition and entropy figures are no longer in the paper) | no | `latex/SUIT_SEC@SAC/fig/*.pdf` |
 | `paper_numbers.py` | Prints the numbers behind Tables 1-6 and the key statements | no | printed |
 | `tls_classes.py`, `paths.py` | Cipher-suite labels, file locations (imported by the others) | – | – |
 

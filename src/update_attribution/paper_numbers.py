@@ -48,7 +48,7 @@ def table1():
           f'{r["captures_with_update_traffic"]} with update traffic; update flows {r["update_flows"]:,} '
           f'(TLS {r["update_flows_tls"]:,} / HTTP {r["update_flows_http"]}); confirmed update servers '
           f'{r["confirmed_update_servers"]}; {r["device_labels"]} device labels ({r["device_models"]} models)')
-    print('share of bytes that is update traffic (Figure 5):',
+    print('share of bytes that is update traffic (Section 5.1):',
           ', '.join(f'{x["device"]} {100 * float(x["update_share"]):.0f}%' for x in f))
 
 
@@ -71,6 +71,17 @@ def keyword_baseline():
           f'{pct(cats["tcp-window-update"], n)}, STUN {pct(cats["stun"], n)}, SIP {pct(cats["sip"], n)}')
     print(f'with update traffic {hit} of {n:,} (precision {pct(hit, n)}); recall {pct(hit, len(confirmed))}; '
           f'matched only through unrelated fields: {accidental}')
+    if (RETRO / 'name_baseline.csv').exists():
+        m = {r['metric']: int(r['value']) for r in rows(RETRO / 'name_baseline.csv')}
+        print(f'name-level baseline: {m["names_matching_pattern"]} of {m["distinct_names"]} names match; '
+              f'{m["captures_matching_pattern"]} captures ({m["captures_matching_pattern_with_update_traffic"]} '
+              f'with update traffic, {pct(m["captures_matching_pattern_with_update_traffic"], m["captures_matching_pattern"])}), '
+              f'{m["flows_matching_pattern"]:,} flows ({m["flows_matching_pattern_update"]:,} update, '
+              f'{pct(m["flows_matching_pattern_update"], m["flows_matching_pattern"])}); without Apple names '
+              f'{m["update_captures_missed_without_apple_names"]} update captures missed')
+        print(f'update captures by experiment: power {m["update_captures_power"]}, idle '
+              f'{m["update_captures_idle"]}, interaction {m["update_captures_interaction"]}; update ClientHellos '
+              f'with TLS_FALLBACK_SCSV: {m["update_clienthellos_with_fallback_scsv"]}')
 
 
 def table2():
@@ -126,13 +137,25 @@ def table4():
 
 
 def entropy():
-    head('Section 5.2 / Figure 7: payload entropy per update flow')
+    head('Section 5.2: payload entropy per update flow (figure not in the paper)')
     groups = collections.defaultdict(list)
     for r in rows(CTRL / 'entropy_by_channel.csv'):
         groups[(r['group'], r['dataset'])].append(float(r['entropy']))
     for (g, ds), v in sorted(groups.items()):
         print(f'{g:26s} {ds:5s} n={len(v):5d} median={statistics.median(v):.3f} min={min(v):.3f} '
               f'max={max(v):.3f} >0.8: {pct(sum(x > 0.8 for x in v), len(v))}')
+
+
+def lan_push():
+    head('Section 5.2: reolink-cam local push')
+    for r in rows(CTRL / 'lan_push.csv'):
+        if 'login' not in r:
+            print('lan_push.csv predates the reassembly columns; run make lanpush')
+            return
+        print(f'{r["image"][:40]}: entropy {r["stream_entropy"]}, sampled chunks {r["chunks_in_stream"]}/'
+              f'{r["chunks_sampled"]}; login {r["login"]}; {r["blocks"]} blocks, {r["header_bytes"]}-byte '
+              f'headers ({r["distinct_headers"]} distinct); unmatched data datagrams '
+              f'{r["unmatched_data_datagrams"]}; image covered {100 * float(r["image_covered"]):.1f}%')
 
 
 def exposure():
@@ -145,7 +168,7 @@ def exposure():
 
 
 def offered():
-    head('Section 5.3 / Figure 8: offered cipher suites')
+    head('Section 5.3 / Figure 6: offered cipher suites')
     for d, path in (('ours', CTRL), ('2019', RETRO)):
         for r in rows(path / 'offered_configs.csv'):
             n, w = int(r['suites']), int(r['weak'])
@@ -187,6 +210,7 @@ def main():
     table3()
     table4()
     entropy()
+    lan_push()
     exposure()
     offered()
     revocation()

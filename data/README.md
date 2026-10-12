@@ -25,6 +25,8 @@ conversation, and `stream` is tshark's stream index within the capture.
 | `entropy_by_channel.csv` | update flow | normalized Shannon entropy of the first 2 MB sent by the server; `group` = how protocol inspection classifies the flow |
 | `exposure.csv` | unencrypted update server | device attributes found in the requests: `model`, `hardware`, `installed`, `offered`, `build`, `region`, `mac` (present or not, never the value), `platform`, `example_request` |
 | `revocation.csv` | device and TLS update server | `ocsp`, `crl` (sources named in the leaf; empty when TLS 1.3 hides the leaf), `staple_requested` and `stapled` (of `connections`; stapling is visible in TLS 1.2 only, see `tls12`), `captures_with_revocation_lookup`, `lookup_hosts` |
+| `lan_push.csv` | vendor .pak image of reolink-cam | client-to-camera UDP payload of the local push: `stream_bytes`, `stream_entropy` (normalized Shannon entropy over the whole stream), `chunks_sampled`, `chunks_in_stream` and `share` (sampled 64-byte chunks of the image found verbatim in the stream), `sig_*` (counts of file-system and compression signatures in the stream), `login` (session starts with a login message), `blocks`, `header_bytes`, `distinct_headers` (image blocks and their message headers, compared without the length field), `unmatched_data_datagrams` (image-carrying datagrams that do not match the image), `control_datagrams`, `image_covered` (share of the image reassembled from the captured datagrams) |
+| `chains.csv` | certificate sent by a TLS 1.2 update server, per device, server and chain position | `position` (0 = leaf), `kind` (leaf, intermediate, root = self-signed), `ca` (basic constraints), `subject`, `issuer`, `key`, `not_before`, `not_after`, `validity_days`, `fingerprint` (SHA-256 prefix), `connections` |
 
 ## derived/retrospective/: the 2019 Mon(IoT)r traces
 
@@ -35,6 +37,7 @@ conversation, and `stream` is tshark's stream index within the capture.
 | `update_flows.csv` | update flow (2,497) | `device`, `capture` (path inside the dataset), `stream`, `endpoint`, `role`, `proto`, `tls_version`, `suite`, `label`, `offered_config` |
 | `leaf_certs.csv` | leaf certificate of an update server | `role` (`server`, or `client` for the mutual-TLS certificate of a device, whose subject is withheld), then as above |
 | `offered_configs.csv` | device and offered suite list | as above |
+| `name_baseline.csv` | metric | name-level baseline (names, captures and flows matching the update patterns, and how many are update traffic), update captures by experiment type, update ClientHellos with TLS_FALLBACK_SCSV |
 | `keyword_baseline.csv` | capture selected by the keyword filter (6,537) | `capture`, `categories` (where the keywords occur: `tcp-window-update`, `stun`, `sip`, `ocsp`, `dns-name`, `app-content`, ...) |
 | `exposure.csv`, `revocation.csv` | as for the controlled captures | |
 

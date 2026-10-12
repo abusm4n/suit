@@ -40,7 +40,7 @@ pip install -r requirements.txt
 
 make check      # shows what is installed and which raw data are present
 make numbers    # prints the numbers behind Tables 1-6 and the key statements
-make figures    # regenerates Figures 4-10 in latex/suit_acm_sigconf/fig/
+make figures    # regenerates Figures 4-8 in latex/SUIT_SEC@SAC/fig/
 make paper      # optional: builds the PDF
 ```
 
@@ -66,10 +66,11 @@ All scripts are in `src/`; all outputs are in `data/derived/` unless noted.
 | Table 6: revocation checking | `update_attribution/revocation.py` | `*/revocation.csv` |
 | Table 7: attack preconditions | written by hand from Tables 3-6 | – |
 | Section 4.3: keyword-filter baseline | `update_attribution/keyword_baseline.py` | `retrospective/keyword_baseline.csv` |
-| Section 5.2: local firmware push | `update_attribution/lan_push_check.py` | printed |
-| Figures 4-10 | `update_attribution/figures.py` (reads `data/derived/`) | `latex/suit_acm_sigconf/fig/*.pdf` |
-| Figure 3: analysis pipeline | TikZ code in `latex/suit_acm_sigconf/sec/3-methodology.tex` | – |
-| Figures 1 and 2: setup and devices | drawing and photograph | `latex/suit_acm_sigconf/fig/` |
+| Section 5.2: local firmware push | `update_attribution/lan_push_check.py` | `controlled/lan_push.csv` |
+| Section 5.3: certificate chains of update servers | `update_attribution/chains.py` | `controlled/chains.csv` |
+| Figures 4-8 | `update_attribution/figures.py` (reads `data/derived/`) | `latex/SUIT_SEC@SAC/fig/*.pdf` |
+| Figure 3: analysis pipeline | TikZ code in `latex/SUIT_SEC@SAC/sec/3-methodology.tex` | – |
+| Figures 1 and 2: setup and devices | drawing and photograph | `latex/SUIT_SEC@SAC/fig/` |
 
 `make numbers` (`update_attribution/paper_numbers.py`) prints every table value and the
 key numbers in the text straight from these files.
@@ -140,7 +141,7 @@ is in `src/update_attribution/paths.py`.
 ├── data/
 │   ├── reference/             confirmed update servers, cipher-suite snapshot
 │   └── derived/               outputs of src/: controlled/, retrospective/, image_protection/
-├── latex/suit_acm_sigconf/    paper sources and the figures they include
+├── latex/SUIT_SEC@SAC/       paper sources and the figures they include
 └── legacy/                    code and results of earlier versions of this study (not used)
 
 Local only (ignored by git): controlled/, retrospective/ (raw data), cache/ (tshark caches)

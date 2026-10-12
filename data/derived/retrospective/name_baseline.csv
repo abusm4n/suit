@@ -1,0 +1,13 @@
+metric,value
+distinct_names,904
+names_matching_pattern,10
+captures_matching_pattern,393
+captures_matching_pattern_with_update_traffic,308
+flows_matching_pattern,2643
+flows_matching_pattern_update,2497
+update_captures_missed_without_apple_names,25
+update_flows_total,2497
+update_captures_power,56
+update_captures_idle,67
+update_captures_interaction,185
+update_clienthellos_with_fallback_scsv,0

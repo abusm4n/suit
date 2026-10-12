@@ -3,7 +3,7 @@
 
 Reads the derived tables in data/derived/ (outputs of controlled_attribution.py,
 retrospective_attribution.py, keyword_baseline.py and entropy_by_channel.py; no raw
-captures needed) and writes vector PDFs to latex/suit_acm_sigconf/fig/:
+captures needed) and writes vector PDFs to latex/SUIT_SEC@SAC/fig/:
 
   traffic_composition.pdf   share of flows / bytes that are update traffic, per device
   keyword_baseline.pdf      what a naive keyword filter matches, and what it misses
@@ -151,29 +151,30 @@ def keyword_baseline():
     confirmed = {r['capture'] for r in rows(RETRO / 'update_flows.csv')}
     n = len(sel)
     cats = collections.Counter()
-    # protocol vocabulary: labels and fields that never name an update server
+    # protocol vocabulary: labels and fields that never name an update server. The remaining
+    # 'other:' labels are mostly XML element names, server names, and request lines, i.e. content.
     vocab = {'tcp-window-update', 'sip', 'stun', 'ocsp', 'tls-field'}
     only_vocab = 0
     for r in sel:
         cs = [c for c in r['categories'].split(';') if c]
-        for c in set(cs):
-            cats['other dissector label' if c.startswith('other:') else c] += 1
-        if cs and all(c in vocab or c.startswith('other:') for c in cs):
+        for c in {'other dissector label' if c.startswith('other:') else c for c in cs}:
+            cats[c] += 1                                   # each capture counts once per bar
+        if cs and all(c in vocab for c in cs):
             only_vocab += 1
     selected = {r['capture'] for r in sel}
     hit = len(confirmed & selected)
     accidental = sum(1 for r in sel if r['capture'] in confirmed and
-                     all(c in vocab or c.startswith('other:') for c in r['categories'].split(';') if c))
+                     all(c in vocab for c in r['categories'].split(';') if c))
     labels = [('tcp-window-update', 'TCP window-update annotation'), ('stun', 'STUN SOFTWARE attribute'),
               ('sip', 'SIP UPDATE method'), ('ocsp', 'OCSP thisUpdate/nextUpdate'),
-              ('other dissector label', 'other protocol fields'), ('app-content', 'HTTP, XML, or JSON content'),
+              ('app-content', 'HTTP, XML, or JSON content'), ('other dissector label', 'other content and names'),
               ('dns-name', 'DNS name'), ('certificate-name', 'certificate name'),
               ('tls-server-name', 'TLS server name')]
     fig, (ax, ax2) = plt.subplots(2, 1, figsize=(COL_W, 2.45), gridspec_kw={'height_ratios': [4.6, 1.55]})
     ys = list(range(len(labels)))[::-1]
     for yi, (k, lab) in zip(ys, labels):
         v = cats[k] / n
-        col = GRAY_WAN if k in vocab or k == 'other dissector label' else BLUE
+        col = GRAY_WAN if k in vocab else BLUE
         ax.barh(yi, max(v, 0.002), height=0.66, color=col, linewidth=0)
         ax.text(v + 0.015, yi, f'{100 * v:.0f}%' if v >= 0.01 else '<1%', va='center', fontsize=FS_NOTE,
                 color=INK2)
@@ -352,7 +353,7 @@ def offered_negotiated():
     # disambiguate duplicate labels (e.g. two configurations of one device)
     seen = collections.Counter(e[0] for e in entries)
     idx = collections.Counter()
-    fig, ax = plt.subplots(figsize=(COL_W, 0.143 * (len(entries) + 2) + 0.6))
+    fig, ax = plt.subplots(figsize=(COL_W, 0.125 * (len(entries) + 2) + 0.55))
     cats = ['recommended', 'secure', 'weak', 'insecure']
     ylabels = []
     ypos, y = [], len(entries) + 1
@@ -414,7 +415,7 @@ def leaf_lifetimes():
             y -= 1
         ypos.append(y)
         y -= 1
-    fig, ax = plt.subplots(figsize=(COL_W, 0.139 * (len(pts) + 2) + 0.6))
+    fig, ax = plt.subplots(figsize=(COL_W, 0.125 * (len(pts) + 2) + 0.55))
     for (ds, ep, days, iss, key), y in zip(pts, ypos):
         priv = any(iss.startswith(p) for p in private)
         col = ORANGE if priv else BLUE
@@ -455,7 +456,7 @@ def channel_image():
     # Image channel from flows.csv / Table 3; image protection from the static image analysis
     # (data/derived/image_protection/integrity_tiers.csv) and Apple's documentation.
     cols = ['local push\n(cleartext)', 'HTTP\n(cleartext)', 'TLS 1.2', 'TLS 1.3', 'no image\nseen']
-    rows_ = ['checksum\nonly', 'no signature\nfound', 'unknown', 'signed', 'signed and\nauthorized\nper device']
+    rows_ = ['checksum\nonly', 'none\nidentified', 'unknown', 'signed', 'signed and\nauthorized\nper device']
     place = {(cols[0], rows_[1]): ['reolink-cam'],
              (cols[1], rows_[3]): ['tapo-c100', 'tapo-c200'],
              (cols[2], rows_[2]): ['eufy-cam', 'xiaomi-cam'],
@@ -463,7 +464,7 @@ def channel_image():
              (cols[4], rows_[0]): ['d-link-cam'],
              (cols[4], rows_[3]): ['fire-tv'],
              (cols[4], rows_[2]): ['sony-tv']}
-    fig, ax = plt.subplots(figsize=(COL_W, 1.98))
+    fig, ax = plt.subplots(figsize=(COL_W, 1.88))
     for i, c in enumerate(cols):
         for j, r in enumerate(rows_):
             y = len(rows_) - 1 - j
@@ -484,8 +485,6 @@ def channel_image():
     for s in ax.spines.values():
         s.set_visible(False)
     ax.xaxis.tick_top()
-    ax.set_xlabel('how the image reached the device')
-    ax.xaxis.set_label_position('top')
     save(fig, 'channel_image')
 
 

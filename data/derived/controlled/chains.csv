@@ -1,0 +1,33 @@
+device,endpoint,position,kind,ca,subject,issuer,key,not_before,not_after,validity_days,fingerprint,connections
+apple-tv,gdmf.apple.com,0,leaf,False,gdmf.apple.com,Apple Server Authentication CA,RSA-2048,2025-08-05,2026-09-02,392,4729373199ac4740,15
+apple-tv,gdmf.apple.com,1,intermediate,True,Apple Server Authentication CA,Apple Root CA,RSA-2048,2014-03-08,2029-03-08,5479,efd0c3352e8f5cc6,15
+apple-tv,gdmf.apple.com,2,root,True,Apple Root CA,Apple Root CA,RSA-2048,2006-04-25,2035-02-09,10517,b0b1730ecbc7ff45,15
+apple-tv,gs.apple.com,0,leaf,False,gs.apple.com,Apple Server Authentication CA,RSA-2048,2025-04-17,2026-05-13,390,17dcdc61dc3b679f,1
+apple-tv,gs.apple.com,1,intermediate,True,Apple Server Authentication CA,Apple Root CA,RSA-2048,2014-03-08,2029-03-08,5479,efd0c3352e8f5cc6,1
+apple-tv,gs.apple.com,2,root,True,Apple Root CA,Apple Root CA,RSA-2048,2006-04-25,2035-02-09,10517,b0b1730ecbc7ff45,1
+eufy-cam,cdn-eu-public.eufylife.com,0,leaf,False,*.eufylife.com,Go Daddy Secure Certificate Authority - G2,RSA-2048,2025-09-28,2026-10-30,397,5e592767b584937b,4
+eufy-cam,cdn-eu-public.eufylife.com,1,intermediate,True,Go Daddy Secure Certificate Authority - G2,Go Daddy Root Certificate Authority - G2,RSA-2048,2011-05-03,2031-05-03,7305,973a41276ffd01e0,4
+eufy-cam,cdn-eu-public.eufylife.com,2,root,True,Go Daddy Root Certificate Authority - G2,Go Daddy Root Certificate Authority - G2,RSA-2048,2009-09-01,2037-12-31,10348,45140b3247eb9cc8,4
+eufy-cam,security-app-eu.eufylife.com,0,leaf,False,*.eufylife.com,Go Daddy Secure Certificate Authority - G2,RSA-2048,2025-09-28,2026-10-30,397,5e592767b584937b,3
+eufy-cam,security-app-eu.eufylife.com,1,intermediate,True,Go Daddy Secure Certificate Authority - G2,Go Daddy Root Certificate Authority - G2,RSA-2048,2011-05-03,2031-05-03,7305,973a41276ffd01e0,3
+eufy-cam,security-app-eu.eufylife.com,2,root,True,Go Daddy Root Certificate Authority - G2,Go Daddy Root Certificate Authority - G2,RSA-2048,2009-09-01,2037-12-31,10348,45140b3247eb9cc8,3
+fire-tv,softwareupdates.amazon.com,0,leaf,False,updates.amazon.com,DigiCert Global CA G2,RSA-2048,2026-01-16,2026-12-22,340,b38f86eff822a1d4,1
+fire-tv,softwareupdates.amazon.com,1,intermediate,True,DigiCert Global CA G2,DigiCert Global Root G2,RSA-2048,2013-08-01,2028-08-01,5479,8fac576439c9fd3e,1
+fire-tv,softwareupdates.amazon.com,2,intermediate,True,DigiCert Global Root G2,VeriSign Class 3 Public Primary Certification Authority - G5,RSA-2048,2018-04-03,2028-04-02,3652,aadadd5a879d2eb8,1
+sony-tv,ssm1.internet.sony.tv,0,leaf,False,*.internet.sony.tv,Amazon RSA 2048 M03,RSA-2048,2025-08-08,2026-09-05,393,ec95004a45da92d0,1
+sony-tv,ssm1.internet.sony.tv,1,intermediate,True,Amazon RSA 2048 M03,Amazon Root CA 1,RSA-2048,2022-08-23,2030-08-23,2922,bf8a69027bcc8d2d,1
+sony-tv,ssm1.internet.sony.tv,2,intermediate,True,Amazon Root CA 1,Starfield Services Root Certificate Authority - G2,RSA-2048,2015-05-25,2037-12-31,8255,87dcd4dc74640a32,1
+sony-tv,ssm1.internet.sony.tv,3,intermediate,True,Starfield Services Root Certificate Authority - G2,"OU=Starfield Class 2 Certification Authority,O=Starfield Technologies\, Inc.,C=US",RSA-2048,2009-09-02,2034-06-28,9065,28689b30e4c306aa,1
+tapo-c200,n-deventry-dcipc.tplinkcloud.com,0,leaf,False,*.tplinkcloud.com,TP-LINK CA P1,RSA-2048,2021-09-24,2036-09-20,5475,e9c06e49979d2aed,1
+tapo-c200,n-deventry-dcipc.tplinkcloud.com,1,intermediate,True,TP-LINK CA P1,tp-link-CA,RSA-2048,2020-05-19,2068-01-19,17410,f3bf84760ea3d5b6,1
+tapo-c200,n-deventry-dcipc.tplinkcloud.com,2,root,True,tp-link-CA,tp-link-CA,RSA-2048,2018-01-19,2068-01-19,18262,8b54f0364e840fb0,1
+tapo-c200,n-device-api.tplinkcloud.com,0,leaf,False,*.tplinkcloud.com,TP-LINK CA P1,RSA-2048,2021-09-24,2036-09-20,5475,e9c06e49979d2aed,142
+tapo-c200,n-device-api.tplinkcloud.com,1,intermediate,True,TP-LINK CA P1,tp-link-CA,RSA-2048,2020-05-19,2068-01-19,17410,f3bf84760ea3d5b6,142
+tapo-c200,n-device-api.tplinkcloud.com,2,root,True,tp-link-CA,tp-link-CA,RSA-2048,2018-01-19,2068-01-19,18262,8b54f0364e840fb0,142
+tapo-c200,n-euw1-devs-dcipc.tplinkcloud.com,0,leaf,False,*.tplinkcloud.com,TP-LINK CA P1,RSA-2048,2021-09-24,2036-09-20,5475,e9c06e49979d2aed,1
+tapo-c200,n-euw1-devs-dcipc.tplinkcloud.com,1,intermediate,True,TP-LINK CA P1,tp-link-CA,RSA-2048,2020-05-19,2068-01-19,17410,f3bf84760ea3d5b6,1
+tapo-c200,n-euw1-devs-dcipc.tplinkcloud.com,2,root,True,tp-link-CA,tp-link-CA,RSA-2048,2018-01-19,2068-01-19,18262,8b54f0364e840fb0,1
+xiaomi-cam,fk-res-abroad-cdn.home.mi.com,0,leaf,False,*.home.mi.com,Go Daddy Secure Certificate Authority - G2,RSA-2048,2025-08-28,2026-09-17,385,1726c442757c6163,1
+xiaomi-cam,fk-res-abroad-cdn.home.mi.com,1,intermediate,True,Go Daddy Secure Certificate Authority - G2,Go Daddy Root Certificate Authority - G2,RSA-2048,2011-05-03,2031-05-03,7305,973a41276ffd01e0,1
+xiaomi-cam,fk-res-abroad-cdn.home.mi.com,2,intermediate,True,Go Daddy Root Certificate Authority - G2,"OU=Go Daddy Class 2 Certification Authority,O=The Go Daddy Group\, Inc.,C=US",RSA-2048,2014-01-01,2031-05-30,6358,3a2fbe92891e57fe,1
+xiaomi-cam,fk-res-abroad-cdn.home.mi.com,3,root,True,"OU=Go Daddy Class 2 Certification Authority,O=The Go Daddy Group\, Inc.,C=US","OU=Go Daddy Class 2 Certification Authority,O=The Go Daddy Group\, Inc.,C=US",RSA-2048,2004-06-29,2034-06-29,10957,c3846bf24b9e93ca,1

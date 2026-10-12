@@ -14,7 +14,7 @@
   caches (not in the repository; safe to delete, rebuilt on the next run)
     cache/
   paper figures
-    latex/suit_acm_sigconf/fig/
+    latex/SUIT_SEC@SAC/fig/
 """
 import sys
 from pathlib import Path
@@ -43,7 +43,7 @@ CACHE_RETRO_FIELDS = REPO / 'cache' / 'retrospective' / 'fields'
 CACHE_KEYWORD = REPO / 'cache' / 'retrospective' / 'keyword_baseline_cache_v2.jsonl'
 
 # paper figures
-FIGURES = REPO / 'latex' / 'suit_acm_sigconf' / 'fig'
+FIGURES = REPO / 'latex' / 'SUIT_SEC@SAC' / 'fig'
 
 # controlled capture of each device (folder names follow the lab notes; the paper uses
 # the names in the last column)

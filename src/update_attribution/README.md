@@ -32,7 +32,7 @@ The image-protection analysis is in `../image_protection/`.
    headers, and every HTTP request URI, is matched against update patterns (`update`,
    `upgrade`, `firmware`, `fw`, `ota`, `download`, ...). In our own captures, the flows
    that carry most of the bytes during the update are candidates as well.
-2. **Confirmation by hand.** A candidate is kept only if its content or the vendor's
+2. **Confirmation.** A candidate is kept only if its content or the vendor's
    documentation shows that it serves update checks, metadata, authorization or images.
    Multi-purpose device APIs are kept with confidence `likely`. The decisions and the
    evidence for each are in `data/reference/confirmed_update_servers_*.csv`.

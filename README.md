@@ -1,6 +1,6 @@
-# Over the Wire: IoT update delivery (artifact)
+# UpWire: IoT update delivery (artifact)
 
-Code and data for the paper **"Over the Wire: A Network-Level Measurement of Consumer IoT
+Code and data for the paper **"UpWire: A Network-Level Measurement of Consumer IoT
 Update Delivery"** (under review; the authors are anonymized).
 
 The paper studies how consumer IoT devices receive software updates over the network. It

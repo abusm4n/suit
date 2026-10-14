@@ -1,4 +1,4 @@
-# Reproduce the results of "Over the Wire: A Network-Level Measurement of Consumer IoT
+# Reproduce the results of "UpWire: A Network-Level Measurement of Consumer IoT
 # Update Delivery". Run `make help` for the list of targets and README.md for details.
 
 PY    ?= python3

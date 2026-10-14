@@ -40,7 +40,7 @@ pip install -r requirements.txt
 
 make check      # shows what is installed and which raw data are present
 make numbers    # prints the numbers behind Tables 1-6 and the key statements
-make figures    # regenerates Figures 4-8 in latex/SUIT_SEC@SAC/fig/
+make figures    # regenerates Figures 4-9 in latex/SUIT_SEC@SAC/fig/
 make paper      # optional: builds the PDF
 ```
 
@@ -68,9 +68,9 @@ All scripts are in `src/`; all outputs are in `data/derived/` unless noted.
 | Section 4.3: keyword-filter baseline | `update_attribution/keyword_baseline.py` | `retrospective/keyword_baseline.csv` |
 | Section 5.2: local firmware push | `update_attribution/lan_push_check.py` | `controlled/lan_push.csv` |
 | Section 5.3: certificate chains of update servers | `update_attribution/chains.py` | `controlled/chains.csv` |
-| Figures 4-8 | `update_attribution/figures.py` (reads `data/derived/`) | `latex/SUIT_SEC@SAC/fig/*.pdf` |
-| Figure 3: analysis pipeline | TikZ code in `latex/SUIT_SEC@SAC/sec/3-methodology.tex` | – |
-| Figures 1 and 2: setup and devices | drawing and photograph | `latex/SUIT_SEC@SAC/fig/` |
+| Figures 4-9 | `update_attribution/figures.py` (reads `data/derived/`) | `latex/SUIT_SEC@SAC/fig/*.pdf` |
+| Figures 1 and 3: setup and analysis pipeline | TikZ code in `latex/SUIT_SEC@SAC/sec/3-methodology.tex` | – |
+| Figure 2: devices | photograph | `latex/SUIT_SEC@SAC/fig/` |
 
 `make numbers` (`update_attribution/paper_numbers.py`) prints every table value and the
 key numbers in the text straight from these files.

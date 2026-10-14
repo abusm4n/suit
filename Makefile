@@ -30,7 +30,7 @@ check:  ## report which tools and raw data are available
 numbers:  ## print the numbers behind the paper's tables and key statements
 	$(PY) $(SRC)/paper_numbers.py
 
-figures:  ## regenerate the paper's data figures (Figures 4-8) in latex/.../fig/
+figures:  ## regenerate the paper's data figures (Figures 4-9) in latex/.../fig/
 	$(PY) $(SRC)/figures.py
 
 paper: figures  ## build the paper PDF (needs latexmk and biber)
@@ -67,7 +67,7 @@ lanpush:  ## reolink-cam's local push: encryption, login, image reassembly (Sect
 chains: controlled  ## full certificate chains of TLS 1.2 update servers (Section 5.3)
 	$(PY) $(SRC)/chains.py
 
-images:  ## image protection of the controlled devices' images (Section 5.4, Figure 8)
+images:  ## image protection of the controlled devices' images (Section 5.4, Figure 9)
 	$(PY) src/image_protection/integrity_bitflip.py
 
 snapshot:  ## rebuild the cipher-suite table from the dated ciphersuite.info response

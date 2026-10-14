@@ -168,7 +168,7 @@ def exposure():
 
 
 def offered():
-    head('Section 5.3 / Figure 6: offered cipher suites')
+    head('Section 5.3 / Figure 7: offered cipher suites')
     for d, path in (('ours', CTRL), ('2019', RETRO)):
         for r in rows(path / 'offered_configs.csv'):
             n, w = int(r['suites']), int(r['weak'])

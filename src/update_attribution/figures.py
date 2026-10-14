@@ -5,13 +5,15 @@ Reads the derived tables in data/derived/ (outputs of controlled_attribution.py,
 retrospective_attribution.py, keyword_baseline.py and entropy_by_channel.py; no raw
 captures needed) and writes vector PDFs to latex/SUIT_SEC@SAC/fig/:
 
-  traffic_composition.pdf   share of flows / bytes that are update traffic, per device
-  keyword_baseline.pdf      what a naive keyword filter matches, and what it misses
-  update_timelines.pdf      update exchanges over time for four devices (full text width)
-  entropy_by_channel.pdf    per-flow payload entropy, grouped by how the flow is protected
-  offered_negotiated.pdf    offered cipher suites per client configuration vs negotiated
-  leaf_lifetimes.pdf        validity of update-server leaf certificates
-  channel_image.pdf         channel protection of the image vs protection of the image
+  keyword_baseline.pdf      Figure 4: where a naive keyword filter matches
+  update_share.pdf          Figure 5: share of flows vs bytes that are update traffic, per device
+  update_timelines.pdf      Figure 6: update exchanges over time for four devices (full text width)
+  offered_negotiated.pdf    Figure 7: offered cipher suites per client configuration vs negotiated
+  cert_timeline.pdf         Figure 8: validity windows of update-server certificates vs NIST dates
+  channel_image.pdf         Figure 9: channel protection of the image vs protection of the image
+  traffic_composition.pdf   (not in the paper) share of flows / bytes by traffic type, per device
+  leaf_lifetimes.pdf        (not in the paper since round 10) validity periods, log scale
+  entropy_by_channel.pdf    (not in the paper) per-flow payload entropy by protection
 
 Typesetting: figure text is set by pdflatex in the paper's own fonts (Linux Biolinum,
 the sans-serif of the ACM template) through matplotlib's PGF backend, and every figure
@@ -145,8 +147,66 @@ def traffic_composition():
     save(fig, 'traffic_composition')
 
 
+# ---- 1b. update share of flows vs bytes (dumbbell) ------------------------------------
+def update_share():
+    """Per device: the share of flows and the share of bytes that are update traffic. Few flows,
+    almost all bytes, wherever an image was transferred (round 10; compact successor of the
+    traffic_composition figure)."""
+    flows = rows(CTRL / 'flows.csv')
+    per = collections.defaultdict(collections.Counter)
+    for f in flows:
+        b = int(f['bytes_up']) + int(f['bytes_down'])
+        per[f['device']]['n'] += 1
+        per[f['device']]['b'] += b
+        if f['endpoint']:
+            per[f['device']]['un'] += 1
+            per[f['device']]['ub'] += b
+    updated = ['apple-tv', 'homepod', 'eufy-cam', 'xiaomi-cam', 'tapo-c100', 'tapo-c200', 'reolink-cam']
+    current = ['fire-tv', 'sony-tv', 'd-link-cam']
+    ypos, y = [], len(DEVICE_ORDER) + 1
+    for i in range(len(DEVICE_ORDER)):
+        if i == 0 or i == len(updated):
+            y -= 1
+        ypos.append(y)
+        y -= 1
+    fig, ax = plt.subplots(figsize=(COL_W, 0.112 * (len(DEVICE_ORDER) + 2) + 0.34))
+    right = blended_transform_factory(ax.transAxes, ax.transData)
+    for dev, y in zip(updated + current, ypos):
+        c = per[dev]
+        fs, bs = c['un'] / c['n'], c['ub'] / c['b']
+        ax.plot([fs, bs], [y, y], color=BASE, linewidth=1.0, solid_capstyle='butt', zorder=1)
+        ax.plot([fs], [y], marker='o', markersize=4.6, markerfacecolor='white', markeredgecolor=INK2,
+                markeredgewidth=0.9, linestyle='none', zorder=3)
+        ax.plot([bs], [y], marker='o', markersize=4.8, color=BLUE, markeredgecolor='white', markeredgewidth=0.6,
+                linestyle='none', zorder=4)
+        ax.text(1.04, y, f"{c['un']} / {c['n']:,}", va='center', ha='left', fontsize=FS_NOTE, color=INK,
+                transform=right)
+    ax.text(1.04, max(ypos) + 1, 'update / all', va='center', ha='left', fontsize=FS_NOTE, color=INK2,
+            transform=right)
+    top = max(ypos) + 1
+    fig_left_text(ax, top, 'Updated', fontsize=FS, color=INK, fontweight='bold', va='center')
+    fig_left_text(ax, ypos[len(updated)] + 1, 'Up to date', fontsize=FS, color=INK, fontweight='bold',
+                  va='center')
+    ax.set_yticks(ypos)
+    ax.set_yticklabels(updated + current)
+    ax.set_xlim(-0.02, 1.02)
+    ax.set_ylim(min(ypos) - 0.7, top + 0.6)
+    ax.set_xticks([0, 0.25, 0.5, 0.75, 1])
+    ax.set_xticklabels(['0', '25%', '50%', '75%', '100%'])
+    vgrid(ax)
+    ax.tick_params(axis='y', length=0)
+    handles = [Line2D([], [], marker='o', color='none', markerfacecolor='white', markeredgecolor=INK2,
+                      markeredgewidth=0.9, markersize=4.8, label='update share of flows'),
+               Line2D([], [], marker='o', color='none', markerfacecolor=BLUE, markeredgecolor='white',
+                      markersize=5.2, label='update share of bytes')]
+    fig.legend(handles=handles, loc='outside upper center', ncol=2)
+    save(fig, 'update_share')
+
+
 # ---- 2. keyword baseline -----------------------------------------------------------
-def keyword_baseline():
+def keyword_baseline(precision_panel=False):
+    """(a) where the keywords occur; (b), optional since round 10 (its numbers are in the
+    text), how many selected captures contain update traffic."""
     sel = rows(RETRO / 'keyword_baseline.csv')
     confirmed = {r['capture'] for r in rows(RETRO / 'update_flows.csv')}
     n = len(sel)
@@ -170,7 +230,10 @@ def keyword_baseline():
               ('app-content', 'HTTP, XML, or JSON content'), ('other dissector label', 'other content and names'),
               ('dns-name', 'DNS name'), ('certificate-name', 'certificate name'),
               ('tls-server-name', 'TLS server name')]
-    fig, (ax, ax2) = plt.subplots(2, 1, figsize=(COL_W, 2.45), gridspec_kw={'height_ratios': [4.6, 1.55]})
+    if precision_panel:
+        fig, (ax, ax2) = plt.subplots(2, 1, figsize=(COL_W, 2.45), gridspec_kw={'height_ratios': [4.6, 1.55]})
+    else:
+        fig, ax = plt.subplots(figsize=(COL_W, 1.62))
     ys = list(range(len(labels)))[::-1]
     for yi, (k, lab) in zip(ys, labels):
         v = cats[k] / n
@@ -184,9 +247,20 @@ def keyword_baseline():
     ax.set_xticks([0, 0.25, 0.5, 0.75, 1])
     ax.set_xticklabels(['0', '25%', '50%', '75%', '100%'])
     vgrid(ax)
-    fig_left_text(ax, 1.03, f'(a) Where the keywords occur ({n:,} selected captures)', axes_y=True,
-                  va='bottom', fontsize=FS, color=INK)
+    fig_left_text(ax, 1.03, f'{"(a) " if precision_panel else ""}Where the keywords occur ({n:,} selected captures)',
+                  axes_y=True, va='bottom', fontsize=FS, color=INK)
     ax.tick_params(axis='y', length=0)
+    if precision_panel:
+        _keyword_precision_panel(ax2, n, hit, accidental)
+    save(fig, 'keyword_baseline')
+    res = dict(selected=n, only_vocab=f'{100 * only_vocab / n:.0f}%', hit=hit, confirmed=len(confirmed),
+               accidental=accidental, recall=f'{100 * hit / len(confirmed):.0f}%',
+               precision=f'{100 * hit / n:.1f}%', **{k: f'{100 * cats[k] / n:.0f}%' for k, _ in labels})
+    print('keyword baseline numbers:', res)
+    return res
+
+
+def _keyword_precision_panel(ax2, n, hit, accidental):
     # (b) precision, and how the 308 update captures were matched
     segs_b = [[(hit, BLUE), (n - hit, GRAY_LAN)], [(hit - accidental, BLUE), (accidental, GRAY_WAN)]]
     for yi, segs in zip([1, 0], segs_b):
@@ -209,12 +283,6 @@ def keyword_baseline():
     ax2.set_xticklabels(['0', '50%', '100%'])
     fig_left_text(ax2, 1.06, '(b) How many selected captures contain update traffic', axes_y=True,
                   va='bottom', fontsize=FS, color=INK)
-    save(fig, 'keyword_baseline')
-    res = dict(selected=n, only_vocab=f'{100 * only_vocab / n:.0f}%', hit=hit, confirmed=len(confirmed),
-               accidental=accidental, recall=f'{100 * hit / len(confirmed):.0f}%',
-               precision=f'{100 * hit / n:.1f}%', **{k: f'{100 * cats[k] / n:.0f}%' for k, _ in labels})
-    print('keyword baseline numbers:', res)
-    return res
 
 
 # ---- 3. update timelines -----------------------------------------------------------
@@ -451,6 +519,88 @@ def leaf_lifetimes():
     save(fig, 'leaf_lifetimes')
 
 
+# ---- 5b. certificate validity on a calendar ------------------------------------------
+def _year(d):
+    """'YYYY-MM-DD' -> fractional year."""
+    y, m, dd = (int(x) for x in d.split('-'))
+    return y + (m - 1) / 12 + (dd - 1) / 365.25
+
+
+def cert_timeline():
+    """Validity windows of the update-server leaf certificates (and the one client
+    certificate) on a calendar, against the NIST dates that end 112-bit strength (2030)
+    and quantum-vulnerable signatures (2035, draft). Replaces leaf_lifetimes() in the
+    paper; durations are printed next to each bar, so the CA/B Forum comparison of the
+    old figure stays readable."""
+    ctrl = rows(CTRL / 'leaf_certs.csv')
+    retro = rows(RETRO / 'leaf_certs.csv')
+    private = ('TP-LINK CA', 'STCA', 'Honeywell', 'Jasper')
+    short = {'n-device-api.tplinkcloud.com': 'TP-Link device API', 'security-app-eu.eufylife.com': '*.eufylife.com'}
+    pts = []
+    for r in ctrl:
+        pts.append(('recent', short.get(r['endpoint'], r['endpoint']), r))
+    for r in retro:
+        lab = r['endpoint'] if r['role'] == 'server' else 'thermostat client certificate'
+        pts.append(('2019', lab, r))
+    pts.sort(key=lambda p: (p[0] == '2019', p[2]['role'] == 'client' if 'role' in p[2] else False,
+                            int(p[2]['validity_days'])))
+    n_recent = sum(1 for p in pts if p[0] != '2019')
+    ypos, y = [], len(pts) + 1
+    for i in range(len(pts)):
+        if i == 0 or i == n_recent:
+            y -= 1
+        ypos.append(y)
+        y -= 1
+    x0, x1 = 2014.6, 2040.4
+    fig, ax = plt.subplots(figsize=(COL_W, 0.125 * (len(pts) + 2) + 0.56))
+    top = max(ypos) + 1
+    # capture periods, drawn only behind their own group of rows
+    for (a, b), rows_ in (((_year('2025-10-29'), _year('2026-02-08')), ypos[:n_recent]),
+                          ((_year('2019-03-29'), _year('2019-05-08')), ypos[n_recent:])):
+        ax.fill_between([a - 0.1, b + 0.1], min(rows_) - 0.5, max(rows_) + 0.5, color='#ecebe5', linewidth=0,
+                        zorder=0)
+    # NIST dates: 112-bit strength may not apply protection after 2030 (SP 800-57); quantum-vulnerable
+    # signatures are disallowed after 2035 (IR 8547, draft)
+    # (labels on the two group-header rows, so that they cannot collide)
+    for x, lab, yl in ((2031.0, 'end of 2030', top), (2036.0, 'end of 2035', ypos[n_recent] + 1)):
+        ax.axvline(x, color=MUTED, linewidth=0.7, linestyle=(0, (3, 2)), zorder=1)
+        ax.text(x, yl, lab, fontsize=FS_NOTE, color=INK2, va='center', ha='center', zorder=5,
+                bbox=dict(facecolor='white', edgecolor='none', pad=0.8))
+    for (ds, lab, r), y in zip(pts, ypos):
+        a, b = _year(r['not_before']), _year(r['not_after'])
+        priv = any(r['issuer'].startswith(p) for p in private)
+        col = ORANGE if priv else BLUE
+        days = int(r['validity_days'])
+        client = r.get('role') == 'client'
+        if client:                                   # valid to 9999: run off the right edge
+            ax.barh(y, x1 - a, left=a, height=0.5, color=col, alpha=0.45, linewidth=0, zorder=2)
+            ax.annotate('', xy=(x1 + 0.25, y), xytext=(x1 - 0.9, y), zorder=3, annotation_clip=False,
+                        arrowprops=dict(arrowstyle='-|>,head_length=0.35,head_width=0.22', color=col, lw=0.8,
+                                        shrinkA=0, shrinkB=0))
+            ax.text(2027.0, y, 'valid to 9999', va='center', ha='center', fontsize=FS_NOTE, color=INK, zorder=4)
+            continue
+        ax.barh(y, max(b - a, 0.25), left=a, height=0.5, color=col, linewidth=0, zorder=2)
+        txt = f'{days / 365.25:.0f} y' if days > 1000 else f'{days} d'
+        if r['key'] == 'RSA-1024':
+            txt += ', RSA-1024'
+        ax.text(b + 0.35, y, txt, va='center', ha='left', fontsize=FS_NOTE, color=INK, zorder=4)
+    ax.set_yticks(ypos)
+    ax.set_yticklabels([tex(p[1]) for p in pts])
+    fig_left_text(ax, top, 'Our captures', fontsize=FS, color=INK, fontweight='bold', va='center')
+    fig_left_text(ax, ypos[n_recent] + 1, '2019 traces', fontsize=FS, color=INK, fontweight='bold', va='center')
+    ax.set_xlim(x0, x1)
+    ax.set_ylim(min(ypos) - 0.7, top + 0.6)
+    ax.set_xticks([2015, 2020, 2025, 2030, 2035, 2040])
+    ax.xaxis.set_minor_locator(matplotlib.ticker.NullLocator())
+    vgrid(ax)
+    ax.tick_params(axis='y', length=0)
+    ax.set_xlabel('validity window (calendar year)')
+    handles = [Patch(color=BLUE, label='public or Apple CA'), Patch(color=ORANGE, label="vendor's own CA"),
+               Patch(color='#ecebe5', label='capture period')]
+    fig.legend(handles=handles, loc='outside upper center', ncol=3)
+    save(fig, 'cert_timeline')
+
+
 # ---- 6. channel x image ------------------------------------------------------------
 def channel_image():
     # Image channel from flows.csv / Table 3; image protection from the static image analysis
@@ -464,13 +614,25 @@ def channel_image():
              (cols[4], rows_[0]): ['d-link-cam'],
              (cols[4], rows_[3]): ['fire-tv'],
              (cols[4], rows_[2]): ['sony-tv']}
-    fig, ax = plt.subplots(figsize=(COL_W, 1.88))
+    # Cell shading: which layer would stop an on-path attacker from altering the image, if the
+    # device validates the certificate (TLS columns) and checks the signature (signed rows).
+    both, one, neither, unknown = '#c3d8f2', '#e0eaf8', '#fbe3dd', '#f4f4f1'
+
+    def shade(i, j):
+        if i == 4 or (i <= 1 and j == 2):      # no image seen; cleartext channel, image unknown
+            return unknown
+        chan, img = i >= 2, j >= 3               # TLS channel; signed image
+        if chan and img:
+            return both
+        if chan or img:
+            return one
+        return neither if j <= 1 else unknown
+
+    fig, ax = plt.subplots(figsize=(COL_W, 2.02))
     for i, c in enumerate(cols):
         for j, r in enumerate(rows_):
             y = len(rows_) - 1 - j
-            danger = (i <= 1 and j <= 1)
-            ax.add_patch(plt.Rectangle((i + 0.03, y + 0.05), 0.94, 0.9,
-                                       facecolor='#fbe3dd' if danger else '#f4f4f1', edgecolor='none'))
+            ax.add_patch(plt.Rectangle((i + 0.03, y + 0.05), 0.94, 0.9, facecolor=shade(i, j), edgecolor='none'))
             devs = place.get((c, r), [])
             for k, d in enumerate(devs):
                 dy = (0.2 if k == 0 else -0.2) if len(devs) == 2 else 0
@@ -485,6 +647,9 @@ def channel_image():
     for s in ax.spines.values():
         s.set_visible(False)
     ax.xaxis.tick_top()
+    handles = [Patch(color=both, label='channel and image protect'), Patch(color=one, label='one of them'),
+               Patch(color=neither, label='neither (found)')]
+    fig.legend(handles=handles, loc='outside lower center', ncol=3, handlelength=1.4)
     save(fig, 'channel_image')
 
 
@@ -540,9 +705,9 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--only')
     args = ap.parse_args()
-    funcs = dict(traffic_composition=traffic_composition, keyword_baseline=keyword_baseline,
+    funcs = dict(traffic_composition=traffic_composition, update_share=update_share, keyword_baseline=keyword_baseline,
                  update_timelines=update_timelines, offered_negotiated=offered_negotiated,
-                 leaf_lifetimes=leaf_lifetimes, channel_image=channel_image,
+                 leaf_lifetimes=leaf_lifetimes, cert_timeline=cert_timeline, channel_image=channel_image,
                  entropy_by_channel=entropy_by_channel)
     for k, f in funcs.items():
         if args.only and k != args.only:
